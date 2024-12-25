@@ -1,6 +1,3 @@
-Certainly! Below is a basic structure for a README file tailored to your Django application, which includes a form for creating exams. You can expand upon this with more specific details about your project as needed.
-
-**File: /home/user/project/README.md**
 ```markdown
 # Exam4U
 
