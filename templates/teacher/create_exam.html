@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Exam - Exam4U{% endblock %}
+
+{% block content %}
+<div class="flex">
+    {% include 'components/teacher_sidebar.html' %}
+
+    <div class="flex-1 space-y-8 p-8">
+        <h1 class="text-2xl font-bold text-gray-900">Create New Exam</h1>
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700">Exam Title</label>
+                <input type="text" name="title" id="title" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+            </div>
+
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                <textarea name="description" id="description" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></textarea>
+            </div>
+
+            <div>
+                <label for="course" class="block text-sm font-medium text-gray-700">Course</label>
+                <select name="course" id="course" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    {% for course in courses %}
+                        <option value="{{ course.id }}">{{ course.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="group" class="block text-sm font-medium text-gray-700">Group</label>
+                <select name="group" id="group" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    {% for group in groups %}
+                        <option value="{{ group.id }}">{{ group }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="duration" class="block text-sm font-medium text-gray-700">Duration (minutes)</label>
+                <input type="number" name="duration" id="duration" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+            </div>
+
+            <div>
+                <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                <input type="datetime-local" name="start_date" id="start_date" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+            </div>
+
+            <div>
+                <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
+                <input type="datetime-local" name="end_date" id="end_date" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+            </div>
+
+            <div>
+                <label for="max_attempts" class="block text-sm font-medium text-gray-700">Max Attempts</label>
+                <input type="number" name="max_attempts" id="max_attempts" value="1" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+            </div>
+
+            <div id="questions-container" class="space-y-6">
+                <!-- Questions will be added here dynamically -->
+            </div>
+
+            <button type="button" id="add-question" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Add Question
+            </button>
+
+            <div>
+                <button type="submit" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    Create Exam
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let questionCount = 0;
+
+    document.getElementById('add-question').addEventListener('click', function() {
+        questionCount++;
+        const questionContainer = document.createElement('div');
+        questionContainer.classList.add('border', 'p-4', 'rounded-md');
+        questionContainer.innerHTML = `
+            <h3 class="text-lg font-medium text-gray-900">Question ${questionCount}</h3>
+            <div class="mt-4">
+                <label for="question_type_${questionCount}" class="block text-sm font-medium text-gray-700">Question Type</label>
+                <select name="question_type_${questionCount}" id="question_type_${questionCount}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" onchange="toggleMCQChoices(${questionCount})">
+                    <option value="MCQ">Multiple Choice Question</option>
+                    <option value="open">Open Question</option>
+                    <option value="short_answer">Short Answer</option>
+                </select>
+            </div>
+            <div class="mt-4">
+                <label for="question_wording_${questionCount}" class="block text-sm font-medium text-gray-700">Question Wording</label>
+                <textarea name="question_wording_${questionCount}" id="question_wording_${questionCount}" rows="3" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></textarea>
+            </div>
+            <div class="mt-4">
+                <label for="question_points_${questionCount}" class="block text-sm font-medium text-gray-700">Points</label>
+                <input type="number" name="question_points_${questionCount}" id="question_points_${questionCount}" value="1" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+            </div>
+            <div id="mcq_choices_${questionCount}" class="mt-4">
+                <label class="block text-sm font-medium text-gray-700">MCQ Choices</label>
+                <div class="space-y-2">
+                    <div>
+                        <input type="text" name="mcq_choice_${questionCount}_1" placeholder="Choice 1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        <input type="checkbox" name="mcq_correct_${questionCount}_1"> Correct
+                    </div>
+                    <div>
+                        <input type="text" name="mcq_choice_${questionCount}_2" placeholder="Choice 2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        <input type="checkbox" name="mcq_correct_${questionCount}_2"> Correct
+                    </div>
+                </div>
+                <button type="button" onclick="addMCQChoice(${questionCount})" class="mt-2 px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Add Choice
+                </button>
+            </div>
+        `;
+        document.getElementById('questions-container').appendChild(questionContainer);
+    });
+
+    function toggleMCQChoices(questionNumber) {
+        const questionType = document.getElementById(`question_type_${questionNumber}`).value;
+        const mcqChoices = document.getElementById(`mcq_choices_${questionNumber}`);
+        mcqChoices.style.display = questionType === 'MCQ' ? 'block' : 'none';
+    }
+
+    function addMCQChoice(questionNumber) {
+        const mcqChoices = document.getElementById(`mcq_choices_${questionNumber}`);
+        const choiceCount = mcqChoices.querySelectorAll('input[type="text"]').length + 1;
+        const newChoice = document.createElement('div');
+        newChoice.innerHTML = `
+            <input type="text" name="mcq_choice_${questionNumber}_${choiceCount}" placeholder="Choice ${choiceCount}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+            <input type="checkbox" name="mcq_correct_${questionNumber}_${choiceCount}"> Correct
+        `;
+        mcqChoices.querySelector('.space-y-2').appendChild(newChoice);
+    }
+</script>
+{% endblock %}

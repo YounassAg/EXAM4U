@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}My Courses - Exam4U{% endblock %}
+
+{% block content %}
+<div class="flex">
+    
+    {% include 'components/teacher_sidebar.html' %}
+
+    <!-- Main Content Area -->
+    <div class="flex-1 space-y-8">
+        <!-- Page Header -->
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <h1 class="text-2xl font-bold text-gray-900">My Courses</h1>
+            <p class="text-gray-600">Manage and view your current courses.</p>
+        </div>
+
+        <!-- Courses List -->
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <div class="mb-4 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-700">Current Courses</h2>
+                <button class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors duration-200">
+                    Add New Course
+                </button>
+            </div>
+            <div class="space-y-6">
+                <!-- Course Item -->
+                <div class="border-b pb-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Programmer en Orienté Objet</h3>
+                            <p class="text-sm text-gray-600">Course Code: CS101</p>
+                            <p class="text-sm text-gray-600">Students Enrolled: 35</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-200">View</button>
+                            <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition-colors duration-200">Edit</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Repeat for other courses -->
+                <div class="border-b pb-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Manipuler des bases de données</h3>
+                            <p class="text-sm text-gray-600">Course Code: DB201</p>
+                            <p class="text-sm text-gray-600">Students Enrolled: 28</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-200">View</button>
+                            <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition-colors duration-200">Edit</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-b pb-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800">Approche agile</h3>
+                            <p class="text-sm text-gray-600">Course Code: PM301</p>
+                            <p class="text-sm text-gray-600">Students Enrolled: 22</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-200">View</button>
+                            <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition-colors duration-200">Edit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

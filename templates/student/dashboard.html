@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard - Exam4U{% endblock %}
+
+{% block content %}
+<div class="flex">
+
+    {% include 'components/student_sidebar.html' %}
+
+
+    <!-- Main Content Area -->
+    <div class="flex-1 space-y-8">
+        <!-- Welcome Banner -->
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <h1 class="text-2xl font-bold text-gray-900">Welcome back, {{ user.first_name }}!</h1>
+            <p class="text-gray-600">Here's what's happening with your studies.</p>
+        </div>
+
+        <!-- Quick Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-indigo-100 text-indigo-500">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-lg font-semibold text-gray-700">Active Courses</h2>
+                        <p class="mt-2 text-3xl font-bold text-gray-900">5</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 text-green-500">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-lg font-semibold text-gray-700">Completed Exams</h2>
+                        <p class="mt-2 text-3xl font-bold text-gray-900">12</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-500">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-lg font-semibold text-gray-700">Upcoming Exams</h2>
+                        <p class="mt-2 text-3xl font-bold text-gray-900">3</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity and Upcoming Exams -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Recent Activity -->
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4">Recent Activity</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <p class="ml-3 text-sm text-gray-600">Completed "Mathematics Final Exam" with score 85%</p>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <p class="ml-3 text-sm text-gray-600">Enrolled in "Advanced Physics"</p>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        <p class="ml-3 text-sm text-gray-600">Upcoming exam "Chemistry Mid-term" in 2 days</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Exams -->
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4">Upcoming Exams</h2>
+                <div class="space-y-4">
+                    <div class="border-l-4 border-yellow-500 pl-4">
+                        <h3 class="text-sm font-semibold text-gray-700">Chemistry Mid-term</h3>
+                        <p class="text-sm text-gray-600">Dec 27, 2024 - 10:00 AM</p>
+                    </div>
+                    <div class="border-l-4 border-yellow-500 pl-4">
+                        <h3 class="text-sm font-semibold text-gray-700">Physics Quiz 3</h3>
+                        <p class="text-sm text-gray-600">Dec 29, 2024 - 2:00 PM</p>
+                    </div>
+                    <div class="border-l-4 border-yellow-500 pl-4">
+                        <h3 class="text-sm font-semibold text-gray-700">Biology Final</h3>
+                        <p class="text-sm text-gray-600">Jan 5, 2025 - 9:00 AM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

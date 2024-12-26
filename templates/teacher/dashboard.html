@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Teacher Dashboard - Exam4U{% endblock %}
+
+{% block content %}
+<div class="flex">
+    {% include 'components/teacher_sidebar.html' %}
+
+    <!-- Main Content Area -->
+    <div class="flex-1 space-y-8">
+        <!-- Welcome Banner -->
+        <div class="bg-white shadow-lg rounded-lg p-6">
+            <h1 class="text-2xl font-bold text-gray-900">Welcome back, Prof. {{ user.last_name }}!</h1>
+            <p class="text-gray-600">Here's an overview of your teaching activities.</p>
+        </div>
+
+        <!-- Quick Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-indigo-100 text-indigo-500">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-lg font-semibold text-gray-700">Active Courses</h2>
+                        <p class="mt-2 text-3xl font-bold text-gray-900">4</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 text-green-500">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-lg font-semibold text-gray-700">Total Students</h2>
+                        <p class="mt-2 text-3xl font-bold text-gray-900">156</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-500">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-lg font-semibold text-gray-700">Pending Grading</h2>
+                        <p class="mt-2 text-3xl font-bold text-gray-900">23</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-red-100 text-red-500">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-lg font-semibold text-gray-700">Upcoming Exams</h2>
+                        <p class="mt-2 text-3xl font-bold text-gray-900">5</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity and Course Performance -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Quick Actions -->
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4">Quick Actions</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <button class="p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-200">
+                        <svg class="w-6 h-6 text-indigo-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        <span class="text-sm font-medium text-gray-700">Create New Exam</span>
+                    </button>
+                    <button class="p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-200">
+                        <svg class="w-6 h-6 text-indigo-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        <span class="text-sm font-medium text-gray-700">Review Submissions</span>
+                    </button>
+                    <button class="p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-200">
+                        <svg class="w-6 h-6 text-indigo-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        <span class="text-sm font-medium text-gray-700">View Analytics</span>
+                    </button>
+                    <button class="p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors duration-200">
+                        <svg class="w-6 h-6 text-indigo-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span class="text-sm font-medium text-gray-700">Schedule Exam</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Course Performance -->
+            <div class="bg-white shadow-lg rounded-lg p-6">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4">Course Performance</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-700">Programmer en Orienté Objet</h3>
+                            <p class="text-xs text-gray-500">Average Score: 85%</p>
+                        </div>
+                        <div class="w-24 bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-green-500 h-2.5 rounded-full" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-700">Manipuler des bases de données</h3>
+                            <p class="text-xs text-gray-500">Average Score: 78%</p>
+                        </div>
+                        <div class="w-24 bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 78%"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-700">Approche agile</h3>
+                            <p class="text-xs text-gray-500">Average Score: 92%</p>
+                        </div>
+                        <div class="w-24 bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-green-500 h-2.5 rounded-full" style="width: 92%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+{% endblock %}
