@@ -1,8 +1,468 @@
 <!-- templates/index.html -->
-
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-    <h2>Welcome to Exam4U!</h2>
-    <p>This is a simple Django app for managing exams.</p>
+<!-- Particle Background Effect -->
+<div id="particles-js" class="fixed inset-0 z-0"></div>
+
+<!-- Hero Section with 3D Animation -->
+<div class="relative min-h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900">
+    <!-- Animated Mesh Gradient -->
+    <div class="absolute inset-0 opacity-30">
+        <div class="mesh-gradient"></div>
+    </div>
+
+    <!-- Main Hero Content -->
+    <div class="relative z-10 min-h-screen flex flex-col justify-center px-4 sm:px-6 lg:px-8">
+        <div class="w-full max-w-7xl mx-auto">
+            <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+                <div class="lg:col-span-6">
+                    <!-- Animated Text -->
+                    <h1 class="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 animate-gradient-x mb-6">
+                        Exam4U
+                    </h1>
+                    <p class="text-xl text-blue-100 mb-8 leading-relaxed">
+                        Une plateforme innovante pour la gestion et le passage d'examens en ligne, conçue pour les établissements d'enseignement supérieur.
+                    </p>
+                    {% if not user.is_authenticated %}
+                    <div class="flex space-x-4">
+                        <a href="{% url 'register' %}" class="group relative inline-flex items-center justify-center px-8 py-3 overflow-hidden font-medium text-indigo-600 rounded-lg shadow-2xl bg-white">
+                            <span class="absolute inset-0 w-full h-full transition duration-300 ease-out opacity-0 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 group-hover:opacity-100"></span>
+                            <span class="absolute top-0 left-0 w-full bg-gradient-to-b from-white to-transparent opacity-5 h-1/3"></span>
+                            <span class="relative group-hover:text-white transition duration-300">
+                                Commencer l'Aventure
+                            </span>
+                        </a>
+                        <a href="{% url 'login' %}" class="group relative inline-flex items-center justify-center px-8 py-3 overflow-hidden font-medium text-white border border-white/30 rounded-lg hover:border-white/50 transition-all">
+                            <span class="relative">Se Connecter</span>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="lg:col-span-6 mt-10 lg:mt-0">
+                    <!-- 3D Interactive Element -->
+                    <div class="perspective-1000 relative">
+                        <div class="floating-card transform-style-3d">
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 opacity-80 rounded-2xl shadow-2xl"></div>
+                            <div class="relative p-8 text-white">
+                                <div class="space-y-6">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-semibold">Gestion Complète</h3>
+                                            <p class="text-sm text-white/80">Administration des examens et des utilisateurs</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-semibold">Sécurité Renforcée</h3>
+                                            <p class="text-sm text-white/80">Protection contre la triche et les attaques</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Elements -->
+    <div class="absolute top-1/4 right-10 w-20 h-20 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full mix-blend-screen animate-float opacity-50"></div>
+    <div class="absolute bottom-1/4 left-10 w-32 h-32 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full mix-blend-screen animate-float-delayed opacity-50"></div>
+</div>
+
+<!-- Features Section with Glassmorphism -->
+<div class="relative min-h-screen bg-gradient-to-b from-gray-900 to-indigo-900 flex items-center">
+    <div class="w-full px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold text-white mb-4">Fonctionnalités Principales</h2>
+            <p class="text-xl text-blue-200">Une solution complète pour la gestion des examens</p>
+        </div>
+
+        <!-- Interactive Feature Grid -->
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature Card 1 -->
+            <div class="group relative">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+                <div class="relative backdrop-blur-lg bg-white/10 rounded-2xl p-8 hover:transform hover:scale-105 transition duration-300">
+                    <div class="text-white space-y-4">
+                        <div class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold">Gestion des Utilisateurs</h3>
+                        <ul class="space-y-2 text-blue-100">
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Authentification sécurisée
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Gestion des rôles
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Profils personnalisés
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Card 2 -->
+            <div class="group relative">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+                <div class="relative backdrop-blur-lg bg-white/10 rounded-2xl p-8 hover:transform hover:scale-105 transition duration-300">
+                    <div class="text-white space-y-4">
+                        <div class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold">Gestion des Examens</h3>
+                        <ul class="space-y-2 text-blue-100">
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Création d'examens
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Planification
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Notation automatique
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Card 3 -->
+            <div class="group relative">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+                <div class="relative backdrop-blur-lg bg-white/10 rounded-2xl p-8 hover:transform hover:scale-105 transition duration-300">
+                    <div class="text-white space-y-4">
+                        <div class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center mb-6">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold">Sécurité</h3>
+                        <ul class="space-y-2 text-blue-100">
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Protection anti-triche
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Données chiffrées
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Authentification forte
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Technical Stack Section -->
+<div class="relative min-h-screen bg-gradient-to-b from-indigo-900 to-gray-900 flex items-center">
+    <div class="w-full px-4 sm:px-6 lg:px-8 py-20">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-white mb-4">Stack Technique</h2>
+                <p class="text-xl text-blue-200">Technologies modernes pour une performance optimale</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="stat-card">
+                    <div class="flex items-center justify-center mb-4">
+                        <svg class="w-12 h-12 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                    <div class="text-2xl font-bold text-white mb-2">Django</div>
+                    <div class="text-blue-200">Framework Backend</div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-center mb-4">
+                        <svg class="w-12 h-12 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7c-2 0-3 1-3 3z"></path>
+                        </svg>
+                    </div>
+                    <div class="text-2xl font-bold text-white mb-2">MySQL</div>
+                    <div class="text-blue-200">Base de Données</div>
+                </div>
+                <div class="stat-card">
+                    <div class="flex items-center justify-center mb-4">
+                        <svg class="w-12 h-12 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <div class="text-2xl font-bold text-white mb-2">Tailwind CSS</div>
+                    <div class="text-blue-200">Interface Utilisateur</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-900 to-purple-900 flex items-center">
+    <div class="animated-bg"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-4xl font-bold text-white mb-8">Prêt à Commencer?</h2>
+        {% if not user.is_authenticated %}
+        <div class="flex justify-center space-x-6">
+            <a href="{% url 'register' %}" class="neon-button">
+                Créer un Compte
+            </a>
+            <a href="{% url 'login' %}" class="ghost-button">
+                Se Connecter
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    /* Particle Effect */
+    #particles-js {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background-color: transparent;
+    }
+
+    /* Mesh Gradient Animation */
+    .mesh-gradient {
+        background: linear-gradient(45deg, #4f46e5, #7c3aed, #2563eb);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
+    }
+
+    /* Floating Animation */
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
+    }
+
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .animate-float-delayed {
+        animation: float 6s ease-in-out infinite;
+        animation-delay: 2s;
+    }
+
+    /* 3D Card Effect */
+    .perspective-1000 {
+        perspective: 1000px;
+    }
+
+    .transform-style-3d {
+        transform-style: preserve-3d;
+        transition: transform 0.5s;
+    }
+
+    .floating-card {
+        animation: float-card 6s ease-in-out infinite;
+    }
+
+    @keyframes float-card {
+        0%, 100% { transform: translateY(0) rotateX(0) rotateY(0); }
+        50% { transform: translateY(-10px) rotateX(5deg) rotateY(5deg); }
+    }
+
+    /* Gradient Text Animation */
+    .animate-gradient-x {
+        background-size: 200% 100%;
+        animation: gradient-x 15s ease infinite;
+    }
+
+    @keyframes gradient-x {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+
+    /* Neon Button */
+    .neon-button {
+        position: relative;
+        padding: 1rem 3rem;
+        color: #fff;
+        background: linear-gradient(90deg, #4f46e5, #7c3aed);
+        border-radius: 9999px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+
+    .neon-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px rgba(124, 58, 237, 0.5);
+    }
+
+    .neon-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            120deg,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent
+        );
+        transition: 0.5s;
+    }
+
+    .neon-button:hover::before {
+        left: 100%;
+    }
+
+    /* Ghost Button */
+    .ghost-button {
+        padding: 1rem 3rem;
+        color: #fff;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 9999px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        transition: all 0.3s;
+    }
+
+    .ghost-button:hover {
+        border-color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Stat Card */
+    .stat-card {
+        backdrop-filter: blur(16px);
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 1rem;
+        padding: 2rem;
+        text-align: center;
+        transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    /* Animated Background */
+    .animated-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, #4f46e5, #7c3aed, #2563eb);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
+        opacity: 0.5;
+    }
+
+    @keyframes gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+</style>
+
+<!-- Particle.js and Custom Scripts -->
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize particles.js
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: '#ffffff' },
+                shape: { type: 'circle' },
+                opacity: { value: 0.5, random: false },
+                size: { value: 3, random: true },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: '#ffffff',
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: 'none',
+                    random: false,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false
+                }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: {
+                    onhover: { enable: true, mode: 'repulse' },
+                    onclick: { enable: true, mode: 'push' },
+                    resize: true
+                }
+            },
+            retina_detect: true
+        });
+
+        // Add scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                }
+            });
+        });
+
+        document.querySelectorAll('.stat-card, .feature-card').forEach((el) => observer.observe(el));
+    });
+</script>
 {% endblock %}

@@ -1,24 +1,127 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mx-auto max-w-sm">
-    <div class="flex justify-center py-12">
-        <h1 class="text-2xl font-bold text-gray-800">Login</h1>
+<!-- Particle Background Effect -->
+<div id="particles-js" class="fixed inset-0 z-0"></div>
+
+<div class="min-h-screen flex items-center justify-center relative z-10">
+    <div class="max-w-md w-full mx-4">
+        <!-- Glassmorphism Card -->
+        <div class="relative">
+            <!-- Blur Effect Background -->
+            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-2xl blur-xl"></div>
+            
+            <!-- Content -->
+            <div class="relative backdrop-blur-xl bg-white/10 rounded-2xl p-8 shadow-2xl border border-white/10">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+                        Bienvenue
+                    </h2>
+                    <p class="text-blue-200 mt-2">Connectez-vous à votre compte</p>
+                </div>
+
+                <form method="post" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- Username Input -->
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-blue-200 mb-2">
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                <span>Nom d'utilisateur</span>
+                            </div>
+                        </label>
+                        <input type="text" name="username" id="username" 
+                               class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
+                               required>
+                    </div>
+
+                    <!-- Password Input -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-blue-200 mb-2">
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                                <span>Mot de passe</span>
+                            </div>
+                        </label>
+                        <input type="password" name="password" id="password" 
+                               class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
+                               required>
+                    </div>
+
+                    <!-- Remember Me & Forgot Password -->
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="remember" name="remember" class="rounded bg-white/5 border-white/10 text-indigo-500 focus:ring-indigo-500">
+                            <label for="remember" class="ml-2 text-blue-200">Se souvenir de moi</label>
+                        </div>
+                        <a href="#" class="text-indigo-400 hover:text-indigo-300 transition-colors">Mot de passe oublié?</a>
+                    </div>
+
+                    <!-- Login Button -->
+                    <button type="submit" class="w-full group relative">
+                        <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur opacity-60 group-hover:opacity-100 transition duration-200"></div>
+                        <div class="relative px-6 py-3 bg-black rounded-lg leading-none flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                            </svg>
+                            <span class="text-white font-semibold">Se Connecter</span>
+                        </div>
+                    </button>
+
+                    <!-- Register Link -->
+                    <div class="text-center text-blue-200">
+                        Pas encore de compte? 
+                        <a href="{% url 'register' %}" class="text-indigo-400 hover:text-indigo-300 transition-colors">Créer un compte</a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-    <form method="post">
-        {% csrf_token %}
-        <div class="mb-4">
-            <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-            <input type="text" name="username" id="username" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-indigo-500 focus:outline-none" required>
-        </div>
-        <div class="mb-4">
-            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-            <input type="password" name="password" id="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-indigo-500 focus:outline-none" required>
-        </div>
-        <div class="flex items-center justify-between">
-            <button type="submit" class="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 focus:outline-none">Login</button>
-            <a href="" class="text-sm text-indigo-600 hover:text-indigo-800">Forgot Password?</a>
-        </div>
-    </form>
 </div>
+
+<!-- Particle.js Script -->
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 40, density: { enable: true, value_area: 800 } },
+                color: { value: '#ffffff' },
+                shape: { type: 'circle' },
+                opacity: { value: 0.3, random: false },
+                size: { value: 3, random: true },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: '#ffffff',
+                    opacity: 0.2,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: 'none',
+                    random: false,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false
+                }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: {
+                    onhover: { enable: true, mode: 'repulse' },
+                    onclick: { enable: true, mode: 'push' },
+                    resize: true
+                }
+            },
+            retina_detect: true
+        });
+    });
+</script>
 {% endblock %}
