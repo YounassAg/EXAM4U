@@ -14,7 +14,7 @@ Exam4U is a Django-based web application designed to facilitate the creation and
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/exam4u.git
+   git clone https://github.com/YounassAg/EXAM4U.git
    cd exam4u
    ```
 
