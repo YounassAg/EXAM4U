@@ -4,9 +4,14 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from .forms import UserRegistrationForm, LoginForm
 from .models import Group, Specialty, UserProfile
+from django.http import JsonResponse
 
 def index(request):
     return render(request, 'index.html')
+
+def get_groups_by_specialty(request, specialty_id):
+    groups = Group.objects.filter(specialty_id=specialty_id).values('id', 'group_code', 'year')
+    return JsonResponse(list(groups), safe=False)
 
 def user_register(request):
     if request.method == 'POST':
