@@ -95,7 +95,7 @@
                             </label>
                             <select name="speciality" id="speciality" 
                                    class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
-                                   required>
+                                   >
                                 <option value="" class="bg-gray-900">Sélectionnez une spécialité</option>
                                 {% for specialty in specialties %}
                                     <option value="{{ specialty.id }}">{{ specialty.name }}</option>
@@ -114,7 +114,7 @@
                             </label>
                             <select name="group" id="group" 
                                    class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
-                                   required>
+                                   >
                                 <option value="" class="bg-gray-900">Sélectionnez un groupe</option>
                             </select>
                         </div>

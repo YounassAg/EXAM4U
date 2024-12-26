@@ -67,7 +67,11 @@ def teacher_dashboard(request):
 
 @login_required
 def teacher_courses(request):
-    return render(request, 'teacher/courses.html')
+    return render(request, 'teacher/courses/courses.html')
+
+@login_required
+def create_course(request):
+    return render(request, 'teacher/courses/create_course.html')
 
 @login_required
 def student_dashboard(request):
@@ -79,4 +83,12 @@ def student_courses(request):
 
 @login_required
 def create_exam(request):
-    return render(request, 'teacher/create_exam.html')
+    return render(request, 'teacher/exam/create_exam.html', {})
+
+@login_required
+def student_profile(request):
+    return render(request, 'student/account/profile.html', {})
+
+@login_required
+def teacher_profile(request):
+    return render(request, 'teacher/account/profile.html', {})

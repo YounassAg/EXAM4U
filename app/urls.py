@@ -11,5 +11,8 @@ urlpatterns = [
         path('student/dashboard', views.student_dashboard, name='student_dashboard'),
         path('student/courses/', views.student_courses, name='student_courses'),
         path('teacher/courses/', views.teacher_courses, name='teacher_courses'),
-        path('teacher/create_exam/', views.create_exam, name='create_exam'),
+        path('teacher/courses/create_course', views.create_course, name='create_course'),
+        path('teacher/exam/create_exam', views.create_exam, name='create_exam'),
+        path('student/account/profile', views.student_profile, name='student_profile'),
+        path('teacher/account/profile', views.teacher_profile, name='teacher_profile'),
 ]
