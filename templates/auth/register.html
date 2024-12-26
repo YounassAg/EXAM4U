@@ -5,7 +5,7 @@
 <div id="particles-js" class="fixed inset-0 z-0"></div>
 
 <div class="min-h-screen flex items-center justify-center relative z-10 py-12">
-    <div class="max-w-md w-full mx-4">
+    <div class="max-w-4xl w-full mx-4">
         <!-- Glassmorphism Card -->
         <div class="relative">
             <!-- Blur Effect Background -->
@@ -23,86 +23,134 @@
                 <form method="post" class="space-y-6">
                     {% csrf_token %}
                     
-                    <!-- Username Input -->
-                    <div>
-                        <label for="username" class="block text-sm font-medium text-blue-200 mb-2">
-                            <div class="flex items-center space-x-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                </svg>
-                                <span>Nom d'utilisateur</span>
-                            </div>
-                        </label>
-                        <input type="text" name="username" id="username" 
-                               class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
-                               required>
-                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- First Name Input -->
+                        <div>
+                            <label for="first_name" class="block text-sm font-medium text-blue-200 mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <span>Prénom</span>
+                                </div>
+                            </label>
+                            <input type="text" name="first_name" id="first_name" 
+                                   class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
+                                   required>
+                        </div>
 
-                    <!-- Email Input -->
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-blue-200 mb-2">
-                            <div class="flex items-center space-x-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                </svg>
-                                <span>Email</span>
-                            </div>
-                        </label>
-                        <input type="email" name="email" id="email" 
-                               class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
-                               required>
-                    </div>
+                        <!-- Last Name Input -->
+                        <div>
+                            <label for="last_name" class="block text-sm font-medium text-blue-200 mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <span>Nom</span>
+                                </div>
+                            </label>
+                            <input type="text" name="last_name" id="last_name" 
+                                   class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
+                                   required>
+                        </div>
 
-                    <!-- Password Input -->
-                    <div>
-                        <label for="password1" class="block text-sm font-medium text-blue-200 mb-2">
-                            <div class="flex items-center space-x-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                </svg>
-                                <span>Mot de passe</span>
-                            </div>
-                        </label>
-                        <input type="password" name="password1" id="password1" 
-                               class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
-                               required>
-                    </div>
+                        <!-- Username Input -->
+                        <div>
+                            <label for="username" class="block text-sm font-medium text-blue-200 mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    <span>Nom d'utilisateur</span>
+                                </div>
+                            </label>
+                            <input type="text" name="username" id="username" 
+                                   class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
+                                   required>
+                        </div>
 
-                    <!-- Confirm Password Input -->
-                    <div>
-                        <label for="password2" class="block text-sm font-medium text-blue-200 mb-2">
-                            <div class="flex items-center space-x-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                                </svg>
-                                <span>Confirmer le mot de passe</span>
-                            </div>
-                        </label>
-                        <input type="password" name="password2" id="password2" 
-                               class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
-                               required>
-                    </div>
+                        <!-- Email Input -->
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-blue-200 mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <span>Email</span>
+                                </div>
+                            </label>
+                            <input type="email" name="email" id="email" 
+                                   class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
+                                   required>
+                        </div>
 
-                    <!-- Role Selection -->
-                    <div>
-                        <label for="role" class="block text-sm font-medium text-blue-200 mb-2">
-                            <div class="flex items-center space-x-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                </svg>
-                                <span>Rôle</span>
-                            </div>
-                        </label>
-                        <select name="role" id="role" 
-                                class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
-                                required>
-                            <option value="student" class="bg-gray-900">Étudiant</option>
-                            <option value="teacher" class="bg-gray-900">Enseignant</option>
-                        </select>
+                        <!-- Group Input -->
+                        <div>
+                            <label for="group" class="block text-sm font-medium text-blue-200 mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                    <span>Groupe</span>
+                                </div>
+                            </label>
+                            <select name="group" id="group" 
+                                   class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
+                                   required>
+                                <option value="" class="bg-gray-900">Sélectionnez un groupe</option>
+                            </select>
+                        </div>
+
+                        <!-- Speciality Input -->
+                        <div>
+                            <label for="speciality" class="block text-sm font-medium text-blue-200 mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path>
+                                    </svg>
+                                    <span>Spécialité</span>
+                                </div>
+                            </label>
+                            <select name="speciality" id="speciality" 
+                                   class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
+                                   required>
+                                <option value="" class="bg-gray-900">Sélectionnez une spécialité</option>
+                            </select>
+                        </div>
+
+                        <!-- Password Input -->
+                        <div>
+                            <label for="password1" class="block text-sm font-medium text-blue-200 mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                    <span>Mot de passe</span>
+                                </div>
+                            </label>
+                            <input type="password" name="password1" id="password1" 
+                                   class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
+                                   required>
+                        </div>
+
+                        <!-- Confirm Password Input -->
+                        <div>
+                            <label for="password2" class="block text-sm font-medium text-blue-200 mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                    </svg>
+                                    <span>Confirmer le mot de passe</span>
+                                </div>
+                            </label>
+                            <input type="password" name="password2" id="password2" 
+                                   class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"
+                                   required>
+                        </div>
                     </div>
 
                     <!-- Register Button -->
-                    <button type="submit" class="w-full group relative">
+                    <button type="submit" class="w-full group relative mt-8">
                         <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur opacity-60 group-hover:opacity-100 transition duration-200"></div>
                         <div class="relative px-6 py-3 bg-black rounded-lg leading-none flex items-center justify-center space-x-2">
                             <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,7 +161,7 @@
                     </button>
 
                     <!-- Login Link -->
-                    <div class="text-center text-blue-200">
+                    <div class="text-center text-blue-200 mt-4">
                         Déjà un compte? 
                         <a href="{% url 'login' %}" class="text-indigo-400 hover:text-indigo-300 transition-colors">Se connecter</a>
                     </div>
