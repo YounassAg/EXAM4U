@@ -8,53 +8,115 @@
     {% load static %}
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
-</head>
-<body class="min-h-screen bg-gray-900">
-    <!-- Navigation -->
-    <nav class="w-full z-50 bg-transparent relative">
-        <div class="w-full px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20">
-                <div class="flex">
-                    <div class="flex-shrink-0 flex items-center">
-                        {% if user.userprofile.role == 'teacher' %}
-                            <a href="{% url 'teacher_dashboard' %}" class="text-2xl font-bold text-white hover:text-indigo-400 transition-colors">Exam4U</a>
-                        {% elif user.userprofile.role == 'student' %}
-                            <a href="{% url 'student_dashboard' %}" class="text-2xl font-bold text-white hover:text-indigo-400 transition-colors">Exam4U</a>
-                        {% else %}
-                            <a href="{% url 'index' %}" class="text-2xl font-bold text-white hover:text-indigo-400 transition-colors">Exam4U</a>
-                        {% endif %}
-                    </div>
-                </div>
+    <style>
+        @keyframes navbarGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.1); }
+            50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.2); }
+        }
 
-                <!-- Auth Navigation -->
-                <div class="flex items-center">
-                    {% if user.is_authenticated %}
-                        <div class="flex items-center space-x-4">
-                            <a href="{% url 'logout' %}" class="bg-indigo-600/20 backdrop-blur-sm text-white px-6 py-2 rounded-full text-sm font-medium border border-indigo-500/30 hover:bg-indigo-600/30 transition-all">Logout</a>
-                        </div>
+        .navbar {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+            animation: navbarGlow 4s ease-in-out infinite;
+        }
+
+        .nav-link {
+            position: relative;
+            color: #1f2937;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background: #3b82f6;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #3b82f6;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .brand {
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .brand:hover {
+            transform: translateY(-1px);
+            text-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .footer {
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            border-top: 1px solid rgba(59, 130, 246, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-white">
+    <!-- Navigation -->
+    <nav class="navbar fixed w-full top-0 z-50 px-6 py-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="#home" class="brand text-2xl">Exam4U</a>
+            <div class="flex items-center space-x-8">
+                <a href="#home" class="nav-link">Accueil</a>
+                <a href="#features" class="nav-link">Fonctionnalités</a>
+                <a href="#contact" class="nav-link">Contact</a>
+                {% if user.is_authenticated %}
+                    {% if user.userprofile.role == 'teacher' %}
+                        <a href="{% url 'teacher_dashboard' %}" class="btn-primary px-6 py-2 rounded-lg text-white font-semibold">Dashboard</a>
                     {% else %}
-                        <div class="flex items-center space-x-4">
-                            <a href="{% url 'login' %}" class="text-white/80 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Login</a>
-                            <a href="{% url 'register' %}" class="bg-indigo-600/20 backdrop-blur-sm text-white px-6 py-2 rounded-full text-sm font-medium border border-indigo-500/30 hover:bg-indigo-600/30 transition-all">Register</a>
-                        </div>
+                        <a href="{% url 'student_dashboard' %}" class="btn-primary px-6 py-2 rounded-lg text-white font-semibold">Dashboard</a>
                     {% endif %}
-                </div>
+                {% else %}
+                    <a href="{% url 'register' %}" class="btn-primary px-6 py-2 rounded-lg text-white font-semibold">Commencer</a>
+                {% endif %}
             </div>
         </div>
     </nav>
+
     <!-- Main Content -->
-    <main class="min-h-screen w-full">
+    <main class="min-h-screen pt-20">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="bottom-0 w-full z-50 bg-transparent">
-        <div class="w-full py-4 px-4 sm:px-6 lg:px-8">
-            <p class="text-center text-white/50 text-sm">
-                &copy; {% now "Y" %} Exam4U. All rights reserved.
-            </p>
+    <footer class="footer py-8">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-600">© 2024 Exam4U. Tous droits réservés.</div>
+                <div class="flex space-x-6">
+                    <a href="#" class="nav-link text-sm">Politique de confidentialité</a>
+                    <a href="#" class="nav-link text-sm">Conditions d'utilisation</a>
+                </div>
+            </div>
         </div>
     </footer>
 </body>
