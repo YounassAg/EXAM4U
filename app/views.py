@@ -216,6 +216,8 @@ def take_exam(request, exam_id):
 
     return render(request, 'student/exam/take_exam.html', {'exam': exam, 'form': form})
 
+@login_required
+@role_required('teacher')
 def delete_exam(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     
@@ -225,6 +227,16 @@ def delete_exam(request, exam_id):
         return redirect('teacher_exam_list')  # Redirect to the exam list page
 
     return render(request, 'teacher/exam/delete_exam.html', {'exam': exam})
+
+@login_required
+@role_required('teacher')
+def correction(request):
+    return render(request, 'teacher/exam/correction.html')
+
+@login_required
+@role_required('teacher')
+def exam_student_list(request):
+    return render(request, 'teacher/exam/exam_student_list.html')
 
 @login_required
 @role_required('student')

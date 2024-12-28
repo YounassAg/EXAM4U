@@ -4,9 +4,12 @@
 {% block title %}Exam Completed{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4">
-    <h1 class="text-2xl font-bold mb-4">Exam Completed</h1>
-    <p>You have successfully completed the exam.</p>
-    <p>Score: {{ attempt.grade }}</p>
+<div class="flex min-h-screen bg-gray-900 items-center justify-center">
+    <div class="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 backdrop-blur-xl border border-white/10 rounded-2xl p-8 max-w-lg mx-auto">
+        <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-4">Exam Completed</h1>
+        <p class="text-blue-200 mb-2">You have successfully completed the exam.</p>
+        <p class="text-lg font-semibold text-white"><span class="text-emerald-400">Good Look</span> {{ user.get_full_name }}</p>
+    </div>
 </div>
 {% endblock %}
+
