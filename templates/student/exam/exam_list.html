@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Exams - Exam4U{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen">
+    {% include 'components/student_sidebar.html' %}
+
+    <div class="flex-1 p-8">
+        <!-- Title Section -->
+        <div class="relative">
+            <div class="absolute inset-0 bg-gradient-to-r from-green-500/30 to-blue-500/30 rounded-2xl blur-xl"></div>
+            <div class="relative backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/10">
+                <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
+                    Available Exams
+                </h1>
+                <p class="text-green-200 mt-2">Browse and take your exams</p>
+            </div>
+        </div>
+
+        <!-- Exams List Section -->
+        <div class="mt-8 space-y-8">
+            {% for exam in exams %}
+                <div class="relative">
+                    <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-2xl blur-xl"></div>
+                    <div class="relative backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/10">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-2xl font-bold text-white">{{ exam.title }}</h2>
+                                <p class="text-green-200 mt-2">{{ exam.description }}</p>
+                                <p class="text-green-200 mt-2">Course: {{ exam.course.title }}</p>
+                                <p class="text-green-200 mt-2">Group: {{ exam.group }}</p>
+                                <p class="text-green-200 mt-2">Duration: {{ exam.duration }} minutes</p>
+                                <p class="text-green-200 mt-2">Attempts: {{ exam.max_attempts }}</p>
+                                <p class="text-green-200 mt-2">Start Date: {{ exam.start_date }}</p>
+                                <p class="text-green-200 mt-2">End Date: {{ exam.end_date }}</p>
+                            </div>
+                            <div>
+                                <!--  url 'take_exam' exam.id  -->
+                                <a href="" class="px-6 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all">
+                                    Take Exam
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

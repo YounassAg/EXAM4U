@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Exams - Exam4U{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen">
+    {% include 'components/teacher_sidebar.html' %}
+
+    <div class="flex-1 p-8">
+        <!-- Title Section -->
+        <div class="relative">
+            <div class="absolute inset-0 bg-gradient-to-r from-purple-500/30 to-pink-500/30 rounded-2xl blur-xl"></div>
+            <div class="relative backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/10">
+                <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
+                    Manage Exams
+                </h1>
+                <p class="text-purple-200 mt-2">Create, update, and manage your exams</p>
+            </div>
+        </div>
+
+        <!-- Create Exam Button -->
+        <div class="mt-8">
+            <a href="{% url 'create_exam' %}" class="px-6 py-3 rounded-lg bg-pink-600 text-white hover:bg-pink-700 transition-all">
+                Create New Exam
+            </a>
+        </div>
+
+        <!-- Exams List Section -->
+        <div class="mt-8 space-y-8">
+            {% for exam in exams %}
+                <div class="relative">
+                    <div class="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl blur-xl"></div>
+                    <div class="relative backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/10">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-2xl font-bold text-white">{{ exam.title }}</h2>
+                                <p class="text-purple-200 mt-2">{{ exam.description }}</p>
+                                <p class="text-purple-200 mt-2">Course: {{ exam.course.title }}</p>
+                                <p class="text-purple-200 mt-2">Group: {{ exam.group }}</p>
+                                <p class="text-purple-200 mt-2">Duration: {{ exam.duration }} minutes</p>
+                                <p class="text-purple-200 mt-2">Attempts: {{ exam.max_attempts }}</p>
+                                <p class="text-purple-200 mt-2">Start Date: {{ exam.start_date }}</p>
+                                <p class="text-purple-200 mt-2">End Date: {{ exam.end_date }}</p>
+                            </div>
+                            <div class="flex space-x-4">
+                                <!--  url 'edit_exam' exam.id-->
+                                <a href="" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all">
+                                    Edit
+                                </a>
+                                <!-- url 'delete_exam' exam.id -->
+                                <a href="" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-all">
+                                    Delete
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

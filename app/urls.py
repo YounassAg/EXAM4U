@@ -12,7 +12,13 @@ urlpatterns = [
         path('student/courses/', views.student_courses, name='student_courses'),
         path('teacher/courses/', views.teacher_courses, name='teacher_courses'),
         path('teacher/courses/create_course', views.create_course, name='create_course'),
+        path('courses/courses', views.teacher_courses, name='teacher_courses'),
+        path('teacher/courses', views.student_courses, name='student_courses'),
+        path('courses/<int:id>/edit/', views.edit_course, name='edit_course'),
+        path('courses/<int:id>/delete/', views.delete_course, name='delete_course'),
         path('teacher/exam/create_exam', views.create_exam, name='create_exam'),
+        path('student/exam/exam_list', views.student_exam_list, name='student_exam_list'),
+        path('teacher/exam/exam_list', views.teacher_exam_list, name='teacher_exam_list'),
         path('student/account/profile', views.student_profile, name='student_profile'),
         path('teacher/account/profile', views.teacher_profile, name='teacher_profile'),
 ]

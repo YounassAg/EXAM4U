@@ -34,15 +34,6 @@
                                 <p class="text-sm text-gray-600">Course Code: {{ course.code }}</p>
                                 <p class="text-sm text-gray-600">Students Enrolled: {{ course.students.count }}</p>
                             </div>
-                            <div class="flex space-x-2">
-                                {% if user.userprofile.role == 'teacher' %}
-                                    <a href="{% url 'edit_course' course.id %}" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition-colors duration-200">Edit</a>
-                                    <a href="{% url 'delete_course' course.id %}" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition-colors duration-200">Delete</a>
-                                {% else %}
-                                    <!-- Only show the view button for students -->
-                                    <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors duration-200" disabled>View</button>
-                                {% endif %}
-                            </div>
                         </div>
                     </div>
                 {% endfor %}

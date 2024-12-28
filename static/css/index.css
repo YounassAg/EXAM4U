@@ -1,0 +1,148 @@
+/* Particle Effect */
+#particles-js {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+}
+
+/* Mesh Gradient Animation */
+.mesh-gradient {
+    background: linear-gradient(45deg, #4f46e5, #7c3aed, #2563eb);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
+
+/* Floating Animation */
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 2s;
+}
+
+/* 3D Card Effect */
+.perspective-1000 {
+    perspective: 1000px;
+}
+
+.transform-style-3d {
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+}
+
+.floating-card {
+    animation: float-card 6s ease-in-out infinite;
+}
+
+@keyframes float-card {
+    0%, 100% { transform: translateY(0) rotateX(0) rotateY(0); }
+    50% { transform: translateY(-10px) rotateX(5deg) rotateY(5deg); }
+}
+
+/* Gradient Text Animation */
+.animate-gradient-x {
+    background-size: 200% 100%;
+    animation: gradient-x 15s ease infinite;
+}
+
+@keyframes gradient-x {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Neon Button */
+.neon-button {
+    position: relative;
+    padding: 1rem 3rem;
+    color: #fff;
+    background: linear-gradient(90deg, #4f46e5, #7c3aed);
+    border-radius: 9999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.neon-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(124, 58, 237, 0.5);
+}
+
+.neon-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    transition: 0.5s;
+}
+
+.neon-button:hover::before {
+    left: 100%;
+}
+
+/* Ghost Button */
+.ghost-button {
+    padding: 1rem 3rem;
+    color: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 9999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: all 0.3s;
+}
+
+.ghost-button:hover {
+    border-color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Stat Card */
+.stat-card {
+    backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    transition: transform 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Animated Background */
+.animated-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, #4f46e5, #7c3aed, #2563eb);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    opacity: 0.5;
+}
+
+@keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}

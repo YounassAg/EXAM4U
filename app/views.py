@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
+from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from .forms import UserRegistrationForm, LoginForm
-from .models import Group, Specialty, UserProfile
+from .models import Course, Group, Exam, Question, MCQChoice, UserProfile, Specialty
 from django.http import JsonResponse
 
 def index(request):
@@ -67,7 +68,21 @@ def teacher_dashboard(request):
 
 @login_required
 def teacher_courses(request):
-    return render(request, 'teacher/courses/courses.html')
+    courses = Course.objects.all() 
+    return render(request, 'teacher/courses/courses.html', {'courses': courses})
+
+@login_required
+def edit_course(request):
+    return render(request, 'teacher/courses/edit_course.html')
+
+@login_required
+def delete_course(request):
+    return render(request, 'teacher/courses/delete_course.html')
+
+@login_required
+def student_courses(request):
+    courses = Course.objects.all() 
+    return render(request, 'student/courses/courses.html', {'courses': courses})
 
 @login_required
 def create_course(request):
@@ -78,12 +93,86 @@ def student_dashboard(request):
     return render(request, 'student/dashboard.html')
 
 @login_required
-def student_courses(request):
-    return render(request, 'student/courses.html')
+def create_exam(request):
+    if request.method == 'POST':
+        # Retrieve form data
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        course_id = request.POST.get('course')
+        group_id = request.POST.get('group')
+        duration = request.POST.get('duration')
+        max_attempts = request.POST.get('max_attempts')
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+
+        # Retrieve course and group objects
+        course = Course.objects.get(id=course_id)
+        group = Group.objects.get(id=group_id)
+
+        # Create exam object
+        exam = Exam.objects.create(
+            title=title,
+            description=description,
+            course=course,
+            group=group,
+            duration=duration,
+            max_attempts=max_attempts,
+            start_date=start_date,
+            end_date=end_date
+        )
+
+        # Process questions
+        question_count = int(request.POST.get('question_count', 0))
+        for i in range(1, question_count + 1):
+            question_type = request.POST.get(f'question_type_{i}')
+            question_wording = request.POST.get(f'question_wording_{i}')
+            question_points = request.POST.get(f'question_points_{i}')
+
+            question = Question.objects.create(
+                exam=exam,
+                question_type=question_type,
+                wording=question_wording,
+                points=question_points
+            )
+
+            if question_type == 'MCQ':
+                choice_count = int(request.POST.get(f'mcq_choice_count_{i}', 0))
+                for j in range(1, choice_count + 1):
+                    choice_label = request.POST.get(f'mcq_choice_{i}_{j}')
+                    is_correct = request.POST.get(f'mcq_correct_{i}_{j}') == 'on'
+                    MCQChoice.objects.create(
+                        question=question,
+                        choice_label=choice_label,
+                        is_correct=is_correct
+                    )
+
+        messages.success(request, 'Exam created successfully!')
+        return redirect('teacher_exam_list')
+
+    else:
+        courses = Course.objects.filter(teacher__user=request.user)
+        groups = Group.objects.all()
+
+        return render(request, 'teacher/exam/create_exam.html', {
+            'courses': courses,
+            'groups': groups
+        })
 
 @login_required
-def create_exam(request):
-    return render(request, 'teacher/exam/create_exam.html', {})
+def student_exam_list(request):
+    student_group = request.user.userprofile.group
+    exams = Exam.objects.filter(group=student_group)
+    return render(request, 'student/exam/exam_list.html', {'exams': exams})
+
+@login_required
+def teacher_exam_list(request):
+    # Get the teacher's UserProfile (for current user)
+    teacher_profile = request.user.userprofile
+    
+    # Filter exams where the logged-in teacher is the creator of the course
+    exams = Exam.objects.filter(course__teacher=teacher_profile)
+    
+    return render(request, 'teacher/exam/exam_list.html', {'exams': exams})
 
 @login_required
 def student_profile(request):

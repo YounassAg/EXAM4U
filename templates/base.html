@@ -9,11 +9,11 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
 </head>
 <body class="min-h-screen bg-gray-900">
     <!-- Navigation -->
-    <nav class="w-full z-50 bg-transparent">
+    <nav class="w-full z-50 bg-transparent relative">
         <div class="w-full px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20">
                 <div class="flex">
@@ -27,7 +27,7 @@
                         {% endif %}
                     </div>
                 </div>
-                
+
                 <!-- Auth Navigation -->
                 <div class="flex items-center">
                     {% if user.is_authenticated %}
@@ -44,7 +44,6 @@
             </div>
         </div>
     </nav>
-
     <!-- Main Content -->
     <main class="min-h-screen w-full">
         {% block content %}{% endblock %}
