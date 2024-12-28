@@ -5,7 +5,7 @@
 {% block content %}
 <div class="flex">
     
-    {% include 'components/teacher_sidebar.html' %}
+    {% include 'components/student_sidebar.html' %}
 
     <!-- Main Content Area -->
     <div class="flex-1 space-y-8">
@@ -17,22 +17,12 @@
 
         <!-- Courses List -->
         <div class="bg-white shadow-lg rounded-lg p-6">
-            <div class="mb-4 flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-gray-700">Current Courses</h2>
-                {% if user.userprofile.role == 'teacher' %}
-                    <a href="{% url 'create_course' %}" class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors duration-200">
-                        Add New Course
-                    </a>
-                {% endif %}
-            </div>
             <div class="space-y-6">
                 {% for course in courses %}
                     <div class="border-b pb-4">
                         <div class="flex justify-between items-start">
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-800">{{ course.title }}</h3>
-                                <p class="text-sm text-gray-600">Course Code: {{ course.code }}</p>
-                                <p class="text-sm text-gray-600">Students Enrolled: {{ course.students.count }}</p>
                             </div>
                         </div>
                     </div>

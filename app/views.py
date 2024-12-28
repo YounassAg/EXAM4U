@@ -66,10 +66,18 @@ def user_logout(request):
 def teacher_dashboard(request):
     return render(request, 'teacher/dashboard.html')
 
+
 @login_required
 def teacher_courses(request):
-    courses = Course.objects.all() 
+    teacher = request.user.userprofile
+    courses = Course.objects.filter(teacher=teacher)
     return render(request, 'teacher/courses/courses.html', {'courses': courses})
+
+@login_required
+def student_courses(request):
+    student_specialty = request.user.userprofile.specialty
+    courses = Course.objects.filter(specialty=student_specialty)
+    return render(request, 'student/courses/courses.html', {'courses': courses})
 
 @login_required
 def edit_course(request):
@@ -78,11 +86,6 @@ def edit_course(request):
 @login_required
 def delete_course(request):
     return render(request, 'teacher/courses/delete_course.html')
-
-@login_required
-def student_courses(request):
-    courses = Course.objects.all() 
-    return render(request, 'student/courses/courses.html', {'courses': courses})
 
 @login_required
 def create_course(request):
