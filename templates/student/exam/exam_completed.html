@@ -1,0 +1,12 @@
+<!-- templates/student/exams/exam_completed.html -->
+{% extends 'base.html' %}
+
+{% block title %}Exam Completed{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4">
+    <h1 class="text-2xl font-bold mb-4">Exam Completed</h1>
+    <p>You have successfully completed the exam.</p>
+    <p>Score: {{ attempt.grade }}</p>
+</div>
+{% endblock %}

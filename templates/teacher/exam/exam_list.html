@@ -43,12 +43,10 @@
                                 <p class="text-purple-200 mt-2">End Date: {{ exam.end_date }}</p>
                             </div>
                             <div class="flex space-x-4">
-                                <!--  url 'edit_exam' exam.id-->
                                 <a href="" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all">
                                     Edit
                                 </a>
-                                <!-- url 'delete_exam' exam.id -->
-                                <a href="" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-all">
+                                <a href="{% url 'delete_exam' exam.id %}" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-all">
                                     Delete
                                 </a>
                             </div>

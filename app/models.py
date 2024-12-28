@@ -72,6 +72,7 @@ class Question(models.Model):
     question_type = models.CharField(max_length=12, choices=QUESTION_TYPE_CHOICES)
     wording = models.TextField()
     points = models.FloatField(default=1.0)
+    allow_multiple_answers = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.wording[:50]}..."  # Show only the first 50 characters of the question wording

@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
-from .models import UserProfile, Group, Specialty
+from .models import UserProfile, Group, Specialty, MCQChoice
 
 class UserRegistrationForm(forms.ModelForm):
     first_name = forms.CharField(max_length=100, required=True)
@@ -50,3 +50,32 @@ class UserRegistrationForm(forms.ModelForm):
 class LoginForm(AuthenticationForm):
     username = forms.CharField(max_length=254, widget=forms.TextInput(attrs={'autofocus': True}))
     password = forms.CharField(label=("Password"), strip=False, widget=forms.PasswordInput)
+
+class ExamForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        questions = kwargs.pop('questions')
+        super(ExamForm, self).__init__(*args, **kwargs)
+
+        for question in questions:
+            choices = MCQChoice.objects.filter(question=question)
+            if question.question_type == 'MCQ':
+                if question.allow_multiple_answers:
+                    self.fields[f'question_{question.id}'] = forms.MultipleChoiceField(
+                        widget=forms.CheckboxSelectMultiple,
+                        choices=[(choice.id, choice.choice_label) for choice in choices],
+                        label=question.wording,
+                        required=True,
+                    )
+                else:
+                    self.fields[f'question_{question.id}'] = forms.ChoiceField(
+                        widget=forms.RadioSelect,
+                        choices=[(choice.id, choice.choice_label) for choice in choices],
+                        label=question.wording,
+                        required=True,
+                    )
+            else:
+                self.fields[f'question_{question.id}'] = forms.CharField(
+                    widget=forms.Textarea,
+                    label=question.wording,
+                    required=True,
+                )

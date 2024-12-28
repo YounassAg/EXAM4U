@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Take Exam - {{ exam.title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="relative mb-8">
+            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl blur-xl"></div>
+            <div class="relative backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/10">
+                <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-4">{{ exam.title }}</h1>
+                <p class="text-blue-200 mb-4">{{ exam.description }}</p>
+            </div>
+        </div>
+
+        <form method="post" class="space-y-8">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="relative">
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl blur-lg"></div>
+                    <div class="relative backdrop-blur-xl bg-white/5 rounded-2xl p-6 border border-white/10">
+                        <label for="{{ field.id_for_label }}" class="block text-lg font-medium text-blue-200 mb-3">
+                            {{ field.label }}
+                        </label>
+                        {% if field.field.widget.input_type == 'checkbox' or field.field.widget.input_type == 'radio' %}
+                            <div class="space-y-2">
+                                {% for choice in field %}
+                                    <div class="flex items-center">
+                                        {{ choice.tag }}
+                                        <label for="{{ choice.id_for_label }}" class="ml-2 text-white">
+                                            {{ choice.choice_label }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="flex justify-end">
+                <button type="submit" class="group relative inline-flex items-center">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur opacity-60 group-hover:opacity-100 transition duration-200"></div>
+                    <div class="relative px-6 py-3 bg-black rounded-lg leading-none flex items-center">
+                        <span class="text-white font-semibold">Submit Exam</span>
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
