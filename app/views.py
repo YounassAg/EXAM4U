@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db import transaction, IntegrityError
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
@@ -101,55 +102,61 @@ def student_dashboard(request):
 @login_required
 def create_exam(request):
     if request.method == 'POST':
-        title = request.POST.get('title')
-        description = request.POST.get('description')
-        course_id = request.POST.get('course')
-        group_id = request.POST.get('group')
-        duration = request.POST.get('duration')
-        max_attempts = request.POST.get('max_attempts')
-        start_date = request.POST.get('start_date')
-        end_date = request.POST.get('end_date')
-        course = Course.objects.get(id=course_id)
-        group = Group.objects.get(id=group_id)
-        exam = Exam.objects.create(
-            title=title,
-            description=description,
-            course=course,
-            group=group,
-            duration=duration,
-            max_attempts=max_attempts,
-            start_date=start_date,
-            end_date=end_date,
-        )
+        try:
+            with transaction.atomic():
+                title = request.POST.get('title')
+                description = request.POST.get('description')
+                course_id = request.POST.get('course')
+                group_id = request.POST.get('group')
+                duration = request.POST.get('duration')
+                max_attempts = request.POST.get('max_attempts')
+                start_date = request.POST.get('start_date')
+                end_date = request.POST.get('end_date')
+                course = Course.objects.get(id=course_id)
+                group = Group.objects.get(id=group_id)
+                exam = Exam.objects.create(
+                    title=title,
+                    description=description,
+                    course=course,
+                    group=group,
+                    duration=duration,
+                    max_attempts=max_attempts,
+                    start_date=start_date,
+                    end_date=end_date,
+                )
 
-        # Process questions
-        question_count = int(request.POST.get('question_count', 0))
-        for i in range(1, question_count + 1):
-            question_type = request.POST.get(f'question_type_{i}')
-            question_wording = request.POST.get(f'question_wording_{i}')
-            question_points = request.POST.get(f'question_points_{i}')
+                # Process questions
+                question_count = int(request.POST.get('question_count', 0))
+                for i in range(1, question_count + 1):
+                    question_type = request.POST.get(f'question_type_{i}')
+                    question_wording = request.POST.get(f'question_wording_{i}')
+                    question_points = request.POST.get(f'question_points_{i}')
 
-            question = Question.objects.create(
-                exam=exam,
-                question_type=question_type,
-                wording=question_wording,
-                points=question_points,
-                allow_multiple_answers=True
-            )
-
-            if question_type == 'MCQ':
-                choice_count = int(request.POST.get(f'mcq_choice_count_{i}', 0))
-                for j in range(1, choice_count + 1):
-                    choice_label = request.POST.get(f'mcq_choice_{i}_{j}')
-                    is_correct = request.POST.get(f'mcq_correct_{i}_{j}') == 'on'
-                    MCQChoice.objects.create(
-                        question=question,
-                        choice_label=choice_label,
-                        is_correct=is_correct
+                    question = Question.objects.create(
+                        exam=exam,
+                        question_type=question_type,
+                        wording=question_wording,
+                        points=question_points,
+                        allow_multiple_answers=(question_type == 'MCQ')
                     )
 
-        messages.success(request, 'Exam created successfully!')
-        return redirect('teacher_exam_list')
+                    if question_type == 'MCQ':
+                        choice_count = int(request.POST.get(f'mcq_choice_count_{i}', 0))
+                        for j in range(1, choice_count + 1):
+                            choice_label = request.POST.get(f'mcq_choice_text_{i}_{j}')
+                            is_correct = request.POST.get(f'mcq_choice_correct_{i}_{j}') == 'on'
+                            MCQChoice.objects.create(
+                                question=question,
+                                choice_label=choice_label,
+                                is_correct=is_correct
+                            )
+
+                messages.success(request, 'Exam created successfully!')
+                return redirect('teacher_exam_list')
+
+        except IntegrityError:
+            messages.error(request, 'There was an error creating the exam. Please try again.')
+            return redirect('teacher_exam_list')
 
     else:
         courses = Course.objects.filter(teacher__user=request.user)
@@ -159,6 +166,195 @@ def create_exam(request):
             'courses': courses,
             'groups': groups
         })
+    
+    exam = get_object_or_404(Exam, id=exam_id)
+    
+    if request.method == 'POST':
+        try:
+            with transaction.atomic():
+                # Updating exam details (title, description, etc.)
+                title = request.POST.get('title')
+                description = request.POST.get('description')
+                course_id = request.POST.get('course')
+                group_id = request.POST.get('group')
+                duration = request.POST.get('duration')
+                max_attempts = request.POST.get('max_attempts')
+                start_date = request.POST.get('start_date')
+                end_date = request.POST.get('end_date')
+
+                course = Course.objects.get(id=course_id)
+                group = Group.objects.get(id=group_id)
+
+                # Update the exam details
+                exam.title = title
+                exam.description = description
+                exam.course = course
+                exam.group = group
+                exam.duration = duration
+                exam.max_attempts = max_attempts
+                exam.start_date = start_date
+                exam.end_date = end_date
+                exam.save()
+
+                # Get the current question count from the form
+                question_count = int(request.POST.get('question_count', 0))
+
+                # Handle adding new questions, editing existing ones, and deleting questions
+                for i in range(1, question_count + 1):
+                    question_id = request.POST.get(f'question_id_{i}')
+                    question_type = request.POST.get(f'question_type_{i}')
+                    question_wording = request.POST.get(f'question_wording_{i}')
+                    question_points = request.POST.get(f'question_points_{i}')
+
+                    # Check if the question exists or if it is a new one
+                    if question_id:  # Editing an existing question
+                        question = Question.objects.get(id=question_id)
+                        question.question_type = question_type
+                        question.wording = question_wording
+                        question.points = question_points
+                        question.save()
+                    else:  # Adding a new question
+                        question = Question.objects.create(
+                            exam=exam,
+                            question_type=question_type,
+                            wording=question_wording,
+                            points=question_points,
+                            allow_multiple_answers=(question_type == 'MCQ')
+                        )
+
+                    # Handle MCQ choices if the question type is MCQ
+                    if question_type == 'MCQ':
+                        choice_count = int(request.POST.get(f'mcq_choice_count_{i}', 0))
+                        # First, delete all existing choices for this question
+                        MCQChoice.objects.filter(question=question).delete()
+
+                        for j in range(1, choice_count + 1):
+                            choice_label = request.POST.get(f'mcq_choice_text_{i}_{j}')
+                            is_correct = request.POST.get(f'mcq_choice_correct_{i}_{j}') == 'on'
+                            MCQChoice.objects.create(
+                                question=question,
+                                choice_label=choice_label,
+                                is_correct=is_correct
+                            )
+
+                # Handle deletion of questions
+                deleted_question_ids = request.POST.getlist('deleted_question_ids')
+                for question_id in deleted_question_ids:
+                    question = Question.objects.get(id=question_id)
+                    question.delete()
+
+                messages.success(request, 'Exam updated successfully!')
+                return redirect('teacher_exam_list')
+
+        except Exception as e:
+            messages.error(request, f'There was an error: {str(e)}')
+            return redirect('teacher_exam_list')
+
+    else:
+        # Prepopulate the form with the current exam details, including questions
+        courses = Course.objects.filter(teacher__user=request.user)
+        groups = Group.objects.all()
+
+        return render(request, 'teacher/exam/edit_exam.html', {
+            'exam': exam,
+            'courses': courses,
+            'groups': groups
+        })
+
+def edit_exam(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    
+    if request.method == 'POST':
+        try:
+            with transaction.atomic():
+                # 1. Update basic exam details
+                exam.title = request.POST.get('title')
+                exam.description = request.POST.get('description')
+                exam.course = Course.objects.get(id=request.POST.get('course'))
+                exam.group = Group.objects.get(id=request.POST.get('group'))
+                exam.duration = request.POST.get('duration')
+                exam.max_attempts = request.POST.get('max_attempts')
+                exam.start_date = request.POST.get('start_date')
+                exam.end_date = request.POST.get('end_date')
+                exam.save()
+
+                # 2. Handle questions
+                existing_questions = set(exam.question_set.values_list('id', flat=True))
+                processed_questions = set()
+                question_count = int(request.POST.get('question_count', 0))
+
+                for i in range(1, question_count + 1):
+                    question_id = request.POST.get(f'question_id_{i}')
+                    question_type = request.POST.get(f'question_type_{i}')
+                    question_wording = request.POST.get(f'question_wording_{i}')
+                    question_points = request.POST.get(f'question_points_{i}')
+
+                    if question_id:  # Update existing question
+                        question = Question.objects.get(id=question_id)
+                        processed_questions.add(int(question_id))
+                        
+                        question.question_type = question_type
+                        question.wording = question_wording
+                        question.points = question_points
+                        question.allow_multiple_answers = (question_type == 'MCQ')
+                        question.save()
+                    else:  # Create new question
+                        question = Question.objects.create(
+                            exam=exam,
+                            question_type=question_type,
+                            wording=question_wording,
+                            points=question_points,
+                            allow_multiple_answers=(question_type == 'MCQ')
+                        )
+                        processed_questions.add(question.id)
+
+                    # Handle MCQ choices
+                    if question_type == 'MCQ':
+                        # Delete existing choices
+                        MCQChoice.objects.filter(question=question).delete()
+                        
+                        # Create new choices
+                        choice_count = int(request.POST.get(f'mcq_choice_count_{i}', 0))
+                        for j in range(1, choice_count + 1):
+                            choice_text = request.POST.get(f'mcq_choice_text_{i}_{j}')
+                            is_correct = request.POST.get(f'mcq_choice_correct_{i}_{j}') == 'on'
+                            
+                            if choice_text:  # Only create if there's actual text
+                                MCQChoice.objects.create(
+                                    question=question,
+                                    choice_label=choice_text,
+                                    is_correct=is_correct
+                                )
+
+                # 3. Delete questions that weren't processed (removed questions)
+                questions_to_delete = existing_questions - processed_questions
+                Question.objects.filter(id__in=questions_to_delete).delete()
+
+                messages.success(request, 'Exam updated successfully!')
+                return redirect('teacher_exam_list')
+
+        except Exception as e:
+            messages.error(request, f'Error updating exam: {str(e)}')
+            return redirect('edit_exam', exam_id=exam_id)
+
+    else:  # GET request
+        courses = Course.objects.filter(teacher__user=request.user)
+        groups = Group.objects.all()
+        questions = exam.question_set.all().prefetch_related('mcqchoice_set')
+
+        context = {
+            'exam': exam,
+            'courses': courses,
+            'groups': groups,
+            'questions': questions,
+        }
+        return render(request, 'teacher/exam/edit_exam.html', context)
+    
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.db import transaction
+from .models import Exam, Question, MCQChoice, Course, Group
+
 
 @role_required('student')
 @login_required
