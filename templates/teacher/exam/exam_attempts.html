@@ -1,42 +1,69 @@
 {% extends 'base.html' %}
 
-{% block title %}Exam Attempts - Exam4U{% endblock %}
+{% block title %}Tentatives d'Examen - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen">
+<div class="flex min-h-screen bg-gray-50">
     {% include 'components/teacher_sidebar.html' %}
 
-    <div class="flex-1 p-8">
+    <div class="flex-1 p-8 space-y-8">
         <!-- Title Section -->
-        <div class="relative">
-            <div class="absolute inset-0 bg-gradient-to-r from-green-500/30 to-teal-500/30 rounded-2xl blur-xl"></div>
-            <div class="relative backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/10">
-                <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-teal-500">
-                    Exam Attempts for "{{ exam.title }}"
-                </h1>
-                <p class="text-green-200 mt-2">View and manage exam attempts</p>
-            </div>
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+            <h1 class="text-2xl font-bold text-gray-900">Tentatives pour "{{ exam.title }}"</h1>
+            <p class="text-gray-600 mt-2">Consultez et gérez les tentatives d'examen</p>
         </div>
 
         <!-- Attempts List Section -->
-        <div class="mt-8 space-y-8">
+        <div class="space-y-6">
             {% if attempts %}
-                <div class="grid grid-cols-1 gap-8">
+                <div class="grid grid-cols-1 gap-6">
                     {% for attempt in attempts %}
-                        <div class="relative">
-                            <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-teal-500/20 rounded-2xl blur-xl"></div>
-                            <div class="relative backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/10 space-y-4">
-                                <h2 class="text-2xl font-bold text-white">{{ attempt.student.user.first_name }} {{ attempt.student.user.last_name }}</h2>
-                                <p class="text-green-200">Status: {{ attempt.get_status_display }}</p>
-                                <p class="text-green-200">Grade: {{ attempt.grade }}</p>
-                                {% if attempt.time_taken %}
-                                    <p class="text-green-200">Time Taken: {{ attempt.time_taken|floatformat:2 }} minutes</p>
-                                {% else %}
-                                    <p class="text-red-500">Time Taken: N/A</p>
-                                {% endif %}
-                                <div class="mt-4">
-                                    <a href="{% url 'correct_exam' attempt.id %}" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all">
-                                        Correct Exam
+                        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-300">
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <h2 class="text-xl font-bold text-gray-900">
+                                        {{ attempt.student.user.first_name }} {{ attempt.student.user.last_name }}
+                                    </h2>
+                                    <span class="px-3 py-1 rounded-full text-sm font-medium 
+                                        {% if attempt.status == 'completed' %}bg-green-100 text-green-800
+                                        {% elif attempt.status == 'in_progress' %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ attempt.get_status_display }}
+                                    </span>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <span class="text-gray-600">Note: {{ attempt.grade }}</span>
+                                    </div>
+                                    
+                                    {% if attempt.time_taken %}
+                                        <div class="flex items-center space-x-2">
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                            <span class="text-gray-600">Temps: {{ attempt.time_taken|floatformat:2 }} minutes</span>
+                                        </div>
+                                    {% else %}
+                                        <div class="flex items-center space-x-2">
+                                            <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                            <span class="text-red-600">Temps: N/A</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="pt-4">
+                                    <a href="{% url 'correct_exam' attempt.id %}" 
+                                       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all space-x-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                        <span>Corriger</span>
                                     </a>
                                 </div>
                             </div>
@@ -44,7 +71,9 @@
                     {% endfor %}
                 </div>
             {% else %}
-                <p class="text-green-200">No completed attempts for this exam.</p>
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
+                    <p class="text-gray-600">Aucune tentative terminée pour cet examen.</p>
+                </div>
             {% endif %}
         </div>
     </div>

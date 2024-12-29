@@ -21,7 +21,6 @@ Exam4U is a Django-based web application designed to facilitate the creation and
 2. **Create a virtual environment:**
 
    ```bash
-   python -m venv venv
    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
    ```
 

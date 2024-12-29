@@ -539,3 +539,86 @@ def custom_403(request, exception):
 
 def custom_404(request, exception):
     return render(request, 'errors/404.html', status=404)
+
+@role_required('teacher')
+@login_required
+def create_course(request):
+    if request.method == 'POST':
+        try:
+            with transaction.atomic():
+                title = request.POST.get('title')
+                description = request.POST.get('description')
+                duration = request.POST.get('duration')
+                specialty_id = request.POST.get('specialty')
+                
+                specialty = Specialty.objects.get(id=specialty_id)
+                teacher = request.user.userprofile
+                
+                course = Course.objects.create(
+                    title=title,
+                    description=description,
+                    duration=duration,
+                    specialty=specialty,
+                    teacher=teacher
+                )
+                
+                messages.success(request, 'Cours créé avec succès!')
+                return redirect('teacher_courses')
+                
+        except IntegrityError:
+            messages.error(request, 'Une erreur est survenue lors de la création du cours. Veuillez réessayer.')
+            return redirect('teacher_courses')
+    else:
+        specialties = Specialty.objects.all()
+        return render(request, 'teacher/courses/create_course.html', {
+            'specialties': specialties
+        })
+
+@role_required('teacher')
+@login_required
+def edit_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id, teacher=request.user.userprofile)
+    
+    if request.method == 'POST':
+        try:
+            with transaction.atomic():
+                title = request.POST.get('title')
+                description = request.POST.get('description')
+                duration = request.POST.get('duration')
+                specialty_id = request.POST.get('specialty')
+                
+                specialty = Specialty.objects.get(id=specialty_id)
+                
+                course.title = title
+                course.description = description
+                course.duration = duration
+                course.specialty = specialty
+                course.save()
+                
+                messages.success(request, 'Cours modifié avec succès!')
+                return redirect('teacher_courses')
+                
+        except IntegrityError:
+            messages.error(request, 'Une erreur est survenue lors de la modification du cours. Veuillez réessayer.')
+            return redirect('teacher_courses')
+    else:
+        specialties = Specialty.objects.all()
+        return render(request, 'teacher/courses/edit_course.html', {
+            'course': course,
+            'specialties': specialties
+        })
+
+@role_required('teacher')
+@login_required
+def delete_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id, teacher=request.user.userprofile)
+    
+    if request.method == 'POST':
+        try:
+            course.delete()
+            messages.success(request, 'Cours supprimé avec succès!')
+        except Exception as e:
+            messages.error(request, 'Une erreur est survenue lors de la suppression du cours.')
+        return redirect('teacher_courses')
+        
+    return render(request, 'teacher/courses/delete_course.html', {'course': course})

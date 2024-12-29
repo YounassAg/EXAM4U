@@ -1,58 +1,71 @@
 <!-- Teacher Sidebar -->
-<div class="hidden md:flex md:flex-col w-64 backdrop-blur-xl bg-white/10 rounded-2xl border border-white/10 mr-8">
-    <div class="p-4 border-b border-white/10">
+<div class="hidden md:flex md:flex-col w-64 min-h-screen bg-white border-r border-gray-200">
+    <!-- Profile Section -->
+    <div class="p-6">
         <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center">
-                <span class="text-white font-bold">{{ user.username|make_list|first|upper }}</span>
+            <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center">
+                <span class="text-white text-lg font-semibold">{{ user.username|make_list|first|upper }}</span>
             </div>
             <div>
-                <p class="text-sm font-semibold text-white">{{ user.get_full_name }}</p>
-                <p class="text-xs text-blue-200/70">Teacher</p>
+                <h2 class="text-sm font-semibold text-gray-900">{{ user.get_full_name }}</h2>
+                <p class="text-xs text-blue-600">Enseignant</p>
             </div>
         </div>
     </div>
-    <nav class="flex-1 p-4">
+
+    <!-- Navigation -->
+    <nav class="flex-1 px-3 py-2">
         <ul class="space-y-1">
+            <!-- Dashboard -->
             <li>
-                <a href="{% url 'teacher_dashboard' %}" class="flex items-center px-4 py-2 text-white bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-lg border border-white/10">
-                    <svg class="w-5 h-5 mr-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="{% url 'teacher_dashboard' %}" 
+                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg {% if request.path == '/teacher/dashboard/' %}text-blue-600 bg-blue-50{% else %}text-gray-900 hover:bg-gray-50{% endif %}">
+                    <svg class="flex-shrink-0 w-5 h-5 mr-3 {% if request.path == '/teacher/dashboard/' %}text-blue-600{% else %}text-gray-400 group-hover:text-gray-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                     </svg>
                     Dashboard
                 </a>
             </li>
+
+            <!-- My Courses -->
             <li>
-                <a href="{% url 'teacher_courses' %}" class="flex items-center px-4 py-2 text-blue-200 hover:bg-gradient-to-r hover:from-indigo-500/20 hover:to-purple-500/20 rounded-lg hover:border hover:border-white/10 transition-all">
-                    <svg class="w-5 h-5 mr-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="{% url 'teacher_courses' %}" 
+                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg {% if request.path == '/teacher/courses/' %}text-blue-600 bg-blue-50{% else %}text-gray-900 hover:bg-gray-50{% endif %}">
+                    <svg class="flex-shrink-0 w-5 h-5 mr-3 {% if request.path == '/teacher/courses/' %}text-blue-600{% else %}text-gray-400 group-hover:text-gray-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                     </svg>
-                    My Courses
+                    Mes Cours
                 </a>
             </li>
+
+            <!-- Create Exam -->
             <li>
-                <a href="{% url 'create_exam' %}" class="flex items-center px-4 py-2 text-blue-200 hover:bg-gradient-to-r hover:from-indigo-500/20 hover:to-purple-500/20 rounded-lg hover:border hover:border-white/10 transition-all">
-                    <svg class="w-5 h-5 mr-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="{% url 'create_exam' %}" 
+                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg {% if '/teacher/exam/create_exam/' in request.path %}text-blue-600 bg-blue-50{% else %}text-gray-900 hover:bg-gray-50{% endif %}">
+                    <svg class="flex-shrink-0 w-5 h-5 mr-3 {% if '/teacher/exam/create_exam/' in request.path %}text-blue-600{% else %}text-gray-400 group-hover:text-gray-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Créer un Examen
+                </a>
+            </li>
+
+            <!-- Exams -->
+            <li>
+                <a href="{% url 'teacher_exam_list' %}" 
+                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg {% if request.path == '/teacher/exams/' %}text-blue-600 bg-blue-50{% else %}text-gray-900 hover:bg-gray-50{% endif %}">
+                    <svg class="flex-shrink-0 w-5 h-5 mr-3 {% if request.path == '/teacher/exams/' %}text-blue-600{% else %}text-gray-400 group-hover:text-gray-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                     </svg>
-                    Create Exam
-                </a>
-            </li>
-            <li>
-                <a href="{% url 'teacher_exam_list' %}" class="flex items-center px-4 py-2 text-blue-200 hover:bg-gradient-to-r hover:from-indigo-500/20 hover:to-purple-500/20 rounded-lg hover:border hover:border-white/10 transition-all">
-                    <svg class="w-5 h-5 mr-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
-                    Exams
-                </a>
-            </li>
-            <li>
-                <a href="#" class="flex items-center px-4 py-2 text-blue-200 hover:bg-gradient-to-r hover:from-indigo-500/20 hover:to-purple-500/20 rounded-lg hover:border hover:border-white/10 transition-all">
-                    <svg class="w-5 h-5 mr-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
-                    Analytics
+                    Examens
                 </a>
             </li>
         </ul>
     </nav>
+
+    <!-- Version Info -->
+    <div class="px-3 py-4">
+        <div class="px-2">
+            <p class="text-xs text-gray-400">Version 1.0.0</p>
+        </div>
+    </div>
 </div>

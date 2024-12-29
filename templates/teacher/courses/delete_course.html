@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Supprimer le Cours - Exam4U{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen bg-gray-50">
+    {% include 'components/teacher_sidebar.html' %}
+
+    <div class="flex-1 p-8 space-y-8">
+        <!-- Title Section -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+            <h1 class="text-2xl font-bold text-gray-900">Supprimer le Cours</h1>
+            <p class="text-gray-600 mt-2">Êtes-vous sûr de vouloir supprimer ce cours ?</p>
+        </div>
+
+        <!-- Course Details -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 space-y-4">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900">{{ course.title }}</h2>
+                <p class="text-gray-600 mt-2">{{ course.description }}</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                <div>
+                    <span class="font-medium">Spécialité:</span> {{ course.specialty.name }}
+                </div>
+                <div>
+                    <span class="font-medium">Durée:</span> {{ course.duration }} heures
+                </div>
+            </div>
+
+            <div class="border-t border-gray-200 pt-4 mt-4">
+                <p class="text-red-600">
+                    <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    Cette action est irréversible. Tous les examens associés à ce cours seront également supprimés.
+                </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-4 pt-4">
+                <a href="{% url 'teacher_courses' %}" 
+                   class="inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Annuler
+                </a>
+                <form method="post" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" 
+                            class="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        <span>Supprimer le Cours</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

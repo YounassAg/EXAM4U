@@ -1,34 +1,35 @@
 {% extends 'base.html' %}
 
-{% block title %}Manage Exams - Exam4U{% endblock %}
+{% block title %}Gérer les Examens - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen">
+<div class="flex min-h-screen bg-gray-50">
     {% include 'components/teacher_sidebar.html' %}
 
     <div class="flex-1 p-8">
         <!-- Title Section -->
-        <div class="relative">
-            <div class="absolute inset-0 bg-gradient-to-r from-purple-500/30 to-pink-500/30 rounded-2xl blur-xl"></div>
-            <div class="relative backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/10">
-                <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
-                    Manage Exams
-                </h1>
-                <p class="text-purple-200 mt-2">Create, update, and manage your exams</p>
-            </div>
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+            <h1 class="text-2xl font-bold text-gray-900">
+                Gérer les Examens
+            </h1>
+            <p class="text-gray-600 mt-2">Créez, modifiez et gérez vos examens</p>
         </div>
 
         <!-- Create Exam Button -->
         <div class="mt-8">
-            <a href="{% url 'create_exam' %}" class="px-6 py-3 rounded-lg bg-pink-600 text-white hover:bg-pink-700 transition-all">
-                Create New Exam
+            <a href="{% url 'create_exam' %}" 
+               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                <span>Créer un Nouvel Examen</span>
             </a>
         </div>
 
         {% if messages %}
-            <div class="messages space-y-4 mt-4">
+            <div class="messages mt-8 space-y-4">
                 {% for message in messages %}
-                    <div class="message {{ message.tags }} p-4 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg transform transition-transform hover:scale-105">
+                    <div class="message {{ message.tags }} bg-white p-4 rounded-lg border-l-4 border-blue-500 shadow-md">
                         {{ message }}
                     </div>
                 {% endfor %}
@@ -36,85 +37,92 @@
         {% endif %}
 
         <!-- Exams List Section -->
-        <div class="mt-8 space-y-8">
+        <div class="mt-8 space-y-6">
             {% for exam in exams %}
-                <div class="relative">
-                    <div class="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl blur-xl"></div>
-                    <div class="relative backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/10">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h2 class="text-2xl font-bold text-white">{{ exam.title }}</h2>
-                                <p class="text-purple-200 mt-2">{{ exam.description }}</p>
-                                <p class="text-purple-200 mt-2">Course: {{ exam.course.title }}</p>
-                                <p class="text-purple-200 mt-2">Group: {{ exam.group }}</p>
-                                <p class="text-purple-200 mt-2">Duration: {{ exam.duration }} minutes</p>
-                                <p class="text-purple-200 mt-2">Attempts: {{ exam.max_attempts }}</p>
-                                <p class="text-purple-200 mt-2">Start Date: {{ exam.start_date }}</p>
-                                <p class="text-purple-200 mt-2">End Date: {{ exam.end_date }}</p>
-                            </div>
-                            <div class="flex space-x-4">
-                                <a href="{% url 'exam_attempts' exam.id %}" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-all">
-                                    Correct
-                                </a>
-                                <a href="{% url 'edit_exam' exam.id %}" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all">
-                                    Edit
-                                </a>
-                                <a href="{% url 'delete_exam' exam.id %}" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-all">
-                                    Delete
-                                </a>
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                    <div class="flex items-center justify-between">
+                        <div class="space-y-4">
+                            <h2 class="text-xl font-bold text-gray-900">{{ exam.title }}</h2>
+                            <p class="text-gray-600">{{ exam.description }}</p>
+                            <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                                <div>
+                                    <span class="font-medium">Cours:</span> {{ exam.course.title }}
+                                </div>
+                                <div>
+                                    <span class="font-medium">Groupe:</span> {{ exam.group }}
+                                </div>
+                                <div>
+                                    <span class="font-medium">Durée:</span> {{ exam.duration }} minutes
+                                </div>
+                                <div>
+                                    <span class="font-medium">Tentatives:</span> {{ exam.max_attempts }}
+                                </div>
+                                <div>
+                                    <span class="font-medium">Date de début:</span> {{ exam.start_date }}
+                                </div>
+                                <div>
+                                    <span class="font-medium">Date de fin:</span> {{ exam.end_date }}
+                                </div>
                             </div>
                         </div>
+                        <div class="flex flex-col space-y-3">
+                            <a href="{% url 'exam_attempts' exam.id %}" 
+                               class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                <span>Corriger</span>
+                            </a>
+                            <a href="{% url 'edit_exam' exam.id %}" 
+                               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                <span>Modifier</span>
+                            </a>
+                            <form method="post" action="{% url 'delete_exam' exam.id %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" 
+                                        class="w-full inline-flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all space-x-2"
+                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet examen?')">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                    <span>Supprimer</span>
+                                </button>
+                            </form>
+                        </div>
                     </div>
+                </div>
+            {% empty %}
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
+                    <p class="text-gray-600">Aucun examen créé pour le moment.</p>
                 </div>
             {% endfor %}
         </div>
     </div>
 </div>
 
-{% block extra_css %}
-    <style>
-        /* Keyframe animation for the message */
-        @keyframes fadeInOut {
-            0% {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            10% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            90% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-        }
+<style>
+    .messages {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        width: 300px;
+    }
 
-        /* Apply styling to the message notification */
-        .messages {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            width: 300px;
-        }
+    .message {
+        animation: fadeInOut 7s ease-in-out forwards;
+        opacity: 0;
+    }
 
-        .message {
-            animation: fadeInOut 7s ease-in-out forwards;
-            background: linear-gradient(to right, #4C6EF5, #9C61FF);
-            padding: 10px 20px;
-            margin-top: 10px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
-            font-size: 14px;
-            opacity: 0;
-            display: block;
-        }
-    </style>
-{% endblock %}
-
+    @keyframes fadeInOut {
+        0% { opacity: 0; transform: translateY(-20px); }
+        10% { opacity: 1; transform: translateY(0); }
+        90% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-20px); }
+    }
+</style>
 {% endblock %}

@@ -3,19 +3,16 @@
 {% block title %}Create Exam - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen">
+<div class="flex min-h-screen bg-gray-50">
     {% include 'components/teacher_sidebar.html' %}
 
     <div class="flex-1 space-y-8 p-8">
         <!-- Title Section -->
-        <div class="relative">
-            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-2xl blur-xl"></div>
-            <div class="relative backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/10">
-                <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-                    Create New Exam
-                </h1>
-                <p class="text-blue-200 mt-2">Set up your exam details and questions</p>
-            </div>
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+            <h1 class="text-2xl font-bold text-gray-900">
+                Créer un Nouvel Examen
+            </h1>
+            <p class="text-gray-600 mt-2">Configurez les détails et les questions de votre examen</p>
         </div>
 
         <!-- Form Section -->
@@ -23,66 +20,63 @@
             {% csrf_token %}
             <input type="hidden" name="question_count" id="question_count" value="0">
 
-            <div class="relative">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl blur-xl"></div>
-                <div class="relative backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/10 space-y-6">
-                    <!-- Basic Info Section -->
+            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 space-y-6">
+                <!-- Basic Info Section -->
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Titre de l'Examen</label>
+                    <input type="text" name="title" id="title" required 
+                           class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <textarea name="description" id="description" rows="3" 
+                              class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+
+                <div>
+                    <label for="course" class="block text-sm font-medium text-gray-700 mb-2">Cours</label>
+                    <select name="course" id="course" required 
+                            class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        {% for course in courses %}
+                            <option value="{{ course.id }}">{{ course.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="group" class="block text-sm font-medium text-gray-700 mb-2">Groupe</label>
+                    <select name="group" id="group" required 
+                            class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        {% for group in groups %}
+                            <option value="{{ group.id }}">{{ group }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="title" class="block text-sm font-medium text-blue-200 mb-2">Exam Title</label>
-                        <input type="text" name="title" id="title" required 
-                               class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all">
+                        <label for="duration" class="block text-sm font-medium text-gray-700 mb-2">Durée (minutes)</label>
+                        <input type="number" name="duration" id="duration" required 
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
 
                     <div>
-                        <label for="description" class="block text-sm font-medium text-blue-200 mb-2">Description</label>
-                        <textarea name="description" id="description" rows="3" 
-                                  class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"></textarea>
+                        <label for="max_attempts" class="block text-sm font-medium text-gray-700 mb-2">Nombre de Tentatives</label>
+                        <input type="number" name="max_attempts" id="max_attempts" value="1" required 
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
 
                     <div>
-                        <label for="course" class="block text-sm font-medium text-blue-200 mb-2">Course</label>
-                        <select name="course" id="course" required 
-                                class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all [&>option]:bg-gray-900 [&>option]:text-white">
-                            {% for course in courses %}
-                                <option value="{{ course.id }}" class="bg-gray-900 text-white">{{ course.title }}</option>
-                            {% endfor %}
-                        </select>
+                        <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">Date de Début</label>
+                        <input type="datetime-local" name="start_date" id="start_date" required 
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
 
                     <div>
-                        <label for="group" class="block text-sm font-medium text-blue-200 mb-2">Group</label>
-                        <select name="group" id="group" required 
-                                class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all [&>option]:bg-gray-900 [&>option]:text-white">
-                            {% for group in groups %}
-                                <option value="{{ group.id }}" class="bg-gray-900 text-white">{{ group }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="duration" class="block text-sm font-medium text-blue-200 mb-2">Duration (minutes)</label>
-                            <input type="number" name="duration" id="duration" required 
-                                   class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all">
-                        </div>
-
-                        <div>
-                            <label for="max_attempts" class="block text-sm font-medium text-blue-200 mb-2">Max Attempts</label>
-                            <input type="number" name="max_attempts" id="max_attempts" value="1" required 
-                                   class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all">
-                        </div>
-
-                        <div>
-                            <label for="start_date" class="block text-sm font-medium text-blue-200 mb-2">Start Date</label>
-                            <input type="datetime-local" name="start_date" id="start_date" required 
-                                   class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all">
-                        </div>
-
-                        <div>
-                            <label for="end_date" class="block text-sm font-medium text-blue-200 mb-2">End Date</label>
-                            <input type="datetime-local" name="end_date" id="end_date" required 
-                                   class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all">
-                        </div>
+                        <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">Date de Fin</label>
+                        <input type="datetime-local" name="end_date" id="end_date" required 
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                 </div>
             </div>
@@ -92,15 +86,25 @@
                 <!-- Questions will be added here dynamically -->
             </div>
 
-            <!-- Action Buttons -->
-            <div class="flex space-x-4">
+            <!-- Add Question Button -->
+            <div class="flex justify-center">
                 <button type="button" id="add-question-btn" 
-                        class="px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all">
-                    Add Question
+                        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    <span>Ajouter une Question</span>
                 </button>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end">
                 <button type="submit" 
-                        class="px-4 py-3 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-all">
-                    Create Exam
+                        class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span>Créer l'Examen</span>
                 </button>
             </div>
         </form>
@@ -108,7 +112,7 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     let questionCount = 0;
 
     document.getElementById('add-question-btn').addEventListener('click', function () {
@@ -116,46 +120,43 @@
         document.getElementById('question_count').value = questionCount;
 
         const questionContainer = document.createElement('div');
-        questionContainer.classList.add('relative');
+        questionContainer.classList.add('bg-white', 'rounded-xl', 'shadow-lg', 'border', 'border-gray-200', 'p-6', 'space-y-6');
         questionContainer.setAttribute('id', `question_${questionCount}`);
 
         questionContainer.innerHTML = `
-            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl blur-xl"></div>
-            <div class="relative backdrop-blur-xl bg-white/5 rounded-2xl p-8 border border-white/10 space-y-6">
-                <h2 class="text-lg font-bold text-blue-200">Question ${questionCount}</h2>
-                <button type="button" class="remove-question-btn px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-all" data-question-id="${questionCount}">
-                    Remove Question
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-bold text-gray-900">Question ${questionCount}</h2>
+                <button type="button" class="remove-question-btn px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all" data-question-id="${questionCount}">
+                    Supprimer
                 </button>
+            </div>
+
+            <div>
+                <label for="question_type_${questionCount}" class="block text-sm font-medium text-gray-700 mb-2">Type de Question</label>
+                <select name="question_type_${questionCount}" id="question_type_${questionCount}" required 
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="MCQ">QCM</option>
+                    <option value="short_answer">Réponse Courte</option>
+                    <option value="open">Question Ouverte</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="question_wording_${questionCount}" class="block text-sm font-medium text-gray-700 mb-2">Énoncé</label>
+                <textarea name="question_wording_${questionCount}" id="question_wording_${questionCount}" rows="3" 
+                          class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+            </div>
+
+            <div>
+                <label for="question_points_${questionCount}" class="block text-sm font-medium text-gray-700 mb-2">Points</label>
+                <input type="number" name="question_points_${questionCount}" id="question_points_${questionCount}" required 
+                       class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div class="mcq-choices-container space-y-4" id="mcq_choices_${questionCount}">
                 <input type="hidden" name="mcq_choice_count_${questionCount}" id="mcq_choice_count_${questionCount}" value="0">
-                
-                <div>
-                    <label for="question_type_${questionCount}" class="block text-sm font-medium text-blue-200 mb-2">Question Type</label>
-                    <select name="question_type_${questionCount}" id="question_type_${questionCount}" required 
-                        class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all [&>option]:bg-gray-900 [&>option]:text-white">
-                        <option value="MCQ">MCQ</option>
-                        <option value="short">Short Answer</option>
-                        <option value="long">Long Answer</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label for="question_wording_${questionCount}" class="block text-sm font-medium text-blue-200 mb-2">Wording</label>
-                    <textarea name="question_wording_${questionCount}" id="question_wording_${questionCount}" rows="3" 
-                              class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all"></textarea>
-                </div>
-                
-                <div>
-                    <label for="question_points_${questionCount}" class="block text-sm font-medium text-blue-200 mb-2">Points</label>
-                    <input type="number" name="question_points_${questionCount}" id="question_points_${questionCount}" required 
-                           class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all">
-                </div>
-                
-                <div class="mcq-choices-container space-y-4" id="mcq_choices_${questionCount}">
-                    <!-- MCQ Choices will be added here dynamically -->
-                </div>
-                
-                <button type="button" class="add-mcq-choice-btn px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all" data-question-id="${questionCount}">
-                    Add MCQ Choice
+                <button type="button" class="add-mcq-choice-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all" data-question-id="${questionCount}">
+                    Ajouter un Choix
                 </button>
             </div>
         `;
@@ -163,7 +164,17 @@
         document.getElementById('questions-container').appendChild(questionContainer);
     });
 
-    document.addEventListener('click', function (event) {
+    // Handle removing questions
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('remove-question-btn')) {
+            const questionId = event.target.getAttribute('data-question-id');
+            const questionElement = document.getElementById(`question_${questionId}`);
+            questionElement.remove();
+        }
+    });
+
+    // Handle adding MCQ choices
+    document.addEventListener('click', function(event) {
         if (event.target.classList.contains('add-mcq-choice-btn')) {
             const questionId = event.target.getAttribute('data-question-id');
             const choiceCountElem = document.getElementById(`mcq_choice_count_${questionId}`);
@@ -171,47 +182,45 @@
             choiceCountElem.value = choiceCount;
 
             const choiceContainer = document.createElement('div');
-            choiceContainer.classList.add('relative');
+            choiceContainer.classList.add('bg-gray-50', 'rounded-lg', 'p-4', 'space-y-4');
             choiceContainer.setAttribute('id', `mcq_choice_${questionId}_${choiceCount}`);
 
             choiceContainer.innerHTML = `
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl blur-xl"></div>
-                <div class="relative backdrop-blur-xl bg-white/5 rounded-2xl p-4 border border-white/10 space-y-4">
-                    <h3 class="text-md font-bold text-blue-200">Choice ${choiceCount}</h3>
-                    <button type="button" class="remove-mcq-choice-btn px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-all" data-question-id="${questionId}" data-choice-id="${choiceCount}">
-                        Remove Choice
+                <div class="flex justify-between items-center">
+                    <h3 class="text-md font-bold text-gray-900">Choix ${choiceCount}</h3>
+                    <button type="button" class="remove-mcq-choice-btn px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all" 
+                            data-question-id="${questionId}" data-choice-id="${choiceCount}">
+                        Supprimer
                     </button>
-                    <div>
-                        <label for="mcq_choice_text_${questionId}_${choiceCount}" class="block text-sm font-medium text-blue-200 mb-2">Choice Text</label>
-                        <input type="text" name="mcq_choice_text_${questionId}_${choiceCount}" id="mcq_choice_text_${questionId}_${choiceCount}" required 
-                               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/10 text-white placeholder-white/50 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all">
-                    </div>
-                    
-                    <div class="flex items-center space-x-2">
-                        <input type="checkbox" name="mcq_choice_correct_${questionId}_${choiceCount}" id="mcq_choice_correct_${questionId}_${choiceCount}" 
-                               class="h-4 w-4 rounded border-white/10 text-indigo-600 focus:ring-indigo-500">
-                        <label for="mcq_choice_correct_${questionId}_${choiceCount}" class="text-sm font-medium text-blue-200">Correct</label>
-                    </div>
+                </div>
+                <div>
+                    <label for="mcq_choice_text_${questionId}_${choiceCount}" class="block text-sm font-medium text-gray-700 mb-2">Texte du Choix</label>
+                    <input type="text" name="mcq_choice_text_${questionId}_${choiceCount}" id="mcq_choice_text_${questionId}_${choiceCount}" required 
+                           class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" name="mcq_choice_correct_${questionId}_${choiceCount}" id="mcq_choice_correct_${questionId}_${choiceCount}"
+                           class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="mcq_choice_correct_${questionId}_${choiceCount}" class="text-sm font-medium text-gray-700">
+                        Réponse Correcte
+                    </label>
                 </div>
             `;
 
-            document.getElementById(`mcq_choices_${questionId}`).appendChild(choiceContainer);
+            const mcqChoicesContainer = document.getElementById(`mcq_choices_${questionId}`);
+            mcqChoicesContainer.insertBefore(choiceContainer, event.target);
         }
+    });
 
+    // Handle removing MCQ choices
+    document.addEventListener('click', function(event) {
         if (event.target.classList.contains('remove-mcq-choice-btn')) {
             const questionId = event.target.getAttribute('data-question-id');
             const choiceId = event.target.getAttribute('data-choice-id');
-            const choiceContainer = document.getElementById(`mcq_choice_${questionId}_${choiceId}`);
-            choiceContainer.remove();
-        }
-
-        if (event.target.classList.contains('remove-question-btn')) {
-            const questionId = event.target.getAttribute('data-question-id');
-            const questionContainer = document.getElementById(`question_${questionId}`);
-            questionContainer.remove();
+            const choiceElement = document.getElementById(`mcq_choice_${questionId}_${choiceId}`);
+            choiceElement.remove();
         }
     });
 });
-
 </script>
 {% endblock %}
