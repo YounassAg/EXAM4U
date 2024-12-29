@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction, IntegrityError
-from django.db.models import Count, Avg
+from django.db.models import Avg
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth import login, authenticate, logout
+from django.forms import modelformset_factory
 from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
@@ -477,24 +478,53 @@ def exam_attempts(request, exam_id):
     # Calculate time taken for each attempt
     for attempt in attempts:
         if attempt.end_date and attempt.start_date:
-            attempt.time_taken = (attempt.end_date - attempt.start_date).total_seconds() / 60  # time taken in minutes
+            attempt.time_taken = (attempt.end_date - attempt.start_date).total_seconds() / 60
         else:
             attempt.time_taken = None
 
     context = {
         'exam': exam,
-        'attempts': attempts
+        'attempts': attempts,
     }
     return render(request, 'teacher/exam/exam_attempts.html', context)
 
 
 def correct_exam(request, attempt_id):
+    # Get the exam attempt
     attempt = get_object_or_404(ExamAttempt, id=attempt_id)
-    # Implement the logic to correct the exam here
-    # ...
+    
+    # Get all responses for this attempt
+    responses = Response.objects.filter(attempt=attempt)
+    
+    # Dynamically generate a formset for the responses (grading each response)
+    ResponseFormSet = modelformset_factory(Response, fields=('response_grade',), extra=0)
+    
+    if request.method == 'POST':
+        formset = ResponseFormSet(request.POST, queryset=responses)
+        
+        if formset.is_valid():
+            # Use a transaction to ensure all data is saved correctly
+            with transaction.atomic():
+                # Save all the graded responses
+                formset.save()
+                
+                # Calculate the total grade for the attempt
+                total_grade = sum(response.response_grade for response in responses if response.response_grade is not None)
+                
+                # Update the attempt grade
+                attempt.grade = total_grade
+                attempt.status = 'completed'  # Set status to completed after grading
+                attempt.save()
+                
+            # Redirect to another view (e.g., a summary or list of attempts)
+            return redirect('exam_attempts_list')  # Replace with your desired URL name
+    
+    else:
+        formset = ResponseFormSet(queryset=responses)
+    
     context = {
         'attempt': attempt,
-        # Add other context variables as needed
+        'formset': formset,
     }
     return render(request, 'teacher/exam/correct_exam.html', context)
 

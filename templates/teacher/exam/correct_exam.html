@@ -5,11 +5,29 @@
 {% block content %}
 <div class="container mx-auto py-8">
     <h1 class="text-3xl font-bold text-white">Correct Exam - {{ attempt.exam.title }}</h1>
-    <!-- Implement the form or details for correcting the exam here -->
-    <!-- Example: -->
     <form method="post">
         {% csrf_token %}
-        <!-- Add form fields to correct the exam -->
+        {{ formset.management_form }}
+        <table class="table-auto w-full text-white">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2">Question</th>
+                    <th class="px-4 py-2">Student Response</th>
+                    <th class="px-4 py-2">Grade</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form in formset %}
+                <tr>
+                    <td class="border px-4 py-2">{{ form.instance.question.wording }}</td>
+                    <td class="border px-4 py-2">{{ form.instance.response_text }}</td>
+                    <td class="border px-4 py-2">
+                        <input type="number" step="any" name="{{ form.prefix }}-response_grade" value="{{ form.instance.response_grade }}" class="border bg-gray-900 p-2 rounded-lg" min="0" max="{{ form.instance.question.points }}">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
         <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg">Submit Correction</button>
     </form>
 </div>

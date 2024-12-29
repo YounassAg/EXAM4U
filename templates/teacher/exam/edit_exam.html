@@ -106,7 +106,7 @@
                         <div>
                             <label for="question_type_{{ forloop.counter }}" class="block text-sm font-medium text-blue-200 mb-2">Question Type</label>
                             <select name="question_type_{{ forloop.counter }}" id="question_type_{{ forloop.counter }}" required 
-                                    class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/10 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all">
+                                    class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all [&>option]:bg-gray-900 [&>option]:text-white">
                                 <option value="MCQ" {% if question.question_type == 'MCQ' %}selected{% endif %}>MCQ</option>
                                 <option value="short_answer" {% if question.question_type == 'short_answer' %}selected{% endif %}>Short Answer</option>
                                 <option value="open" {% if question.question_type == 'open' %}selected{% endif %}>Open Question</option>
@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div>
                     <label for="question_type_${questionCount}" class="block text-sm font-medium text-blue-200 mb-2">Question Type</label>
                     <select name="question_type_${questionCount}" id="question_type_${questionCount}" required 
-                            class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/10 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all">
+                        class="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-all [&>option]:bg-gray-900 [&>option]:text-white">
                         <option value="MCQ">MCQ</option>
                         <option value="short_answer">Short Answer</option>
                         <option value="open">Open Question</option>
