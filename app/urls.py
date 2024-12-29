@@ -15,10 +15,8 @@ urlpatterns = [
         path('student/exam/exam_list/', views.student_exam_list, name='student_exam_list'),
         path('teacher/exam/exam_list/', views.teacher_exam_list, name='teacher_exam_list'),
         path('student/exam/<int:exam_id>/take/', views.take_exam, name='take_exam'),
+        path('student/exam/<int:attempt_id>/completed/', views.exam_completed, name='exam_completed'),
         path('teacher/exam/delete_exam/<int:exam_id>/', views.delete_exam, name='delete_exam'),
         path('teacher/exam/edit_exam/<int:exam_id>/', views.edit_exam, name='edit_exam'),
         path('teacher/exam/exam_list/', views.exam_list, name='exam_list'),
-        path('teacher/exam/exam_correction_list/', views.exam_correction_list, name='exam_correction_list'),
-        path('teacher/exam/correct/<int:attempt_id>/', views.correct_exam_attempt, name='correct_exam_attempt'),
-        path('student/exam/<int:attempt_id>/completed/', views.exam_completed, name='exam_completed')
 ]
