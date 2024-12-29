@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Exam Attempts - Exam4U{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen">
+    {% include 'components/teacher_sidebar.html' %}
+
+    <div class="flex-1 p-8">
+        <!-- Title Section -->
+        <div class="relative">
+            <div class="absolute inset-0 bg-gradient-to-r from-green-500/30 to-teal-500/30 rounded-2xl blur-xl"></div>
+            <div class="relative backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/10">
+                <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-teal-500">
+                    Exam Attempts for "{{ exam.title }}"
+                </h1>
+                <p class="text-green-200 mt-2">View and manage exam attempts</p>
+            </div>
+        </div>
+
+        <!-- Attempts List Section -->
+        <div class="mt-8 space-y-8">
+            {% if attempts %}
+                <div class="grid grid-cols-1 gap-8">
+                    {% for attempt in attempts %}
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-teal-500/20 rounded-2xl blur-xl"></div>
+                            <div class="relative backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/10 space-y-4">
+                                <h2 class="text-2xl font-bold text-white">{{ attempt.student.user.first_name }} {{ attempt.student.user.last_name }}</h2>
+                                <p class="text-green-200">Status: {{ attempt.get_status_display }}</p>
+                                <p class="text-green-200">Grade: {{ attempt.grade }}</p>
+                                {% if attempt.time_taken %}
+                                    <p class="text-green-200">Time Taken: {{ attempt.time_taken|floatformat:2 }} minutes</p>
+                                {% else %}
+                                    <p class="text-red-500">Time Taken: N/A</p>
+                                {% endif %}
+                                <a href="{% url 'correct_exam' attempt.id %}" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all">
+                                    Correct Exam
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-green-200">No completed attempts for this exam.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

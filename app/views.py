@@ -469,8 +469,34 @@ def delete_exam(request, exam_id):
 
     return render(request, 'teacher/exam/delete_exam.html', {'exam': exam})
 
-def exam_list():
-    pass
+@login_required
+def exam_attempts(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    attempts = ExamAttempt.objects.filter(exam=exam, status='completed')
+
+    # Calculate time taken for each attempt
+    for attempt in attempts:
+        if attempt.end_date and attempt.start_date:
+            attempt.time_taken = (attempt.end_date - attempt.start_date).total_seconds() / 60  # time taken in minutes
+        else:
+            attempt.time_taken = None
+
+    context = {
+        'exam': exam,
+        'attempts': attempts
+    }
+    return render(request, 'teacher/exam/exam_attempts.html', context)
+
+
+def correct_exam(request, attempt_id):
+    attempt = get_object_or_404(ExamAttempt, id=attempt_id)
+    # Implement the logic to correct the exam here
+    # ...
+    context = {
+        'attempt': attempt,
+        # Add other context variables as needed
+    }
+    return render(request, 'teacher/exam/correct_exam.html', context)
 
 @login_required
 @role_required('student')
