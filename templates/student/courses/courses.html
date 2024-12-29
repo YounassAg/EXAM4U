@@ -1,33 +1,68 @@
 {% extends 'base.html' %}
 
-{% block title %}My Courses - Exam4U{% endblock %}
+{% block title %}Mes Cours - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex">
-    
+<div class="flex min-h-screen bg-gray-50">
     {% include 'components/student_sidebar.html' %}
 
     <!-- Main Content Area -->
-    <div class="flex-1 space-y-8">
-        <!-- Page Header -->
-        <div class="bg-white shadow-lg rounded-lg p-6">
-            <h1 class="text-2xl font-bold text-gray-900">My Courses</h1>
-            <p class="text-gray-600">Manage and view your current courses.</p>
+    <div class="flex-1 p-8 space-y-8">
+        <!-- Title Section -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+            <h1 class="text-2xl font-bold text-gray-900">Mes Cours</h1>
+            <p class="text-gray-600 mt-2">Gérez et consultez vos cours actuels</p>
         </div>
 
         <!-- Courses List -->
-        <div class="bg-white shadow-lg rounded-lg p-6">
-            <div class="space-y-6">
-                {% for course in courses %}
-                    <div class="border-b pb-4">
-                        <div class="flex justify-between items-start">
+        <div class="space-y-6">
+            {% for course in courses %}
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="space-y-4">
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-800">{{ course.title }}</h3>
+                                <h3 class="text-xl font-bold text-gray-900">{{ course.title }}</h3>
+                                <p class="text-gray-600 mt-1">{{ course.description }}</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                                <div class="flex items-center text-gray-600">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                    </svg>
+                                    <span>Spécialité: {{ course.specialty.name }}</span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span>Durée: {{ course.duration }} heures</span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    <span>Enseignant: {{ course.teacher.user.get_full_name }}</span>
+                                </div>
                             </div>
                         </div>
+                        
+                        <div class="flex-shrink-0 ml-6">
+                            <a href="{% url 'student_exam_list' %}?course={{ course.id }}" 
+                               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                                </svg>
+                                <span>Voir les Examens</span>
+                            </a>
+                        </div>
                     </div>
-                {% endfor %}
-            </div>
+                </div>
+            {% empty %}
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
+                    <p class="text-gray-600">Vous n'êtes inscrit à aucun cours pour le moment.</p>
+                </div>
+            {% endfor %}
         </div>
     </div>
 </div>

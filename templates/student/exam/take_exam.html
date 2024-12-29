@@ -1,54 +1,93 @@
 {% extends 'base.html' %}
 
-{% block title %}Take Exam - {{ exam.title }}{% endblock %}
+{% block title %}Passer l'Examen - Exam4U{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-4xl mx-auto">
-        <div class="relative mb-8">
-            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl blur-xl"></div>
-            <div class="relative backdrop-blur-xl bg-white/10 rounded-2xl p-8 border border-white/10">
-                <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-4">{{ exam.title }}</h1>
-                <p class="text-blue-200 mb-4">{{ exam.description }}</p>
-            </div>
+<div class="flex min-h-screen bg-gray-50">
+    {% include 'components/student_sidebar.html' %}
+
+    <div class="flex-1 p-8 space-y-8">
+        <!-- Title Section -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+            <h1 class="text-2xl font-bold text-gray-900">{{ exam.title }}</h1>
+            <p class="text-gray-600 mt-2">{{ exam.description }}</p>
         </div>
 
-        <form method="post" class="space-y-8">
-            {% csrf_token %}
-            {% for field in form %}
-                <div class="relative">
-                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl blur-lg"></div>
-                    <div class="relative backdrop-blur-xl bg-white/5 rounded-2xl p-6 border border-white/10">
-                        <label for="{{ field.id_for_label }}" class="block text-lg font-medium text-blue-200 mb-3">
-                            {{ field.label }}
-                        </label>
-                        {% if field.field.widget.input_type == 'checkbox' or field.field.widget.input_type == 'radio' %}
-                            <div class="space-y-2">
-                                {% for choice in field %}
-                                    <div class="flex items-center">
-                                        {{ choice.tag }}
-                                        <label for="{{ choice.id_for_label }}" class="ml-2 text-white">
-                                            {{ choice.choice_label }}
-                                        </label>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            {{ field }}
-                        {% endif %}
+        <!-- Exam Form -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+            <form method="post" class="space-y-8">
+                {% csrf_token %}
+                
+                <!-- Exam Info -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                    <div class="flex items-center text-gray-600">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        <span>Cours: {{ exam.course.title }}</span>
+                    </div>
+                    <div class="flex items-center text-gray-600">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Durée: {{ exam.duration }} minutes</span>
+                    </div>
+                    <div class="flex items-center text-gray-600">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                        </svg>
+                        <span>Questions: {{ exam.questions.count }}</span>
                     </div>
                 </div>
-            {% endfor %}
 
-            <div class="flex justify-end">
-                <button type="submit" class="group relative inline-flex items-center">
-                    <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg blur opacity-60 group-hover:opacity-100 transition duration-200"></div>
-                    <div class="relative px-6 py-3 bg-black rounded-lg leading-none flex items-center">
-                        <span class="text-white font-semibold">Submit Exam</span>
+                <!-- Questions -->
+                <div class="space-y-8">
+                    {% for question in exam.questions.all %}
+                        <div class="border-t border-gray-200 pt-6">
+                            <div class="space-y-4">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">Question {{ forloop.counter }}</h3>
+                                    <p class="text-gray-600 mt-2">{{ question.text }}</p>
+                                </div>
+
+                                {% if question.question_type == 'multiple_choice' %}
+                                    <div class="space-y-3">
+                                        {% for choice in question.choices.all %}
+                                            <label class="flex items-center space-x-3">
+                                                <input type="radio" name="question_{{ question.id }}" value="{{ choice.id }}" 
+                                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                                <span class="text-gray-700">{{ choice.text }}</span>
+                                            </label>
+                                        {% endfor %}
+                                    </div>
+                                {% elif question.question_type == 'text' %}
+                                    <textarea name="question_{{ question.id }}" rows="4" 
+                                              class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                              placeholder="Votre réponse..."></textarea>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Submit Button -->
+                <div class="border-t border-gray-200 pt-6">
+                    <div class="flex justify-end space-x-4">
+                        <a href="{% url 'student_exam_list' %}" 
+                           class="inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Annuler
+                        </a>
+                        <button type="submit" 
+                                class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span>Soumettre l'Examen</span>
+                        </button>
                     </div>
-                </button>
-            </div>
-        </form>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}
