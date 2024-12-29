@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Correcting {{ attempt.exam.title }} - Exam4U{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-white">{{ attempt.exam.title }}</h1>
+        <p class="text-gray-400 mt-2">Student: {{ attempt.student.first_name }} {{ attempt.student.last_name }}</p>
+    </div>
+
+    <form method="post" class="space-y-8">
+        {% csrf_token %}
+        {% for response in responses %}
+            <div class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-lg p-6">
+                <div class="mb-4">
+                    <h3 class="text-xl font-semibold text-white mb-2">Question {{ forloop.counter }}</h3>
+                    <p class="text-gray-300">{{ response.question.wording }}</p>
+                    <p class="text-gray-400 text-sm mt-2">Max points: {{ response.question.points }}</p>
+                </div>
+
+                <div class="mt-4">
+                    <h4 class="text-lg font-medium text-white mb-2">Student's Response:</h4>
+                    {% if response.question.question_type == 'MCQ' %}
+                        <div class="space-y-2">
+                            {% for choice in response.question.mcqchoice_set.all %}
+                                <div class="flex items-center">
+                                    <input type="checkbox" 
+                                           {% if choice.id|stringformat:"s" in response.response_text.split,'' %}checked{% endif %}
+                                           disabled
+                                           class="text-indigo-600">
+                                    <label class="ml-2 text-gray-300">{{ choice.choice_label }}</label>
+                                    {% if choice.is_correct %}
+                                        <span class="ml-2 text-green-500">(Correct)</span>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="bg-gray-700/50 rounded p-4">
+                            <p class="text-gray-300">{{ response.response_text }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if response.question.question_type != 'MCQ' %}
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-300">
+                            Points awarded (max: {{ response.question.points }})
+                        </label>
+                        <input type="number" 
+                               name="grade_{{ response.id }}" 
+                               step="0.5"
+                               min="0"
+                               max="{{ response.question.points }}"
+                               class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm text-white"
+                               required>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <div class="flex justify-end mt-8">
+            <button type="submit" 
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-md transition-colors">
+                Submit Correction
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction, IntegrityError
+from django.db.models import Count, Avg
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
@@ -77,7 +78,57 @@ def user_logout(request):
 @role_required('teacher')
 @login_required
 def teacher_dashboard(request):
-    return render(request, 'teacher/dashboard.html')
+    # Get teacher's profile
+    teacher_profile = UserProfile.objects.get(user=request.user, role='teacher')
+    
+    # Get active courses (courses taught by this teacher)
+    active_courses = Course.objects.filter(teacher=teacher_profile)
+    
+    # Get total number of students across all courses
+    total_students = UserProfile.objects.filter(
+        role='student',
+        group__in=[exam.group for exam in Exam.objects.filter(course__teacher=teacher_profile)]
+    ).distinct().count()
+    
+    # Get pending grading count (responses without grades)
+    pending_grading = ExamAttempt.objects.filter(
+        exam__course__teacher=teacher_profile,
+        status='completed',
+        response__response_grade__isnull=True
+    ).distinct().count()
+    
+    # Get upcoming exams
+    upcoming_exams = Exam.objects.filter(
+        course__teacher=teacher_profile,
+        start_date__gt=timezone.now()
+    ).count()
+    
+    # Get course performance data
+    course_performance = []
+    for course in active_courses:
+        exam_attempts = ExamAttempt.objects.filter(
+            exam__course=course,
+            status='completed',
+            grade__isnull=False
+        )
+        average_grade = exam_attempts.aggregate(Avg('grade'))['grade__avg']
+        
+        if average_grade is not None:
+            course_performance.append({
+                'title': course.title,
+                'average': round(average_grade, 1),
+                'performance_class': 'emerald' if average_grade >= 10 else 'amber'
+            })
+
+    context = {
+        'active_courses_count': active_courses.count(),
+        'total_students': total_students,
+        'pending_grading': pending_grading,
+        'upcoming_exams': upcoming_exams,
+        'course_performance': course_performance,
+    }
+    
+    return render(request, 'teacher/dashboard.html', context)
 
 @role_required('teacher')
 @login_required
@@ -125,7 +176,6 @@ def create_exam(request):
                     end_date=end_date,
                 )
 
-                # Process questions
                 question_count = int(request.POST.get('question_count', 0))
                 for i in range(1, question_count + 1):
                     question_type = request.POST.get(f'question_type_{i}')
@@ -350,11 +400,6 @@ def edit_exam(request, exam_id):
         }
         return render(request, 'teacher/exam/edit_exam.html', context)
     
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.db import transaction
-from .models import Exam, Question, MCQChoice, Course, Group
-
 
 @role_required('student')
 @login_required
@@ -424,10 +469,118 @@ def delete_exam(request, exam_id):
 
     return render(request, 'teacher/exam/delete_exam.html', {'exam': exam})
 
+def exam_list():
+    pass
 @login_required
 @role_required('teacher')
-def correction(request):
-    return render(request, 'teacher/exam/correction.html')
+def exam_correction_list(request):
+    """View to list all exams that need correction."""
+    pending_corrections = ExamAttempt.objects.filter(
+        status='completed',
+        exam__course__teacher=request.user.userprofile,
+        grade__isnull=True
+    ).select_related('student', 'exam').order_by('-end_date')
+
+    return render(request, 'teacher/exam/exam_correction_list.html', {
+        'pending_corrections': pending_corrections
+    })
+
+@login_required
+@role_required('teacher')
+def correct_exam_attempt(request, attempt_id):
+    """View to correct a specific exam attempt."""
+    attempt = get_object_or_404(
+        ExamAttempt.objects.select_related('exam', 'student'),
+        id=attempt_id,
+        exam__course__teacher=request.user.userprofile
+    )
+    
+    responses = Response.objects.filter(attempt=attempt).select_related('question')
+    
+    if request.method == 'POST':
+        total_points = 0
+        max_points = 0
+        
+        for response in responses:
+            question = response.question
+            max_points += question.points
+            
+            if question.question_type == 'MCQ':
+                # Auto-grade MCQ questions
+                selected_choices = response.response_text.split(',')
+                correct_choices = MCQChoice.objects.filter(
+                    question=question,
+                    is_correct=True
+                ).count()
+                user_correct_choices = MCQChoice.objects.filter(
+                    question=question,
+                    id__in=selected_choices,
+                    is_correct=True
+                ).count()
+                
+                if not question.allow_multiple_answers:
+                    # Single answer MCQ
+                    response.response_grade = question.points if user_correct_choices == 1 else 0
+                else:
+                    # Multiple answer MCQ
+                    response.response_grade = (user_correct_choices / correct_choices) * question.points
+            else:
+                # Manual grading for open and short answer questions
+                grade = request.POST.get(f'grade_{response.id}')
+                response.response_grade = float(grade) if grade else 0
+            
+            response.save()
+            total_points += response.response_grade
+        
+        # Calculate final grade as percentage
+        attempt.grade = (total_points / max_points) * 100 if max_points > 0 else 0
+        attempt.save()
+        
+        messages.success(request, 'Exam correction completed successfully.')
+        return redirect('exam_correction_list')
+    
+    return render(request, 'exams/correct_attempt.html', {
+        'attempt': attempt,
+        'responses': responses
+    })
+
+@login_required
+@role_required('teacher')
+def exam_statistics(request, exam_id):
+    """View to show statistics for a specific exam."""
+    exam = get_object_or_404(Question.objects.select_related('course'), id=exam_id)
+    
+    statistics = {
+        'total_attempts': ExamAttempt.objects.filter(exam=exam).count(),
+        'average_grade': ExamAttempt.objects.filter(
+            exam=exam,
+            grade__isnull=False
+        ).aggregate(Avg('grade'))['grade__avg'],
+        'questions': []
+    }
+    
+    for question in exam.question_set.all():
+        question_stats = {
+            'wording': question.wording,
+            'average_score': Response.objects.filter(
+                question=question,
+                response_grade__isnull=False
+            ).aggregate(Avg('response_grade'))['response_grade__avg'],
+        }
+        
+        if question.question_type == 'MCQ':
+            question_stats['choice_distribution'] = MCQChoice.objects.filter(
+                question=question
+            ).annotate(times_selected=Count('response'))
+        
+        statistics['questions'].append(question_stats)
+    
+    return JsonResponse(statistics)
+
+@login_required
+@role_required('teacher')
+def exam_student_list(request):
+    return render(request, 'teacher/exam/exam_student_list.html')
 
 @login_required
 @role_required('teacher')

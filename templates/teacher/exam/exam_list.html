@@ -25,6 +25,16 @@
             </a>
         </div>
 
+        {% if messages %}
+            <div class="messages space-y-4 mt-4">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }} p-4 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg transform transition-transform hover:scale-105">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
         <!-- Exams List Section -->
         <div class="mt-8 space-y-8">
             {% for exam in exams %}
@@ -43,7 +53,7 @@
                                 <p class="text-purple-200 mt-2">End Date: {{ exam.end_date }}</p>
                             </div>
                             <div class="flex space-x-4">
-                                <a href="{% url 'exam_student_list' %}" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-all">
+                                <a href="{% url 'exam_correction_list' %}" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-all">
                                     Correction
                                 </a>
                                 <a href="{% url 'edit_exam' exam.id %}" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all">
@@ -60,4 +70,51 @@
         </div>
     </div>
 </div>
+
+{% block extra_css %}
+    <style>
+        /* Keyframe animation for the message */
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            10% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            90% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        /* Apply styling to the message notification */
+        .messages {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: 300px;
+        }
+
+        .message {
+            animation: fadeInOut 7s ease-in-out forwards;
+            background: linear-gradient(to right, #4C6EF5, #9C61FF);
+            padding: 10px 20px;
+            margin-top: 10px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+            font-size: 14px;
+            opacity: 0;
+            display: block;
+        }
+    </style>
+{% endblock %}
+
 {% endblock %}
