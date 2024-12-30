@@ -1,35 +1,123 @@
 {% extends 'base.html' %}
 
-{% block title %}Correct Exam - {{ attempt.exam.title }}{% endblock %}
+{% block title %}Correction de l'examen - {{ attempt.exam.title }}{% endblock %}
 
 {% block content %}
 <div class="container mx-auto py-8">
-    <h1 class="text-3xl font-bold text-gray-800">Correct Exam - {{ attempt.exam.title }}</h1>
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Correction de l'examen - {{ attempt.exam.title }}</h1>
     <form method="post">
         {% csrf_token %}
         {{ formset.management_form }}
-        <table class="table-auto w-full text-gray-800">
-            <thead>
-                <tr>
-                    <th class="px-4 py-2">Question</th>
-                    <th class="px-4 py-2">Student Response</th>
-                    <th class="px-4 py-2">Grade</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for form in formset %}
-                <tr>
-                    <td class="border px-4 py-2">{{ form.instance.question.wording }}</td>
-                    <td class="border px-4 py-2">{{ form.instance.response_text }}</td>
-                    <td class="border px-4 py-2">
-                        <input type="number" step="any" name="{{ form.prefix }}-response_grade" value="{{ form.instance.response_grade }}" class="border bg-white text-gray-800 p-2 rounded-lg" min="0" max="{{ form.instance.question.points }}">
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg mt-4">Submit Correction</button>
+        <div class="space-y-6">
+            {% for form in formset %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <!-- Badge Type de Question -->
+                <div class="mb-4">
+                    <span class="px-3 py-1 text-sm rounded-full 
+                        {% if form.instance.question.question_type == 'QCM' %}
+                            bg-blue-100 text-blue-800
+                        {% elif form.instance.question.question_type == 'CODE' %}
+                            bg-purple-100 text-purple-800
+                        {% else %}
+                            bg-green-100 text-green-800
+                        {% endif %}">
+                        {% if form.instance.question.question_type == 'QCM' %}
+                            QCM
+                        {% elif form.instance.question.question_type == 'CODE' %}
+                            Code
+                        {% else %}
+                            Question Ouverte
+                        {% endif %}
+                    </span>
+                </div>
+
+                <!-- Section Question -->
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Question :</h3>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <pre class="whitespace-pre-wrap break-words">{{ form.instance.question.wording }}</pre>
+                    </div>
+                </div>
+                
+                <!-- Section Réponse de l'Étudiant -->
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Réponse de l'étudiant :</h3>
+                    {% if form.instance.question.question_type == 'QCM' %}
+                        <!-- Réponse QCM -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="space-y-2">
+                                {% for choice in form.instance.question.choices.all %}
+                                <div class="flex items-center">
+                                    <input type="checkbox" disabled
+                                        {% if choice.id in form.instance.selected_choices %}
+                                        checked
+                                        {% endif %}
+                                        class="h-4 w-4 text-blue-600 rounded">
+                                    <span class="ml-2">{{ choice.text }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% elif form.instance.question.question_type == 'CODE' %}
+                        <!-- Réponse Code -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <pre class="whitespace-pre-wrap break-words font-mono bg-gray-800 text-white p-4 rounded-lg overflow-x-auto">{{ form.instance.response_text }}</pre>
+                        </div>
+                    {% else %}
+                        <!-- Réponse Question Ouverte -->
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <pre class="whitespace-pre-wrap break-words">{{ form.instance.response_text }}</pre>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Section Notation -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <label class="text-lg font-semibold text-gray-800 mr-4">Note :</label>
+                        <input 
+                            type="number" 
+                            step="any" 
+                            name="{{ form.prefix }}-response_grade" 
+                            value="{{ form.instance.response_grade }}" 
+                            class="border bg-white text-gray-800 p-2 rounded-lg w-24"
+                            min="0" 
+                            max="{{ form.instance.question.points }}"
+                        >
+                        <span class="ml-2 text-gray-600">/ {{ form.instance.question.points }}</span>
+                    </div>
+                    {% if form.instance.question.correct_answer %}
+                    <div class="ml-4">
+                        <button type="button" class="text-blue-600 hover:text-blue-800" 
+                                onclick="toggleCorrectAnswer(this)">
+                            Afficher la Correction
+                        </button>
+                        <div class="hidden mt-2 bg-green-50 p-4 rounded-lg">
+                            <pre class="whitespace-pre-wrap break-words">{{ form.instance.question.correct_answer }}</pre>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg mt-6 transition duration-200">
+            Soumettre la Correction
+        </button>
     </form>
 </div>
+
+<script>
+function toggleCorrectAnswer(button) {
+    const answerDiv = button.nextElementSibling;
+    if (answerDiv.classList.contains('hidden')) {
+        answerDiv.classList.remove('hidden');
+        button.textContent = 'Masquer la Correction';
+    } else {
+        answerDiv.classList.add('hidden');
+        button.textContent = 'Afficher la Correction';
+    }
+}
+</script>
 {% endblock %}
 
