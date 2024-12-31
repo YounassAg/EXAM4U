@@ -1,6 +1,7 @@
+{# templates/exams/exam_attempts.html #}
 {% extends 'base.html' %}
 
-{% block title %}Tentatives d'Examen - Exam4U{% endblock %}
+{% block title %}Tentatives - {{ exam.title }} - Exam4U{% endblock %}
 
 {% block content %}
 <div class="flex min-h-screen bg-gray-50">
@@ -9,72 +10,96 @@
     <div class="flex-1 p-8 space-y-8">
         <!-- Title Section -->
         <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-            <h1 class="text-2xl font-bold text-gray-900">Tentatives pour "{{ exam.title }}"</h1>
-            <p class="text-gray-600 mt-2">Consultez et gérez les tentatives d'examen</p>
+            <h1 class="text-2xl font-bold text-gray-900">{{ exam.title }} - Tentatives</h1>
+            <p class="text-gray-600 mt-2">Liste des tentatives d'examen des étudiants</p>
         </div>
 
-        <!-- Attempts List Section -->
-        <div class="space-y-6">
-            {% if attempts %}
-                <div class="grid grid-cols-1 gap-6">
+        {% if messages %}
+            <div class="messages space-y-4">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }} bg-white p-4 rounded-lg border-l-4 {% if message.tags == 'success' %}border-green-500{% else %}border-red-500{% endif %} shadow-md">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Attempts List -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Étudiant
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Date de début
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Statut
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Note
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
                     {% for attempt in attempts %}
-                        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-300">
-                            <div class="space-y-4">
-                                <div class="flex items-center justify-between">
-                                    <h2 class="text-xl font-bold text-gray-900">
-                                        {{ attempt.student.user.first_name }} {{ attempt.student.user.last_name }}
-                                    </h2>
-                                    <span class="px-3 py-1 rounded-full text-sm font-medium 
-                                        {% if attempt.status == 'completed' %}bg-green-100 text-green-800
-                                        {% elif attempt.status == 'in_progress' %}bg-yellow-100 text-yellow-800
-                                        {% else %}bg-red-100 text-red-800{% endif %}">
-                                        {{ attempt.get_status_display }}
-                                    </span>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ attempt.student.last_name }} {{ attempt.student.first_name }}
                                 </div>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div class="flex items-center space-x-2">
-                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
-                                        <span class="text-gray-600">Note: {{ attempt.grade }}</span>
-                                    </div>
-                                    
-                                    {% if attempt.time_taken %}
-                                        <div class="flex items-center space-x-2">
-                                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            </svg>
-                                            <span class="text-gray-600">Temps: {{ attempt.time_taken|floatformat:2 }} minutes</span>
-                                        </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">
+                                    {{ attempt.start_date|date:"d/m/Y H:i" }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    {% if attempt.status == 'completed' %}
+                                        bg-green-100 text-green-800
+                                    {% elif attempt.status == 'in_progress' %}
+                                        bg-yellow-100 text-yellow-800
                                     {% else %}
-                                        <div class="flex items-center space-x-2">
-                                            <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            </svg>
-                                            <span class="text-red-600">Temps: N/A</span>
-                                        </div>
+                                        bg-red-100 text-red-800
+                                    {% endif %}">
+                                    {{ attempt.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">
+                                    {% if attempt.grade is not None %}
+                                       <b>{{ attempt.grade|floatformat:1 }} </b>/ 20
+                                    {% else %}
+                                        -
                                     {% endif %}
                                 </div>
-
-                                <div class="pt-4">
-                                    <a href="{% url 'correct_exam' attempt.id %}" 
-                                       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all space-x-2">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                        </svg>
-                                        <span>Corriger</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="{% url 'grade_attempt' attempt.id %}" 
+                                   class="text-blue-600 hover:text-blue-900">
+                                    {% if attempt.grade is not None %}
+                                        Modifier la correction
+                                    {% else %}
+                                        Corriger
+                                    {% endif %}
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                                Aucune tentative pour cet examen.
+                            </td>
+                        </tr>
                     {% endfor %}
-                </div>
-            {% else %}
-                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
-                    <p class="text-gray-600">Aucune tentative terminée pour cet examen.</p>
-                </div>
-            {% endif %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

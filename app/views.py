@@ -508,44 +508,98 @@ def exam_attempts(request, exam_id):
     return render(request, 'teacher/exam/exam_attempts.html', context)
 
 
-def correct_exam(request, attempt_id):
-    # Get the exam attempt
-    attempt = get_object_or_404(ExamAttempt, id=attempt_id)
+@login_required
+def grade_attempt(request, attempt_id):
+    """View to grade a specific exam attempt"""
+    attempt = get_object_or_404(ExamAttempt.objects.select_related(
+        'exam', 'student', 'student__user', 'exam__course'
+    ), id=attempt_id)
     
-    # Get all responses for this attempt
-    responses = Response.objects.filter(attempt=attempt)
+    # Verify teacher permission
+    if request.user.userprofile.role != 'teacher' or request.user.userprofile != attempt.exam.course.teacher:
+        messages.error(request, "Vous n'avez pas la permission de corriger cet examen.")
+        return redirect('dashboard')
     
-    # Dynamically generate a formset for the responses (grading each response)
-    ResponseFormSet = modelformset_factory(Response, fields=('response_grade',), extra=0)
+    # Get all responses for this attempt with related questions
+    responses = Response.objects.filter(
+        attempt=attempt
+    ).select_related(
+        'question'
+    ).prefetch_related(
+        'question__mcqchoice_set'
+    )
     
     if request.method == 'POST':
-        formset = ResponseFormSet(request.POST, queryset=responses)
+        total_points = 0
+        total_possible_points = 0
         
-        if formset.is_valid():
-            # Use a transaction to ensure all data is saved correctly
-            with transaction.atomic():
-                # Save all the graded responses
-                formset.save()
-                
-                # Calculate the total grade for the attempt
-                total_grade = sum(response.response_grade for response in responses if response.response_grade is not None)
-                
-                # Update the attempt grade
-                attempt.grade = total_grade
-                attempt.status = 'completed'  # Set status to completed after grading
-                attempt.save()
-                
-            # Redirect to another view (e.g., a summary or list of attempts)
-            return redirect('exam_attempts_list')  # Replace with your desired URL name
+        for response in responses:
+            response_grade = float(request.POST.get(f'grade_{response.id}', 0))
+            response.response_grade = response_grade
+            response.save()
+            
+            total_points += response_grade
+            total_possible_points += response.question.points
+        
+        # Calculate final grade as percentage
+        if total_possible_points > 0:
+            final_grade = total_points
+        else:
+            final_grade = 0
+            
+        attempt.grade = final_grade
+        attempt.status = 'completed'
+        attempt.save()
+        
+        messages.success(request, 'La correction a été enregistrée avec succès!')
+        return redirect('exam_attempts', exam_id=attempt.exam.id)
     
-    else:
-        formset = ResponseFormSet(queryset=responses)
+    responses_data = []
+    for response in responses:
+        if response.question.question_type == 'MCQ':
+            # For MCQ, calculate automatic grade
+            selected_answers = response.response_text.split(',') if response.response_text else []
+            correct_choices = MCQChoice.objects.filter(
+                question=response.question,
+                is_correct=True
+            )
+            total_correct = len(correct_choices)
+            
+            if total_correct > 0:
+                # Check if all selected answers are correct and no correct answers are missing
+                selected_choices = MCQChoice.objects.filter(
+                    question=response.question,
+                    choice_label__in=selected_answers
+                )
+                
+                correct_selected = selected_choices.filter(is_correct=True).count()
+                incorrect_selected = selected_choices.count() - correct_selected
+                
+                if response.question.allow_multiple_answers:
+                    # Partial credit for multiple answer questions
+                    suggested_grade = (correct_selected / total_correct) * response.question.points
+                    if incorrect_selected > 0:
+                        suggested_grade *= 0.5  # Penalty for incorrect selections
+                else:
+                    # Single answer questions - all or nothing
+                    suggested_grade = response.question.points if correct_selected == total_correct and incorrect_selected == 0 else 0
+            else:
+                suggested_grade = 0
+        else:
+            suggested_grade = None
+            
+        responses_data.append({
+            'response': response,
+            'suggested_grade': suggested_grade
+        })
     
     context = {
         'attempt': attempt,
-        'formset': formset,
+        'responses_data': responses_data,
     }
+    
     return render(request, 'teacher/exam/correct_exam.html', context)
+
 
 @login_required
 @role_required('student')

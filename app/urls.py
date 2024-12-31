@@ -22,5 +22,5 @@ urlpatterns = [
         path('teacher/exam/delete_exam/<int:exam_id>/', views.delete_exam, name='delete_exam'),
         path('teacher/exam/edit_exam/<int:exam_id>/', views.edit_exam, name='edit_exam'),
         path('teacher/exam/<int:exam_id>/attempts/', views.exam_attempts, name='exam_attempts'),
-        path('teacher/exam/attempt/<int:attempt_id>/correct/', views.correct_exam, name='correct_exam'),
+        path('teacher/exam/attempt/<int:attempt_id>/correct/', views.grade_attempt, name='grade_attempt'),
 ]
