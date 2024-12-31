@@ -4,11 +4,11 @@
 
 {% block content %}
 <div class="container mx-auto py-8">
-    <h1 class="text-3xl font-bold text-white">Correct Exam - {{ attempt.exam.title }}</h1>
+    <h1 class="text-3xl font-bold text-gray-800">Correct Exam - {{ attempt.exam.title }}</h1>
     <form method="post">
         {% csrf_token %}
         {{ formset.management_form }}
-        <table class="table-auto w-full text-white">
+        <table class="table-auto w-full text-gray-800">
             <thead>
                 <tr>
                     <th class="px-4 py-2">Question</th>
@@ -22,13 +22,14 @@
                     <td class="border px-4 py-2">{{ form.instance.question.wording }}</td>
                     <td class="border px-4 py-2">{{ form.instance.response_text }}</td>
                     <td class="border px-4 py-2">
-                        <input type="number" step="any" name="{{ form.prefix }}-response_grade" value="{{ form.instance.response_grade }}" class="border bg-gray-900 p-2 rounded-lg" min="0" max="{{ form.instance.question.points }}">
+                        <input type="number" step="any" name="{{ form.prefix }}-response_grade" value="{{ form.instance.response_grade }}" class="border bg-white text-gray-800 p-2 rounded-lg" min="0" max="{{ form.instance.question.points }}">
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg">Submit Correction</button>
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg mt-4">Submit Correction</button>
     </form>
 </div>
 {% endblock %}
+
