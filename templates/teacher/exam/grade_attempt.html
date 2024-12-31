@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Correction - {{ attempt.exam.title }} - Exam4U{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen" style="background-color: var(--bg-secondary)">
+    {% include 'components/teacher_sidebar.html' %}
+
+    <div class="flex-1 p-8 space-y-8">
+        <!-- Title Section -->
+        <div class="rounded-xl shadow-lg p-6" style="background-color: var(--card-bg); border: 1px solid var(--border-color)">
+            <h1 class="text-2xl font-bold" style="color: var(--text-primary)">{{ attempt.exam.title }}</h1>
+            <p style="color: var(--text-secondary)" class="mt-2">Correction de la tentative de {{ attempt.student.user.get_full_name }}</p>
+        </div>
+
+        <!-- Student Info -->
+        <div class="rounded-xl shadow-lg p-6" style="background-color: var(--card-bg); border: 1px solid var(--border-color)">
+            <div class="flex items-center space-x-4">
+                <div class="h-12 w-12 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center text-white text-lg font-semibold">
+                    {{ attempt.student.user.username|make_list|first|upper }}
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold" style="color: var(--text-primary)">{{ attempt.student.user.get_full_name }}</h2>
+                    <p style="color: var(--text-secondary)">{{ attempt.student.user.email }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grading Form -->
+        <form method="post" class="space-y-8">
+            {% csrf_token %}
+            {% for answer in attempt.answers.all %}
+                <div class="rounded-xl shadow-lg p-6" style="background-color: var(--card-bg); border: 1px solid var(--border-color)">
+                    <div class="space-y-4">
+                        <!-- Question -->
+                        <div class="space-y-2">
+                            <h3 class="text-lg font-semibold" style="color: var(--text-primary)">Question {{ forloop.counter }}</h3>
+                            <p style="color: var(--text-primary)">{{ answer.question.text }}</p>
+                            {% if answer.question.image %}
+                                <img src="{{ answer.question.image.url }}" alt="Question Image" class="max-w-lg rounded-lg shadow-md">
+                            {% endif %}
+                        </div>
+
+                        <!-- Student's Answer -->
+                        <div class="space-y-2">
+                            <h4 class="font-medium" style="color: var(--text-secondary)">Réponse de l'étudiant :</h4>
+                            <div class="p-4 rounded-lg" style="background-color: var(--bg-secondary); border: 1px solid var(--border-color)">
+                                <p style="color: var(--text-primary)">{{ answer.text }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Correct Answer -->
+                        <div class="space-y-2">
+                            <h4 class="font-medium" style="color: var(--text-secondary)">Réponse correcte :</h4>
+                            <div class="p-4 rounded-lg bg-green-600/10">
+                                <p class="text-green-500">{{ answer.question.correct_answer }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Points -->
+                        <div class="space-y-2">
+                            <label for="points_{{ answer.id }}" class="block font-medium" style="color: var(--text-secondary)">
+                                Points (max: {{ answer.question.points }})
+                            </label>
+                            <input type="number" 
+                                   name="points_{{ answer.id }}" 
+                                   id="points_{{ answer.id }}" 
+                                   value="{{ answer.points|default:0 }}"
+                                   min="0" 
+                                   max="{{ answer.question.points }}" 
+                                   step="0.5"
+                                   class="block w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color)">
+                        </div>
+
+                        <!-- Feedback -->
+                        <div class="space-y-2">
+                            <label for="feedback_{{ answer.id }}" class="block font-medium" style="color: var(--text-secondary)">
+                                Commentaire
+                            </label>
+                            <textarea name="feedback_{{ answer.id }}" 
+                                      id="feedback_{{ answer.id }}" 
+                                      rows="3" 
+                                      class="block w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                      style="background-color: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color)"
+                                      placeholder="Ajouter un commentaire...">{{ answer.feedback }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <!-- Submit Button -->
+            <div class="flex justify-end">
+                <button type="submit" 
+                        class="inline-flex items-center px-6 py-3 rounded-lg text-white space-x-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg">
+                    <i class="fas fa-save w-5 h-5"></i>
+                    <span>Enregistrer la correction</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

@@ -1,6 +1,6 @@
 <!-- templates/base.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,21 +13,49 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
     <style>
+        :root {
+            /* Light theme variables */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: rgba(59, 130, 246, 0.1);
+            --navbar-bg: rgba(255, 255, 255, 0.85);
+            --card-bg: #ffffff;
+        }
+
+        /* Dark theme variables */
+        html.dark {
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --text-primary: #f3f4f6;
+            --text-secondary: #d1d5db;
+            --border-color: rgba(59, 130, 246, 0.2);
+            --navbar-bg: rgba(17, 24, 39, 0.85);
+            --card-bg: #1f2937;
+        }
+
         @keyframes navbarGlow {
-            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.1); }
-            50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.2); }
+            0%, 100% { box-shadow: 0 0 20px var(--border-color); }
+            50% { box-shadow: 0 0 30px var(--border-color); }
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .navbar {
-            background: rgba(255, 255, 255, 0.85);
+            background: var(--navbar-bg);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+            border-bottom: 1px solid var(--border-color);
             animation: navbarGlow 4s ease-in-out infinite;
         }
 
         .nav-link {
             position: relative;
-            color: #1f2937;
+            color: var(--text-primary);
             transition: all 0.3s ease;
         }
 
@@ -75,12 +103,26 @@
         }
 
         .footer {
-            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-            border-top: 1px solid rgba(59, 130, 246, 0.1);
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        /* Theme toggle button styles */
+        .theme-toggle {
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-primary);
+        }
+
+        .theme-toggle:hover {
+            background: var(--border-color);
         }
     </style>
 </head>
-<body class="min-h-screen bg-white">
+<body class="min-h-screen">
     <!-- Navigation -->
     <nav class="navbar fixed w-full top-0 z-50 px-6 py-4">
         <div class="container mx-auto flex justify-between items-center">
@@ -90,9 +132,15 @@
                     <a href="{% url 'index' %}" class="nav-link">Accueil</a>
                     <a href="#features" class="nav-link">Fonctionnalités</a>
                     <a href="#contact" class="nav-link">Contact</a>
+                    <button id="theme-toggle" class="theme-toggle">
+                        <i class="fas fa-sun"></i>
+                    </button>
                     <a href="{% url 'register' %}" class="btn-primary px-4 py-2 rounded-lg text-white font-semibold">Register</a>
                     <a href="{% url 'login' %}" class="btn-primary px-4 py-2 rounded-lg text-white font-semibold">Login</a>
                 {% else %}
+                    <button id="theme-toggle" class="theme-toggle">
+                        <i class="fas fa-sun"></i>
+                    </button>
                     <a href="{% url 'logout' %}" class="btn-primary px-6 py-2 rounded-lg text-white font-semibold flex items-center space-x-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
@@ -113,7 +161,7 @@
     <footer class="footer py-8">
         <div class="container mx-auto px-6">
             <div class="flex justify-between items-center">
-                <div class="text-sm text-gray-600">© 2024 Exam4U. Tous droits réservés.</div>
+                <div class="text-sm">© 2024 Exam4U. Tous droits réservés.</div>
                 <div class="flex space-x-6">
                     <a href="#" class="nav-link text-sm">Politique de confidentialité</a>
                     <a href="#" class="nav-link text-sm">Conditions d'utilisation</a>
@@ -121,5 +169,31 @@
             </div>
         </div>
     </footer>
+
+    <!-- Theme Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const html = document.documentElement;
+            const icon = themeToggle.querySelector('i');
+
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            html.className = savedTheme;
+            updateIcon(savedTheme === 'dark');
+
+            // Toggle theme
+            themeToggle.addEventListener('click', function() {
+                const isDark = html.classList.toggle('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                updateIcon(isDark);
+            });
+
+            // Update icon based on theme
+            function updateIcon(isDark) {
+                icon.className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+            }
+        });
+    </script>
 </body>
 </html>

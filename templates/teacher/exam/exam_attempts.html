@@ -1,99 +1,100 @@
 {# templates/exams/exam_attempts.html #}
 {% extends 'base.html' %}
 
-{% block title %}Tentatives - {{ exam.title }} - Exam4U{% endblock %}
+{% block title %}Tentatives d'Examen - {{ exam.title }} - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen bg-gray-50">
+<div class="flex min-h-screen" style="background-color: var(--bg-secondary)">
     {% include 'components/teacher_sidebar.html' %}
 
     <div class="flex-1 p-8 space-y-8">
         <!-- Title Section -->
-        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-            <h1 class="text-2xl font-bold text-gray-900">{{ exam.title }} - Tentatives</h1>
-            <p class="text-gray-600 mt-2">Liste des tentatives d'examen des étudiants</p>
+        <div class="rounded-xl shadow-lg p-6" style="background-color: var(--card-bg); border: 1px solid var(--border-color)">
+            <h1 class="text-2xl font-bold" style="color: var(--text-primary)">{{ exam.title }}</h1>
+            <p style="color: var(--text-secondary)" class="mt-2">Tentatives des étudiants</p>
         </div>
 
-        {% if messages %}
-            <div class="messages space-y-4">
-                {% for message in messages %}
-                    <div class="message {{ message.tags }} bg-white p-4 rounded-lg border-l-4 {% if message.tags == 'success' %}border-green-500{% else %}border-red-500{% endif %} shadow-md">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        <!-- Attempts List -->
-        <div class="bg-white rounded-xl shadow-lg border border-gray-200">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+        <!-- Attempts Table -->
+        <div class="rounded-xl shadow-lg overflow-hidden" style="background-color: var(--card-bg); border: 1px solid var(--border-color)">
+            <table class="min-w-full divide-y" style="border-color: var(--border-color)">
+                <thead style="background-color: var(--bg-secondary)">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: var(--text-secondary)">
                             Étudiant
                         </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: var(--text-secondary)">
                             Date de début
                         </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: var(--text-secondary)">
                             Statut
                         </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: var(--text-secondary)">
                             Note
                         </th>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider" style="color: var(--text-secondary)">
                             Actions
                         </th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="divide-y" style="border-color: var(--border-color)">
                     {% for attempt in attempts %}
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">
-                                    {{ attempt.student.last_name }} {{ attempt.student.first_name }}
+                        <tr class="transition-colors duration-200 hover:bg-opacity-50" style="background-color: var(--card-bg)">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center text-white font-semibold">
+                                            {{ attempt.student.user.username|make_list|first|upper }}
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium" style="color: var(--text-primary)">
+                                            {{ attempt.student.user.get_full_name }}
+                                        </div>
+                                        <div class="text-sm" style="color: var(--text-secondary)">
+                                            {{ attempt.student.user.email }}
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">
+                            <td class="px-6 py-4">
+                                <div class="text-sm" style="color: var(--text-secondary)">
                                     {{ attempt.start_date|date:"d/m/Y H:i" }}
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4">
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    {% if attempt.status == 'completed' %}
-                                        bg-green-100 text-green-800
-                                    {% elif attempt.status == 'in_progress' %}
-                                        bg-yellow-100 text-yellow-800
-                                    {% else %}
-                                        bg-red-100 text-red-800
-                                    {% endif %}">
+                                    {% if attempt.status == 'completed' %}bg-green-600/10 text-green-500
+                                    {% elif attempt.status == 'in_progress' %}bg-yellow-600/10 text-yellow-500
+                                    {% else %}bg-gray-600/10 text-gray-500{% endif %}">
                                     {{ attempt.get_status_display }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">
-                                    {% if attempt.grade is not None %}
-                                       <b>{{ attempt.grade|floatformat:1 }} </b>/ 20
+                            <td class="px-6 py-4">
+                                <div class="text-sm" style="color: var(--text-secondary)">
+                                    {% if attempt.grade %}
+                                        {{ attempt.grade }}/20
                                     {% else %}
-                                        -
+                                        Non noté
                                     {% endif %}
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <td class="px-6 py-4 text-right">
                                 <a href="{% url 'grade_attempt' attempt.id %}" 
-                                   class="text-blue-600 hover:text-blue-900">
-                                    {% if attempt.grade is not None %}
-                                        Modifier la correction
-                                    {% else %}
-                                        Corriger
-                                    {% endif %}
+                                   class="inline-flex items-center px-4 py-2 rounded-lg text-white space-x-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg">
+                                    <i class="fas fa-check-circle w-5 h-5"></i>
+                                    <span>
+                                        {% if attempt.grade is not None %}
+                                            Modifier la correction
+                                        {% else %}
+                                            Corriger
+                                        {% endif %}
+                                    </span>
                                 </a>
                             </td>
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                            <td colspan="5" class="px-6 py-4 text-center" style="color: var(--text-secondary)">
                                 Aucune tentative pour cet examen.
                             </td>
                         </tr>

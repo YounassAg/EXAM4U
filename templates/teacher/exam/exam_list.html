@@ -1,36 +1,32 @@
 {% extends 'base.html' %}
 
-{% block title %}Gérer les Examens - Exam4U{% endblock %}
+{% block title %}Liste des Examens - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen bg-gray-50">
+<div class="flex min-h-screen" style="background-color: var(--bg-secondary)">
     {% include 'components/teacher_sidebar.html' %}
 
-    <div class="flex-1 p-8">
+    <div class="flex-1 p-8 space-y-8">
         <!-- Title Section -->
-        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-            <h1 class="text-2xl font-bold text-gray-900">
-                Gérer les Examens
-            </h1>
-            <p class="text-gray-600 mt-2">Créez, modifiez et gérez vos examens</p>
+        <div class="rounded-xl shadow-lg p-6" style="background-color: var(--card-bg); border: 1px solid var(--border-color)">
+            <h1 class="text-2xl font-bold" style="color: var(--text-primary)">Mes Examens</h1>
+            <p style="color: var(--text-secondary)" class="mt-2">Gérez et consultez vos examens</p>
         </div>
 
-        <!-- Create Exam Button -->
-        <div class="mt-8">
+        <!-- Add Exam Button -->
+        <div>
             <a href="{% url 'create_exam' %}" 
-               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all space-x-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                </svg>
-                <span>Créer un Nouvel Examen</span>
+               class="inline-flex items-center px-6 py-3 rounded-lg text-white space-x-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg">
+                <i class="fas fa-plus w-5 h-5"></i>
+                <span>Créer un Examen</span>
             </a>
         </div>
 
         {% if messages %}
             <div class="messages mt-8 space-y-4">
                 {% for message in messages %}
-                    <div class="message {{ message.tags }} bg-white p-4 rounded-lg border-l-4 border-blue-500 shadow-md">
-                        {{ message }}
+                    <div class="message {{ message.tags }} p-4 rounded-lg shadow-md border-l-4 border-blue-500" style="background-color: var(--card-bg)">
+                        <p style="color: var(--text-primary)">{{ message }}</p>
                     </div>
                 {% endfor %}
             </div>
@@ -39,12 +35,13 @@
         <!-- Exams List Section -->
         <div class="mt-8 space-y-6">
             {% for exam in exams %}
-                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                <div class="rounded-xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl" 
+                     style="background-color: var(--card-bg); border: 1px solid var(--border-color)">
                     <div class="flex items-center justify-between">
                         <div class="space-y-4">
-                            <h2 class="text-xl font-bold text-gray-900">{{ exam.title }}</h2>
-                            <p class="text-gray-600">{{ exam.description }}</p>
-                            <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                            <h2 class="text-xl font-bold" style="color: var(--text-primary)">{{ exam.title }}</h2>
+                            <p style="color: var(--text-secondary)">{{ exam.description }}</p>
+                            <div class="grid grid-cols-2 gap-4 text-sm" style="color: var(--text-secondary)">
                                 <div>
                                     <span class="font-medium">Cours:</span> {{ exam.course.title }}
                                 </div>
@@ -52,42 +49,30 @@
                                     <span class="font-medium">Groupe:</span> {{ exam.group }}
                                 </div>
                                 <div>
-                                    <span class="font-medium">Durée:</span> {{ exam.duration }} minutes
+                                    <span class="font-medium">Date de début:</span> {{ exam.start_date|date:"d/m/Y H:i" }}
                                 </div>
                                 <div>
-                                    <span class="font-medium">Tentatives:</span> {{ exam.max_attempts }}
-                                </div>
-                                <div>
-                                    <span class="font-medium">Date de début:</span> {{ exam.start_date }}
-                                </div>
-                                <div>
-                                    <span class="font-medium">Date de fin:</span> {{ exam.end_date }}
+                                    <span class="font-medium">Date de fin:</span> {{ exam.end_date|date:"d/m/Y H:i" }}
                                 </div>
                             </div>
                         </div>
-                        <div class="flex flex-col space-y-3">
+
+                        <div class="flex flex-col space-y-2">
                             <a href="{% url 'exam_attempts' exam.id %}" 
-                               class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all space-x-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                                </svg>
+                               class="inline-flex items-center px-4 py-2 rounded-lg text-white space-x-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 transition-all duration-300 shadow-lg">
+                                <i class="fas fa-check-circle w-5 h-5"></i>
                                 <span>Corriger</span>
                             </a>
                             <a href="{% url 'edit_exam' exam.id %}" 
-                               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all space-x-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
+                               class="inline-flex items-center px-4 py-2 rounded-lg text-white space-x-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg">
+                                <i class="fas fa-edit w-5 h-5"></i>
                                 <span>Modifier</span>
                             </a>
                             <form method="post" action="{% url 'delete_exam' exam.id %}" class="inline">
                                 {% csrf_token %}
                                 <button type="submit" 
-                                        class="w-full inline-flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all space-x-2"
-                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet examen?')">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                    </svg>
+                                        class="w-full inline-flex items-center justify-center px-4 py-2 rounded-lg text-white space-x-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 transition-all duration-300 shadow-lg">
+                                    <i class="fas fa-trash w-5 h-5"></i>
                                     <span>Supprimer</span>
                                 </button>
                             </form>
@@ -95,34 +80,11 @@
                     </div>
                 </div>
             {% empty %}
-                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
-                    <p class="text-gray-600">Aucun examen créé pour le moment.</p>
+                <div class="text-center py-8" style="color: var(--text-secondary)">
+                    Aucun examen créé pour le moment.
                 </div>
             {% endfor %}
         </div>
     </div>
 </div>
-
-<style>
-    .messages {
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 1000;
-        width: 300px;
-    }
-
-    .message {
-        animation: fadeInOut 7s ease-in-out forwards;
-        opacity: 0;
-    }
-
-    @keyframes fadeInOut {
-        0% { opacity: 0; transform: translateY(-20px); }
-        10% { opacity: 1; transform: translateY(0); }
-        90% { opacity: 1; transform: translateY(0); }
-        100% { opacity: 0; transform: translateY(-20px); }
-    }
-</style>
 {% endblock %}

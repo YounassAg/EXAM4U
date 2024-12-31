@@ -1,60 +1,61 @@
 <!-- Teacher Sidebar -->
-<div class="hidden md:flex md:flex-col w-64 min-h-screen bg-white border-r border-gray-200">
+<div class="hidden md:flex md:flex-col w-64 min-h-screen border-r transition-all duration-300"
+     style="background-color: var(--card-bg); border-color: var(--border-color)">
     <!-- Profile Section -->
-    <div class="p-6">
+    <div class="p-6 border-b transition-colors duration-300" style="border-color: var(--border-color)">
         <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center">
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg">
                 <span class="text-white text-lg font-semibold">{{ user.username|make_list|first|upper }}</span>
             </div>
             <div>
-                <h2 class="text-sm font-semibold text-gray-900">{{ user.get_full_name }}</h2>
-                <p class="text-xs text-blue-600">Enseignant</p>
+                <h2 class="text-sm font-semibold" style="color: var(--text-primary)">{{ user.get_full_name }}</h2>
+                <p class="text-xs bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent font-semibold">Enseignant</p>
             </div>
         </div>
     </div>
 
     <!-- Navigation -->
-    <nav class="flex-1 px-3 py-2">
+    <nav class="flex-1 px-3 py-4">
         <ul class="space-y-1">
             <!-- Dashboard -->
             <li>
                 <a href="{% url 'teacher_dashboard' %}" 
-                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg {% if request.path == '/teacher/dashboard/' %}text-blue-600 bg-blue-50{% else %}text-gray-900 hover:bg-gray-50{% endif %}">
-                    <svg class="flex-shrink-0 w-5 h-5 mr-3 {% if request.path == '/teacher/dashboard/' %}text-blue-600{% else %}text-gray-400 group-hover:text-gray-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                    </svg>
-                    Dashboard
+                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 {% if request.path == '/teacher/dashboard/' %}bg-gradient-to-r from-blue-600/10 to-blue-500/10 text-blue-500{% else %}hover:bg-gradient-to-r hover:from-blue-600/5 hover:to-blue-500/5{% endif %}"
+                   style="color: {% if request.path == '/teacher/dashboard/' %}var(--text-primary){% else %}var(--text-secondary){% endif %}">
+                    <i class="fas fa-home w-5 h-5 mr-3 transition-colors duration-300"></i>
+                    <span>Tableau de bord</span>
                 </a>
             </li>
 
-            <!-- My Courses -->
+            <!-- Create Exam -->
             <li>
-                <a href="{% url 'teacher_courses' %}" 
-                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg {% if request.path == '/teacher/courses/' %}text-blue-600 bg-blue-50{% else %}text-gray-900 hover:bg-gray-50{% endif %}">
-                    <svg class="flex-shrink-0 w-5 h-5 mr-3 {% if request.path == '/teacher/courses/' %}text-blue-600{% else %}text-gray-400 group-hover:text-gray-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                    </svg>
-                    Mes Cours
+                <a href="{% url 'create_exam' %}"
+                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 {% if request.path == '/teacher/exam/create_exam/' %}bg-gradient-to-r from-blue-600/10 to-blue-500/10 text-blue-500{% else %}hover:bg-gradient-to-r hover:from-blue-600/5 hover:to-blue-500/5{% endif %}"
+                   style="color: {% if request.path == '/teacher/exam/create_exam/' %}var(--text-primary){% else %}var(--text-secondary){% endif %}">
+                    <i class="fas fa-plus w-5 h-5 mr-3 transition-colors duration-300"></i>
+                    <span>Créer un Examen</span>
                 </a>
             </li>
 
-            <!-- Exams -->
+            <!-- Manage Exams -->
             <li>
-                <a href="{% url 'teacher_exam_list' %}" 
-                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg {% if request.path == '/teacher/exams/' %}text-blue-600 bg-blue-50{% else %}text-gray-900 hover:bg-gray-50{% endif %}">
-                    <svg class="flex-shrink-0 w-5 h-5 mr-3 {% if request.path == '/teacher/exams/' %}text-blue-600{% else %}text-gray-400 group-hover:text-gray-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
-                    Examens
+                <a href="{% url 'teacher_exam_list' %}"
+                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 {% if request.path == '/teacher/exam/exam_list/' %}bg-gradient-to-r from-blue-600/10 to-blue-500/10 text-blue-500{% else %}hover:bg-gradient-to-r hover:from-blue-600/5 hover:to-blue-500/5{% endif %}"
+                   style="color: {% if request.path == '/teacher/exam/exam_list/' %}var(--text-primary){% else %}var(--text-secondary){% endif %}">
+                    <i class="fas fa-tasks w-5 h-5 mr-3 transition-colors duration-300"></i>
+                    <span>Gérer les Examens</span>
+                </a>
+            </li>
+
+            <!-- Courses -->
+            <li>
+                <a href="{% url 'teacher_courses' %}"
+                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 {% if request.path == '/teacher/courses/' %}bg-gradient-to-r from-blue-600/10 to-blue-500/10 text-blue-500{% else %}hover:bg-gradient-to-r hover:from-blue-600/5 hover:to-blue-500/5{% endif %}"
+                   style="color: {% if request.path == '/teacher/courses/' %}var(--text-primary){% else %}var(--text-secondary){% endif %}">
+                    <i class="fas fa-book w-5 h-5 mr-3 transition-colors duration-300"></i>
+                    <span>Mes Cours</span>
                 </a>
             </li>
         </ul>
     </nav>
-
-    <!-- Version Info -->
-    <div class="px-3 py-4">
-        <div class="px-2">
-            <p class="text-xs text-gray-400">Version 1.0.0</p>
-        </div>
-    </div>
 </div>
