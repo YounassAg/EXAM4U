@@ -36,32 +36,34 @@
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                         </svg>
-                        <span>Questions: {{ exam.questions.count }}</span>
+                        <span>Questions: {{ questions.count }}</span>
                     </div>
                 </div>
 
                 <!-- Questions -->
                 <div class="space-y-8">
-                    {% for question in exam.questions.all %}
+                    {% for question in questions %}
                         <div class="border-t border-gray-200 pt-6">
                             <div class="space-y-4">
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-900">Question {{ forloop.counter }}</h3>
-                                    <p class="text-gray-600 mt-2">{{ question.text }}</p>
+                                    <p class="text-gray-600 mt-2">{{ question.wording }}</p>
                                 </div>
 
-                                {% if question.question_type == 'multiple_choice' %}
+                                {% if question.question_type == 'MCQ' %}
                                     <div class="space-y-3">
-                                        {% for choice in question.choices.all %}
+                                        {% for choice in question.mcqchoice_set.all %}
                                             <label class="flex items-center space-x-3">
-                                                <input type="radio" name="question_{{ question.id }}" value="{{ choice.id }}" 
+                                                <input type="{% if question.allow_multiple_answers %}checkbox{% else %}radio{% endif %}" 
+                                                       name="question_{{ question.id }}" 
+                                                       value="{{ choice.id }}"
                                                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                                <span class="text-gray-700">{{ choice.text }}</span>
+                                                <span class="text-gray-700">{{ choice.choice_label }}</span>
                                             </label>
                                         {% endfor %}
                                     </div>
-                                {% elif question.question_type == 'text' %}
-                                    <textarea name="question_{{ question.id }}" rows="4" 
+                                {% else %}
+                                    <textarea name="question_{{ question.id }}" rows="4"
                                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                               placeholder="Votre réponse..."></textarea>
                                 {% endif %}
@@ -73,11 +75,11 @@
                 <!-- Submit Button -->
                 <div class="border-t border-gray-200 pt-6">
                     <div class="flex justify-end space-x-4">
-                        <a href="{% url 'student_exam_list' %}" 
+                        <a href="{% url 'student_exam_list' %}"
                            class="inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             Annuler
                         </a>
-                        <button type="submit" 
+                        <button type="submit"
                                 class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>

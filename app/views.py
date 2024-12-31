@@ -456,7 +456,11 @@ def take_exam(request, exam_id):
     else:
         form = ExamForm(questions=questions)
 
-    return render(request, 'student/exam/take_exam.html', {'exam': exam, 'form': form})
+    return render(request, 'student/exam/take_exam.html', {
+            'exam': exam,
+            'form': form,
+            'questions': questions  # Pass questions to the template
+        })
 
 @login_required
 @role_required('teacher')
