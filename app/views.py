@@ -548,7 +548,6 @@ def create_course(request):
             with transaction.atomic():
                 title = request.POST.get('title')
                 description = request.POST.get('description')
-                duration = request.POST.get('duration')
                 specialty_id = request.POST.get('specialty')
                 
                 specialty = Specialty.objects.get(id=specialty_id)
@@ -557,7 +556,6 @@ def create_course(request):
                 course = Course.objects.create(
                     title=title,
                     description=description,
-                    duration=duration,
                     specialty=specialty,
                     teacher=teacher
                 )
