@@ -12,6 +12,15 @@
             <h1 class="text-2xl font-bold text-gray-900">Examens Disponibles</h1>
             <p class="text-gray-600 mt-2">Parcourez et passez vos examens</p>
         </div>
+        {% if messages %}
+            <div class="messages mt-8 space-y-4">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }} bg-white p-4 rounded-lg border-l-4 border-red-500 shadow-md text-red">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
         <!-- Exams List Section -->
         <div class="space-y-6">

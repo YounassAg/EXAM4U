@@ -401,13 +401,23 @@ def edit_exam(request, exam_id):
         }
         return render(request, 'teacher/exam/edit_exam.html', context)
     
-
 @role_required('student')
 @login_required
 def student_exam_list(request):
     student_group = request.user.userprofile.group
     exams = Exam.objects.filter(group=student_group)
-    return render(request, 'student/exam/exam_list.html', {'exams': exams})
+    
+    # Get the completed exams for this student
+    completed_exams = ExamAttempt.objects.filter(
+        student=request.user.userprofile,
+        status='completed'
+    ).values_list('exam_id', flat=True)
+
+    context = {
+        'exams': exams,
+        'completed_exams': completed_exams,
+    }
+    return render(request, 'student/exam/exam_list.html', context)
 
 @role_required('teacher')
 @login_required
@@ -422,7 +432,13 @@ def take_exam(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     student = request.user.userprofile
 
-    # Check if the student has already attempted this exam
+    # Check if the student has already completed this exam
+    completed_attempt = ExamAttempt.objects.filter(exam=exam, student=student, status='completed').exists()
+    if completed_attempt:
+        messages.error(request, f"You have already completed the exam '{exam.title}'. You cannot take it again.")
+        return redirect('student_exam_list')
+
+    # Check if the student has an in-progress attempt
     attempt = ExamAttempt.objects.filter(exam=exam, student=student, status='in_progress').first()
     if not attempt:
         attempt = ExamAttempt.objects.create(exam=exam, student=student)
@@ -457,11 +473,10 @@ def take_exam(request, exam_id):
         form = ExamForm(questions=questions)
 
     return render(request, 'student/exam/take_exam.html', {
-            'exam': exam,
-            'form': form,
-            'questions': questions  # Pass questions to the template
-        })
-
+        'exam': exam,
+        'form': form,
+        'questions': questions
+    })
 @login_required
 @role_required('teacher')
 def delete_exam(request, exam_id):
