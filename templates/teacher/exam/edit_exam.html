@@ -98,6 +98,7 @@
                     <div>
                         <label for="question_type_{{ forloop.counter }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type de Question</label>
                         <select name="question_type_{{ forloop.counter }}" id="question_type_{{ forloop.counter }}" required 
+                                onchange="handleQuestionTypeChange({{ forloop.counter }})"
                                 class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="MCQ" {% if question.question_type == 'MCQ' %}selected{% endif %}>QCM</option>
                             <option value="short_answer" {% if question.question_type == 'short_answer' %}selected{% endif %}>Réponse Courte</option>
@@ -117,41 +118,42 @@
                                class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
 
-                    {% if question.question_type == 'MCQ' %}
-                    <input type="hidden" name="mcq_choice_count_{{ forloop.counter }}" id="mcq_choice_count_{{ forloop.counter }}" value="{{ question.mcqchoice_set.all|length }}">
-                    <div class="mcq-choices-container space-y-4" id="mcq_choices_{{ forloop.counter }}">
-                        {% for choice in question.mcqchoice_set.all %}
-                        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-4" id="mcq_choice_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
-                            <div class="flex justify-between items-center">
-                                <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix {{ forloop.counter }}</h3>
-                                <button type="button" class="remove-mcq-choice-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all" 
-                                        data-question-id="{{ forloop.parentloop.counter }}" data-choice-id="{{ forloop.counter }}">
-                                    Supprimer
-                                </button>
+                    <!-- MCQ Choices Section -->
+                    <div class="mcq-choices-section {% if question.question_type != 'MCQ' %}hidden{% endif %}" id="mcq_section_{{ forloop.counter }}">
+                        <input type="hidden" name="mcq_choice_count_{{ forloop.counter }}" id="mcq_choice_count_{{ forloop.counter }}" value="{{ question.mcqchoice_set.all|length }}">
+                        <div class="mcq-choices-container space-y-4" id="mcq_choices_{{ forloop.counter }}">
+                            {% for choice in question.mcqchoice_set.all %}
+                            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-4 mb-4" id="mcq_choice_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix {{ forloop.counter }}</h3>
+                                    <button type="button" class="remove-mcq-choice-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all" 
+                                            data-question-id="{{ forloop.parentloop.counter }}" data-choice-id="{{ forloop.counter }}">
+                                        Supprimer
+                                    </button>
+                                </div>
+                                <div>
+                                    <label for="mcq_choice_text_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Texte du Choix</label>
+                                    <input type="text" name="mcq_choice_text_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
+                                           id="mcq_choice_text_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
+                                           value="{{ choice.choice_label }}" required 
+                                           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" name="mcq_choice_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
+                                           id="mcq_choice_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
+                                           {% if choice.is_correct %}checked{% endif %}
+                                           class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
+                                    <label for="mcq_choice_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Réponse Correcte
+                                    </label>
+                                </div>
                             </div>
-                            <div>
-                                <label for="mcq_choice_text_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Texte du Choix</label>
-                                <input type="text" name="mcq_choice_text_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
-                                       id="mcq_choice_text_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
-                                       value="{{ choice.choice_label }}" required 
-                                       class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <input type="checkbox" name="mcq_choice_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
-                                       id="mcq_choice_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
-                                       {% if choice.is_correct %}checked{% endif %}
-                                       class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
-                                <label for="mcq_choice_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Réponse Correcte
-                                </label>
-                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
+                        <button type="button" class="add-mcq-choice-btn mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all" data-question-id="{{ forloop.counter }}">
+                            Ajouter un Choix
+                        </button>
                     </div>
-                    <button type="button" class="add-mcq-choice-btn px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all" data-question-id="{{ forloop.counter }}">
-                        Ajouter un Choix
-                    </button>
-                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
@@ -179,7 +181,24 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    let questionCount = 0;
+    let questionCount = parseInt(document.getElementById('question_count').value);
+
+    // Make handleQuestionTypeChange globally accessible
+    window.handleQuestionTypeChange = function(questionId) {
+        const questionType = document.getElementById(`question_type_${questionId}`).value;
+        const mcqSection = document.getElementById(`mcq_section_${questionId}`);
+        
+        if (questionType === 'MCQ') {
+            mcqSection.classList.remove('hidden');
+        } else {
+            mcqSection.classList.add('hidden');
+            // Clear MCQ choices when switching to other types
+            const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
+            const choiceCountElem = document.getElementById(`mcq_choice_count_${questionId}`);
+            choicesContainer.innerHTML = '';
+            choiceCountElem.value = '0';
+        }
+    };
 
     document.getElementById('add-question-btn').addEventListener('click', function () {
         questionCount++;
@@ -200,6 +219,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div>
                 <label for="question_type_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type de Question</label>
                 <select name="question_type_${questionCount}" id="question_type_${questionCount}" required 
+                        onchange="handleQuestionTypeChange(${questionCount})"
                         class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="MCQ">QCM</option>
                     <option value="short_answer">Réponse Courte</option>
@@ -209,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             <div>
                 <label for="question_wording_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Énoncé</label>
-                <textarea name="question_wording_${questionCount}" id="question_wording_${questionCount}" rows="3" 
+                <textarea name="question_wording_${questionCount}" id="question_wording_${questionCount}" rows="3" required
                           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
             </div>
 
@@ -219,16 +239,28 @@ document.addEventListener('DOMContentLoaded', function () {
                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
 
-            <div class="mcq-choices-container space-y-4" id="mcq_choices_${questionCount}">
-                <input type="hidden" name="mcq_choice_count_${questionCount}" id="mcq_choice_count_${questionCount}" value="0">
-                <button type="button" class="add-mcq-choice-btn px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all" data-question-id="${questionCount}">
+            <!-- MCQ Choices Section -->
+            <div class="mcq-choices-section hidden" id="mcq_section_${questionCount}">
+                <div class="mcq-choices-container space-y-4" id="mcq_choices_${questionCount}">
+                    <input type="hidden" name="mcq_choice_count_${questionCount}" id="mcq_choice_count_${questionCount}" value="0">
+                </div>
+                <button type="button" class="add-mcq-choice-btn mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all" data-question-id="${questionCount}">
                     Ajouter un Choix
                 </button>
             </div>
         `;
 
         document.getElementById('questions-container').appendChild(questionContainer);
+        handleQuestionTypeChange(questionCount); // Initialize visibility
     });
+
+    // Initialize existing questions
+    for (let i = 1; i <= questionCount; i++) {
+        const questionTypeSelect = document.getElementById(`question_type_${i}`);
+        if (questionTypeSelect) {
+            questionTypeSelect.addEventListener('change', () => handleQuestionTypeChange(i));
+        }
+    }
 
     // Handle removing questions
     document.addEventListener('click', function(event) {
