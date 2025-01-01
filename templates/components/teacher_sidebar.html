@@ -27,16 +27,6 @@
                 </a>
             </li>
 
-            <!-- Create Exam -->
-            <li>
-                <a href="{% url 'create_exam' %}"
-                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 {% if request.path == '/teacher/exam/create_exam/' %}bg-gradient-to-r from-blue-600/10 to-blue-500/10 text-blue-500{% else %}hover:bg-gradient-to-r hover:from-blue-600/5 hover:to-blue-500/5{% endif %}"
-                   style="color: {% if request.path == '/teacher/exam/create_exam/' %}var(--text-primary){% else %}var(--text-secondary){% endif %}">
-                    <i class="fas fa-plus w-5 h-5 mr-3 transition-colors duration-300"></i>
-                    <span>Créer un Examen</span>
-                </a>
-            </li>
-
             <!-- Manage Exams -->
             <li>
                 <a href="{% url 'teacher_exam_list' %}"
