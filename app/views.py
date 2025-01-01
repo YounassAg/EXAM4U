@@ -405,7 +405,7 @@ def edit_exam(request, exam_id):
 @login_required
 def student_exam_list(request):
     student_group = request.user.userprofile.group
-    exams = Exam.objects.filter(group=student_group)
+    exams = Exam.objects.filter(group=student_group).order_by('-start_date')  # Sorting by start_date
     
     # Get the completed exams for this student
     completed_exams = ExamAttempt.objects.filter(
@@ -423,7 +423,7 @@ def student_exam_list(request):
 @login_required
 def teacher_exam_list(request):
     teacher_profile = request.user.userprofile
-    exams = Exam.objects.filter(course__teacher=teacher_profile)
+    exams = Exam.objects.filter(course__teacher=teacher_profile).order_by('-start_date')  # Sorting by start_date
     return render(request, 'teacher/exam/exam_list.html', {'exams': exams})
 
 @role_required('student')
