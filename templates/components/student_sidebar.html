@@ -1,51 +1,45 @@
-<!-- Student Sidebar -->
-<div class="hidden md:flex md:flex-col w-64 min-h-screen border-r transition-all duration-300"
-     style="background-color: var(--card-bg); border-color: var(--border-color)">
-    <!-- Profile Section -->
-    <div class="p-6 border-b transition-colors duration-300" style="border-color: var(--border-color)">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg">
-                <span class="text-white text-lg font-semibold">{{ user.username|make_list|first|upper }}</span>
-            </div>
-            <div>
-                <h2 class="text-sm font-semibold" style="color: var(--text-primary)">{{ user.get_full_name }}</h2>
-                <p class="text-xs bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent font-semibold">Étudiant</p>
+<!-- Sidebar -->
+<aside class="w-64 min-h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+    <!-- Logo Section -->
+    <div class="flex items-center justify-center h-20 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">Exam4U</span>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="px-4 py-6 space-y-2">
+        <!-- Dashboard -->
+        <a href="{% url 'student_dashboard' %}" class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group">
+            {% include 'components/icons.html' with icon="home" class="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" %}
+            <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400">Tableau de Bord</span>
+        </a>
+
+        <!-- Courses -->
+        <a href="{% url 'student_courses' %}" class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group">
+            {% include 'components/icons.html' with icon="book" class="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" %}
+            <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400">Mes Cours</span>
+        </a>
+
+        <!-- Exams -->
+        <a href="{% url 'student_exam_list' %}" class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group">
+            {% include 'components/icons.html' with icon="document" class="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" %}
+            <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400">Examens</span>
+        </a>
+    </nav>
+
+    <!-- User Section -->
+    <div class="absolute bottom-0 w-64 border-t border-gray-200 dark:border-gray-700">
+        <div class="px-4 py-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full bg-blue-600/10 flex items-center justify-center">
+                        {% include 'components/icons.html' with icon="user" class="w-6 h-6 text-blue-600" %}
+                    </div>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ user.username }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Étudiant</p>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Navigation -->
-    <nav class="flex-1 px-3 py-4">
-        <ul class="space-y-1">
-            <!-- Dashboard -->
-            <li>
-                <a href="{% url 'student_dashboard' %}" 
-                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 {% if request.path == '/student/dashboard/' %}bg-gradient-to-r from-blue-600/10 to-blue-500/10 text-blue-500{% else %}hover:bg-gradient-to-r hover:from-blue-600/5 hover:to-blue-500/5{% endif %}"
-                   style="color: {% if request.path == '/student/dashboard/' %}var(--text-primary){% else %}var(--text-secondary){% endif %}">
-                    <i class="fas fa-home w-5 h-5 mr-3 transition-colors duration-300"></i>
-                    <span>Tableau de bord</span>
-                </a>
-            </li>
-
-            <!-- My Exams -->
-            <li>
-                <a href="{% url 'student_exam_list' %}"
-                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 {% if request.path == '/student/exam/exam_list/' %}bg-gradient-to-r from-blue-600/10 to-blue-500/10 text-blue-500{% else %}hover:bg-gradient-to-r hover:from-blue-600/5 hover:to-blue-500/5{% endif %}"
-                   style="color: {% if request.path == '/student/exam/exam_list/' %}var(--text-primary){% else %}var(--text-secondary){% endif %}">
-                    <i class="fas fa-edit w-5 h-5 mr-3 transition-colors duration-300"></i>
-                    <span>Mes Examens</span>
-                </a>
-            </li>
-
-            <!-- My Courses -->
-            <li>
-                <a href="{% url 'student_courses' %}"
-                   class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 {% if request.path == '/student/courses/' %}bg-gradient-to-r from-blue-600/10 to-blue-500/10 text-blue-500{% else %}hover:bg-gradient-to-r hover:from-blue-600/5 hover:to-blue-500/5{% endif %}"
-                   style="color: {% if request.path == '/student/courses/' %}var(--text-primary){% else %}var(--text-secondary){% endif %}">
-                    <i class="fas fa-book w-5 h-5 mr-3 transition-colors duration-300"></i>
-                    <span>Mes Cours</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-</div>
+</aside>

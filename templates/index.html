@@ -2,861 +2,95 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}Accueil - Exam4U{% endblock %}
+
 {% block content %}
-<style>
-    /* Hero Section Styles */
-    .hero-section {
-        background: linear-gradient(135deg, #111827 0%, #1E3A8A 100%);
-        min-height: 100vh;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .hero-section::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: 
-            radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 80% 70%, rgba(96, 165, 250, 0.15) 0%, transparent 50%);
-    }
-
-    .hero-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        padding: 2rem;
-    }
-
-    .hero-content {
-        width: 100%;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 4rem;
-        align-items: center;
-    }
-
-    .hero-title {
-        font-size: 5rem;
-        font-weight: 900;
-        line-height: 1;
-        margin-bottom: 2rem;
-        background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.9) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-shadow: 0 2px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    .hero-description {
-        font-size: 1.25rem;
-        line-height: 1.7;
-        color: #93c5fd;
-        margin-bottom: 3rem;
-        max-width: 540px;
-    }
-
-    .hero-buttons {
-        display: flex;
-        gap: 1.5rem;
-        position: relative;
-        z-index: 10;
-    }
-
-    .hero-button {
-        padding: 1rem 2rem;
-        border-radius: 1rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-        cursor: pointer;
-        position: relative;
-        z-index: 10;
-    }
-
-    .hero-button.primary {
-        background: linear-gradient(135deg, #3B82F6, #2563EB);
-        color: white !important;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-    }
-
-    .hero-button.primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.4);
-    }
-
-    .hero-button.secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: white !important;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .hero-button.secondary:hover {
-        background: rgba(255, 255, 255, 0.15);
-        transform: translateY(-2px);
-    }
-
-    /* Stats Wheel Styles */
-    .stats-container {
-        position: relative;
-        width: 500px;
-        height: 600px;
-        margin: 0 auto;
-        perspective: 2000px;
-    }
-
-    .stats-wheel {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        transform-style: preserve-3d;
-        transition: transform 1.5s cubic-bezier(0.215, 0.61, 0.355, 1);
-    }
-
-    .stat-card {
-        position: absolute;
-        width: 300px;
-        height: 400px;
-        left: 50%;
-        top: 50%;
-        margin: -200px 0 0 -150px;
-        background: rgba(255, 255, 255, 0.98);
-        border-radius: 30px;
-        padding: 3rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        backface-visibility: hidden;
-        transform-origin: center;
-        transition: all 1.5s cubic-bezier(0.215, 0.61, 0.355, 1);
-        opacity: 0;
-        box-shadow: 
-            0 50px 100px -30px rgba(0, 0, 0, 0.5),
-            0 0 0 1px rgba(59, 130, 246, 0.1) inset;
-    }
-
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        inset: 1px;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
-        border-radius: inherit;
-        z-index: 0;
-        opacity: 0;
-        transition: opacity 0.8s ease;
-    }
-
-    .stat-card.active {
-        opacity: 1;
-        transform: rotateY(0) translateZ(400px);
-    }
-
-    .stat-card.active::before {
-        opacity: 1;
-    }
-
-    .stat-card.prev,
-    .stat-card.next {
-        opacity: 0.3;
-        filter: blur(2px);
-    }
-
-    .stat-card .content {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        transform: translateZ(50px);
-    }
-
-    .stat-card .icon {
-        font-size: 3.5rem;
-        margin-bottom: 2rem;
-        background: linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        filter: drop-shadow(0 10px 20px rgba(59, 130, 246, 0.2));
-    }
-
-    .stat-card .value {
-        font-size: 5rem;
-        font-weight: 800;
-        line-height: 1;
-        background: linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 1.5rem;
-        filter: drop-shadow(0 10px 20px rgba(59, 130, 246, 0.2));
-    }
-
-    .stat-card .label {
-        font-size: 1.75rem;
-        color: #1f2937;
-        font-weight: 600;
-        text-align: center;
-        opacity: 0.9;
-    }
-
-    .stat-card:nth-child(1) { transform: rotateY(0deg) translateZ(400px); }
-    .stat-card:nth-child(2) { transform: rotateY(60deg) translateZ(400px); }
-    .stat-card:nth-child(3) { transform: rotateY(120deg) translateZ(400px); }
-    .stat-card:nth-child(4) { transform: rotateY(180deg) translateZ(400px); }
-    .stat-card:nth-child(5) { transform: rotateY(240deg) translateZ(400px); }
-    .stat-card:nth-child(6) { transform: rotateY(300deg) translateZ(400px); }
-
-    /* Features Section Styles */
-    .feature-grid {
-        min-height: 100vh;
-        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        padding: 6rem 0;
-    }
-
-    .feature-grid::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: 
-            radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, rgba(96, 165, 250, 0.05) 0%, transparent 50%);
-    }
-
-    .feature-section-title {
-        font-size: 3.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #1f2937, #374151);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-align: center;
-        margin-bottom: 1.5rem;
-        position: relative;
-    }
-
-    .feature-section-title::after {
-        content: '';
-        position: absolute;
-        bottom: -1rem;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80px;
-        height: 4px;
-        background: linear-gradient(90deg, #3b82f6, #1e3a8a);
-        border-radius: 2px;
-    }
-
-    .feature-section-description {
-        font-size: 1.25rem;
-        color: #6b7280;
-        text-align: center;
-        max-width: 800px;
-        margin: 0 auto 5rem;
-        line-height: 1.7;
-    }
-
-    .feature-card {
-        background: white;
-        border-radius: 24px;
-        padding: 3rem;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        transition: all 0.4s ease;
-        border: 1px solid rgba(59, 130, 246, 0.1);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .feature-card::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(37, 99, 235, 0.05));
-        opacity: 0;
-        transition: opacity 0.4s ease;
-    }
-
-    .feature-card:hover {
-        transform: translateY(-8px);
-        border-color: rgba(59, 130, 246, 0.2);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-    }
-
-    .feature-card:hover::before {
-        opacity: 1;
-    }
-
-    .feature-icon {
-        width: 80px;
-        height: 80px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 24px;
-        background: linear-gradient(135deg, #3b82f6, #1e3a8a);
-        color: white;
-        font-size: 32px;
-        margin-bottom: 2.5rem;
-        transition: all 0.4s ease;
-        position: relative;
-    }
-
-    .feature-icon::after {
-        content: '';
-        position: absolute;
-        inset: -2px;
-        border-radius: inherit;
-        padding: 2px;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
-        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor;
-        mask-composite: exclude;
-    }
-
-    .feature-card:hover .feature-icon {
-        transform: scale(1.1);
-        box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.3);
-    }
-
-    .feature-title {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 2rem;
-        transition: all 0.3s ease;
-    }
-
-    .feature-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-        margin-top: auto;
-    }
-
-    .feature-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem 1.25rem;
-        border-radius: 16px;
-        transition: all 0.4s ease;
-        background: rgba(59, 130, 246, 0.03);
-        border: 1px solid rgba(59, 130, 246, 0.05);
-    }
-
-    .feature-item:hover {
-        background: rgba(59, 130, 246, 0.08);
-        transform: translateX(8px);
-        border-color: rgba(59, 130, 246, 0.1);
-    }
-
-    .feature-item-icon {
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #3b82f6, #1e3a8a);
-        color: white;
-        font-size: 18px;
-        transition: all 0.4s ease;
-    }
-
-    .feature-item:hover .feature-item-icon {
-        transform: scale(1.1) rotate(5deg);
-        box-shadow: 0 8px 16px -4px rgba(59, 130, 246, 0.3);
-    }
-
-    .feature-item span {
-        font-weight: 500;
-        color: #4b5563;
-        font-size: 1.125rem;
-        transition: color 0.3s ease;
-    }
-
-    .feature-item:hover span {
-        color: #1f2937;
-    }
-
-    /* Contact Section Styles */
-    .contact-section {
-        min-height: 100vh;
-        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-    }
-
-    .contact-section::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: 
-            radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-            radial-gradient(circle at 80% 70%, rgba(96, 165, 250, 0.05) 0%, transparent 50%);
-    }
-
-    .contact-title {
-        font-size: 3.5rem;
-        font-weight: 800;
-        color: #1f2937;
-        margin-bottom: 1.5rem;
-        position: relative;
-    }
-
-    .title-underline {
-        width: 80px;
-        height: 4px;
-        background: linear-gradient(90deg, #3b82f6, #1e3a8a);
-        margin: 0 auto 2rem;
-        border-radius: 2px;
-    }
-
-    .contact-description {
-        font-size: 1.25rem;
-        color: #6b7280;
-        max-width: 600px;
-        margin: 0 auto;
-        line-height: 1.7;
-    }
-
-    .contact-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 2.5rem;
-        position: relative;
-        z-index: 1;
-        margin-top: 2rem;
-    }
-
-    .contact-card {
-        background: white;
-        border-radius: 24px;
-        padding: 3rem 2rem;
-        text-align: center;
-        transition: all 0.4s ease;
-        border: 1px solid rgba(59, 130, 246, 0.1);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-
-    .contact-card:hover {
-        transform: translateY(-8px);
-        border-color: rgba(59, 130, 246, 0.2);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-    }
-
-    .contact-icon {
-        width: 72px;
-        height: 72px;
-        border-radius: 20px;
-        background: linear-gradient(135deg, #3b82f6, #1e3a8a);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 2rem;
-        font-size: 28px;
-        transition: all 0.4s ease;
-    }
-
-    .contact-card:hover .contact-icon {
-        transform: scale(1.1);
-        box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.3);
-    }
-
-    .contact-card .contact-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 1.5rem;
-    }
-
-    .contact-info {
-        color: #6b7280;
-        font-size: 1.125rem;
-        line-height: 1.7;
-        margin-bottom: 2rem;
-        flex-grow: 1;
-    }
-
-    .contact-action {
-        margin-top: auto;
-    }
-
-    .contact-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
-        background: rgba(59, 130, 246, 0.1);
-        color: #3b82f6;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .contact-button:hover {
-        background: rgba(59, 130, 246, 0.15);
-        transform: translateY(-2px);
-    }
-
-    .contact-button i {
-        transition: transform 0.3s ease;
-    }
-
-    .contact-button:hover i {
-        transform: translateX(4px);
-    }
-
-    @media (max-width: 768px) {
-        .hero-content {
-            grid-template-columns: 1fr;
-            text-align: center;
-        }
-
-        .hero-description {
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .hero-buttons {
-            justify-content: center;
-        }
-
-        .stats-container {
-            width: 400px;
-            height: 500px;
-            margin-top: 4rem;
-        }
-
-        .feature-grid {
-            padding: 4rem 0;
-        }
-
-        .feature-section-title {
-            font-size: 2.5rem;
-        }
-
-        .feature-card {
-            padding: 2rem;
-        }
-
-        .feature-icon {
-            width: 64px;
-            height: 64px;
-            font-size: 24px;
-            margin-bottom: 2rem;
-        }
-
-        .contact-grid {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-    }
-</style>
-
 <!-- Hero Section -->
-<section class="hero-section" id="home">
-    <div class="hero-container">
-        <div class="hero-content">
-            <!-- Left Column -->
-            <div>
-                <h1 class="hero-title">EXAM4U</h1>
-                <p class="hero-description">
-                        Une plateforme innovante pour la gestion et le passage d'examens en ligne, conçue pour les établissements d'enseignement supérieur.
-                    </p>
-                    {% if not user.is_authenticated %}
-                <div class="hero-buttons">
-                    <a href="{% url 'register' %}" class="hero-button primary">
-                        Commencer
+<section class="relative min-h-screen flex items-center">
+    <div class="container mx-auto px-4 py-32">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div class="space-y-8">
+                <h1 class="text-5xl font-bold leading-tight">
+                    Créez et passez vos examens en ligne simplement
+                </h1>
+                <p class="text-xl text-gray-600 dark:text-gray-400">
+                    Une plateforme moderne pour les enseignants et les étudiants, conçue pour simplifier la création, la gestion et le passage d'examens en ligne.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="{% url 'register' %}" class="btn-primary">
+                        Commencer maintenant
                     </a>
-                    <a href="{% url 'login' %}" class="hero-button secondary">
-                        Se Connecter
+                    <a href="#features" class="btn-secondary">
+                        En savoir plus
                     </a>
                 </div>
-                {% endif %}
-                </div>
-
-            <!-- Right Column -->
-            <div class="stats-container">
-                <div class="stats-wheel" id="statsWheel">
-                    <div class="stat-card">
-                        <div class="content">
-                            <i class="fas fa-graduation-cap icon"></i>
-                            <div class="value">25k+</div>
-                            <div class="label">Étudiants Formés</div>
-                        </div>
-                                        </div>
-                    <div class="stat-card">
-                        <div class="content">
-                            <i class="fas fa-award icon"></i>
-                            <div class="value">99.9%</div>
-                            <div class="label">Taux de Réussite</div>
-                                        </div>
-                                    </div>
-                    <div class="stat-card">
-                        <div class="content">
-                            <i class="fas fa-school icon"></i>
-                            <div class="value">50+</div>
-                            <div class="label">Établissements</div>
-                        </div>
-                                        </div>
-                    <div class="stat-card">
-                        <div class="content">
-                            <i class="fas fa-clock icon"></i>
-                            <div class="value">24/7</div>
-                            <div class="label">Support Disponible</div>
-                                        </div>
-                                    </div>
-                    <div class="stat-card">
-                        <div class="content">
-                            <i class="fas fa-users icon"></i>
-                            <div class="value">100+</div>
-                            <div class="label">Professeurs Actifs</div>
-                                </div>
-                            </div>
-                    <div class="stat-card">
-                        <div class="content">
-                            <i class="fas fa-book icon"></i>
-                            <div class="value">1000+</div>
-                            <div class="label">Examens Créés</div>
-                        </div>
-                    </div>
-                </div>
+            </div>
+            <div class="relative">
+                <div class="absolute inset-0 bg-black/5 dark:bg-white/5 rounded-2xl transform rotate-6"></div>
+                <img src="{% static 'images/hero-illustration.svg' %}" alt="Illustration" class="relative w-full rounded-2xl">
             </div>
         </div>
     </div>
 </section>
 
-<script>
-    const statsWheel = document.getElementById('statsWheel');
-    let currentRotation = 0;
-    let isAnimating = false;
-    let currentIndex = 0;
-
-    function rotateWheel() {
-        if (isAnimating) return;
-        isAnimating = true;
-
-        currentIndex = (currentIndex + 1) % 6;
-        currentRotation = -60 * currentIndex;
-        
-        statsWheel.style.transform = `rotateY(${currentRotation}deg)`;
-        
-        const cards = statsWheel.querySelectorAll('.stat-card');
-        cards.forEach((card, index) => {
-            card.classList.remove('active', 'prev', 'next');
-            
-            if (index === currentIndex) {
-                card.classList.add('active');
-                card.style.opacity = '1';
-            } else if (index === (currentIndex + 5) % 6) {
-                card.classList.add('prev');
-                card.style.opacity = '0.3';
-            } else if (index === (currentIndex + 1) % 6) {
-                card.classList.add('next');
-                card.style.opacity = '0.3';
-            } else {
-                card.style.opacity = '0';
-            }
-        });
-
-        setTimeout(() => {
-            isAnimating = false;
-        }, 1500);
-    }
-
-    // Initial state
-    const initialCard = document.querySelector('.stat-card');
-    initialCard.classList.add('active');
-    initialCard.style.opacity = '1';
-
-    // Add prev/next states to adjacent cards
-    const cards = statsWheel.querySelectorAll('.stat-card');
-    cards[5].classList.add('prev');
-    cards[5].style.opacity = '0.3';
-    cards[1].classList.add('next');
-    cards[1].style.opacity = '0.3';
-
-    // Rotate every 4 seconds
-    setInterval(rotateWheel, 4000);
-</script>
-
 <!-- Features Section -->
-<div class="feature-grid" id="features">
-    <div class="container mx-auto px-6 lg:px-8">
-        <div class="text-center">
-            <h2 class="feature-section-title">
-                Nos Solutions
-            </h2>
-            <p class="feature-section-description">
-                Une plateforme complète et innovante pour transformer votre expérience d'évaluation en ligne
-            </p>
+<section id="features" class="py-24 bg-gray-50 dark:bg-gray-900">
+    <div class="container mx-auto px-4">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-3xl font-bold mb-4">Fonctionnalités principales</h2>
+            <p class="text-gray-600 dark:text-gray-400">Découvrez les outils qui font d'Exam4U la meilleure plateforme pour vos examens en ligne.</p>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-users"></i>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="p-6 bg-white dark:bg-black rounded-xl border border-gray-200 dark:border-gray-800">
+                <div class="w-12 h-12 bg-black dark:bg-white text-white dark:text-black rounded-lg flex items-center justify-center mb-4">
+                    {% include 'components/icons.html' with icon="document" class="w-6 h-6" %}
                 </div>
-                <h3 class="feature-title">Gestion des Utilisateurs</h3>
-                <ul class="feature-list">
-                    <li class="feature-item">
-                        <div class="feature-item-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <span>Authentification Sécurisée</span>
-                            </li>
-                    <li class="feature-item">
-                        <div class="feature-item-icon">
-                            <i class="fas fa-user-tag"></i>
-                        </div>
-                        <span>Gestion des Rôles Avancée</span>
-                            </li>
-                    <li class="feature-item">
-                        <div class="feature-item-icon">
-                            <i class="fas fa-user-edit"></i>
-                        </div>
-                        <span>Profils Personnalisables</span>
-                            </li>
-                        </ul>
-                    </div>
-
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-tasks"></i>
-                </div>
-                <h3 class="feature-title">Gestion des Examens</h3>
-                <ul class="feature-list">
-                    <li class="feature-item">
-                        <div class="feature-item-icon">
-                            <i class="fas fa-edit"></i>
+                <h3 class="text-xl font-bold mb-2">Création d'examens</h3>
+                <p class="text-gray-600 dark:text-gray-400">Créez facilement des examens personnalisés avec différents types de questions.</p>
             </div>
-                        <span>Création Intuitive</span>
-                    </li>
-                    <li class="feature-item">
-                        <div class="feature-item-icon">
-                            <i class="fas fa-calendar-alt"></i>
-                        </div>
-                        <span>Planification Flexible</span>
-                            </li>
-                    <li class="feature-item">
-                        <div class="feature-item-icon">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <span>Notation Automatisée</span>
-                            </li>
-                        </ul>
-                    </div>
 
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-shield-alt"></i>
+            <!-- Feature 2 -->
+            <div class="p-6 bg-white dark:bg-black rounded-xl border border-gray-200 dark:border-gray-800">
+                <div class="w-12 h-12 bg-black dark:bg-white text-white dark:text-black rounded-lg flex items-center justify-center mb-4">
+                    {% include 'components/icons.html' with icon="clock" class="w-6 h-6" %}
                 </div>
-                <h3 class="feature-title">Sécurité Avancée</h3>
-                <ul class="feature-list">
-                    <li class="feature-item">
-                        <div class="feature-item-icon">
-                            <i class="fas fa-user-shield"></i>
+                <h3 class="text-xl font-bold mb-2">Gestion du temps</h3>
+                <p class="text-gray-600 dark:text-gray-400">Définissez des limites de temps précises pour chaque examen.</p>
             </div>
-                        <span>Protection Anti-fraude</span>
-                    </li>
-                    <li class="feature-item">
-                        <div class="feature-item-icon">
-                            <i class="fas fa-lock"></i>
-                        </div>
-                        <span>Chiffrement de Bout en Bout</span>
-                            </li>
-                    <li class="feature-item">
-                        <div class="feature-item-icon">
-                            <i class="fas fa-fingerprint"></i>
-                        </div>
-                        <span>Vérification d'Identité</span>
-                            </li>
-                        </ul>
+
+            <!-- Feature 3 -->
+            <div class="p-6 bg-white dark:bg-black rounded-xl border border-gray-200 dark:border-gray-800">
+                <div class="w-12 h-12 bg-black dark:bg-white text-white dark:text-black rounded-lg flex items-center justify-center mb-4">
+                    {% include 'components/icons.html' with icon="chart" class="w-6 h-6" %}
+                </div>
+                <h3 class="text-xl font-bold mb-2">Analyse des résultats</h3>
+                <p class="text-gray-600 dark:text-gray-400">Visualisez et analysez les performances des étudiants en temps réel.</p>
             </div>
         </div>
     </div>
-</div>
+</section>
 
 <!-- Contact Section -->
-<div class="contact-section" id="contact">
-    <div class="container mx-auto px-6 lg:px-8 h-full flex flex-col justify-center">
-            <div class="text-center mb-16">
-            <h2 class="contact-title">Contactez-nous</h2>
-            <div class="title-underline"></div>
-            <p class="contact-description">
-                Notre équipe d'experts est disponible pour vous accompagner dans votre réussite
-            </p>
-        </div>
-
-        <div class="contact-grid">
-            <div class="contact-card">
-                <div class="contact-icon">
-                    <i class="fas fa-envelope"></i>
+<section id="contact" class="py-24">
+    <div class="container mx-auto px-4">
+        <div class="max-w-3xl mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-4">Contactez-nous</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-8">Des questions ? Notre équipe est là pour vous aider.</p>
+            
+            <form class="space-y-6 text-left">
+                <div>
+                    <label for="email" class="block text-sm font-medium mb-2">Email</label>
+                    <input type="email" id="email" name="email" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent">
                 </div>
-                <h3 class="contact-title">Email</h3>
-                <div class="contact-info">
-                    <p>support@exam4u.com</p>
-                    <p>contact@exam4u.com</p>
+                <div>
+                    <label for="message" class="block text-sm font-medium mb-2">Message</label>
+                    <textarea id="message" name="message" rows="4" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent"></textarea>
                 </div>
-                <div class="contact-action">
-                    <a href="mailto:support@exam4u.com" class="contact-button">
-                        Envoyer un email
-                        <i class="fas fa-arrow-right ml-2"></i>
-                    </a>
-                </div>
-            </div>
-
-            <div class="contact-card">
-                <div class="contact-icon">
-                    <i class="fas fa-phone-alt"></i>
-                </div>
-                <h3 class="contact-title">Téléphone</h3>
-                <div class="contact-info">
-                    <p>+33 1 23 45 67 89</p>
-                    <p>Lun - Ven, 9h - 18h</p>
-                    </div>
-                <div class="contact-action">
-                    <a href="tel:+33123456789" class="contact-button">
-                        Appeler maintenant
-                        <i class="fas fa-arrow-right ml-2"></i>
-                    </a>
-                </div>
-                    </div>
-
-            <div class="contact-card">
-                <div class="contact-icon">
-                    <i class="fas fa-map-marker-alt"></i>
-                </div>
-                <h3 class="contact-title">Adresse</h3>
-                <div class="contact-info">
-                    <p>123 Avenue de l'Innovation</p>
-                    <p>75001 Paris, France</p>
-                    </div>
-                <div class="contact-action">
-                    <a href="https://maps.google.com" target="_blank" class="contact-button">
-                        Voir sur la carte
-                        <i class="fas fa-arrow-right ml-2"></i>
-                    </a>
-                </div>
-            </div>
+                <button type="submit" class="btn-primary w-full">Envoyer le message</button>
+            </form>
         </div>
     </div>
-</div>
-
+</section>
 {% endblock %}

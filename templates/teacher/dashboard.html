@@ -1,79 +1,116 @@
 {% extends 'base.html' %}
 
-{% block title %}Teacher Dashboard - Exam4U{% endblock %}
+{% block title %}Tableau de Bord - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen" style="background: var(--bg-secondary)">
+<div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
     {% include 'components/teacher_sidebar.html' %}
 
     <!-- Main Content Area -->
     <div class="flex-1 p-8 space-y-8">
         <!-- Welcome Banner -->
-        <div class="relative overflow-hidden rounded-2xl shadow-lg border transform hover:scale-[1.01] transition-all duration-300" 
-             style="background: var(--card-bg); border-color: var(--border-color)">
+        <div class="relative overflow-hidden rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transform hover:scale-[1.01] transition-all duration-300">
             <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-xl animate-pulse"></div>
             <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-gradient-to-tr from-blue-500/10 to-emerald-500/10 rounded-full blur-xl"></div>
             <div class="relative z-10 p-8">
-                <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    Bienvenue, Prof. {{ user.last_name }}!
-                </h1>
-                <p style="color: var(--text-secondary)" class="mt-2 text-lg">Gérez vos examens et suivez les progrès de vos étudiants.</p>
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10">
+                        {% include 'components/icons.html' with icon="user" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            Bienvenue, Prof. {{ user.last_name }}
+                        </h1>
+                        <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">Gérez vos examens et suivez les progrès de vos étudiants</p>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Total Students -->
-            <div class="rounded-xl shadow-lg border transform hover:scale-[1.02] transition-all duration-300" 
-                 style="background: var(--card-bg); border-color: var(--border-color)">
+            <div class="group bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 transform hover:scale-[1.02] transition-all duration-300">
                 <div class="p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p style="color: var(--text-secondary)" class="text-sm font-medium">Total Étudiants</p>
-                            <p class="mt-2 text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Étudiants</p>
+                            <p class="mt-2 text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform">
                                 {{ total_students }}
                             </p>
                         </div>
-                        <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10">
-                            <i class="fas fa-users text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"></i>
+                        <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 group-hover:scale-110 transition-transform">
+                            {% include 'components/icons.html' with icon="group" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Active Exams -->
-            <div class="rounded-xl shadow-lg border transform hover:scale-[1.02] transition-all duration-300"
-                 style="background: var(--card-bg); border-color: var(--border-color)">
+            <div class="group bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 transform hover:scale-[1.02] transition-all duration-300">
                 <div class="p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p style="color: var(--text-secondary)" class="text-sm font-medium">Examens Actifs</p>
-                            <p class="mt-2 text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Examens Actifs</p>
+                            <p class="mt-2 text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform">
                                 {{ active_exams }}
                             </p>
                         </div>
-                        <div class="p-3 rounded-full bg-gradient-to-br from-emerald-500/10 to-teal-500/10">
-                            <i class="fas fa-edit text-2xl bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent"></i>
+                        <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 group-hover:scale-110 transition-transform">
+                            {% include 'components/icons.html' with icon="document" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Completed Exams -->
-            <div class="rounded-xl shadow-lg border transform hover:scale-[1.02] transition-all duration-300"
-                 style="background: var(--card-bg); border-color: var(--border-color)">
+            <!-- Total Courses -->
+            <div class="group bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 transform hover:scale-[1.02] transition-all duration-300">
                 <div class="p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p style="color: var(--text-secondary)" class="text-sm font-medium">Examens Terminés</p>
-                            <p class="mt-2 text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
-                                {{ completed_exams }}
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Cours</p>
+                            <p class="mt-2 text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform">
+                                {{ total_courses }}
                             </p>
                         </div>
-                        <div class="p-3 rounded-full bg-gradient-to-br from-amber-500/10 to-orange-500/10">
-                            <i class="fas fa-check-circle text-2xl bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent"></i>
+                        <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 group-hover:scale-110 transition-transform">
+                            {% include 'components/icons.html' with icon="book" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 transform hover:shadow-xl transition-all duration-300">
+            <div class="p-6">
+                <div class="flex items-center space-x-3 mb-6">
+                    {% include 'components/icons.html' with icon="clock" class="w-6 h-6 text-blue-600 dark:text-blue-400" %}
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Activité Récente</h2>
+                </div>
+                <div class="space-y-4">
+                    {% for activity in recent_activities %}
+                    <div class="group flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-300">
+                        <div class="flex-shrink-0 group-hover:scale-110 transition-transform">
+                            {% if activity.type == 'exam_created' %}
+                                {% include 'components/icons.html' with icon="document" class="w-6 h-6 text-blue-600 dark:text-blue-400" %}
+                            {% elif activity.type == 'exam_graded' %}
+                                {% include 'components/icons.html' with icon="check" class="w-6 h-6 text-green-600 dark:text-green-400" %}
+                            {% elif activity.type == 'course_created' %}
+                                {% include 'components/icons.html' with icon="book" class="w-6 h-6 text-purple-600 dark:text-purple-400" %}
+                            {% endif %}
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ activity.description }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ activity.timestamp }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="flex items-center justify-center p-8 text-gray-500 dark:text-gray-400">
+                        {% include 'components/icons.html' with icon="information" class="w-6 h-6 mr-2" %}
+                        <p>Aucune activité récente</p>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>

@@ -1,0 +1,12 @@
+{
+  "name": "exam4u",
+  "version": "1.0.0",
+  "description": "Online examination platform",
+  "scripts": {
+    "build-css": "tailwindcss -i ./static/css/input.css -o ./static/css/tailwind.css --minify",
+    "watch-css": "tailwindcss -i ./static/css/input.css -o ./static/css/tailwind.css --watch"
+  },
+  "dependencies": {
+    "tailwindcss": "^3.3.0"
+  }
+} 

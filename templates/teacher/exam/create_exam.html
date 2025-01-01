@@ -3,16 +3,16 @@
 {% block title %}Create Exam - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen bg-gray-50">
+<div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
     {% include 'components/teacher_sidebar.html' %}
 
     <div class="flex-1 space-y-8 p-8">
         <!-- Title Section -->
-        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-            <h1 class="text-2xl font-bold text-gray-900">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
                 Créer un Nouvel Examen
             </h1>
-            <p class="text-gray-600 mt-2">Configurez les détails et les questions de votre examen</p>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Configurez les détails et les questions de votre examen</p>
         </div>
 
         <!-- Form Section -->
@@ -20,24 +20,24 @@
             {% csrf_token %}
             <input type="hidden" name="question_count" id="question_count" value="0">
 
-            <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 space-y-6">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 space-y-6">
                 <!-- Basic Info Section -->
                 <div>
-                    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Titre de l'Examen</label>
+                    <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titre de l'Examen</label>
                     <input type="text" name="title" id="title" required 
-                           class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
 
                 <div>
-                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
                     <textarea name="description" id="description" rows="3" 
-                              class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
                 </div>
 
                 <div>
-                    <label for="course" class="block text-sm font-medium text-gray-700 mb-2">Cours</label>
+                    <label for="course" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cours</label>
                     <select name="course" id="course" required 
-                            class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         {% for course in courses %}
                             <option value="{{ course.id }}">{{ course.title }}</option>
                         {% endfor %}
@@ -45,9 +45,9 @@
                 </div>
 
                 <div>
-                    <label for="group" class="block text-sm font-medium text-gray-700 mb-2">Groupe</label>
+                    <label for="group" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Groupe</label>
                     <select name="group" id="group" required 
-                            class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         {% for group in groups %}
                             <option value="{{ group.id }}">{{ group }}</option>
                         {% endfor %}
@@ -56,27 +56,27 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="duration" class="block text-sm font-medium text-gray-700 mb-2">Durée (minutes)</label>
+                        <label for="duration" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Durée (minutes)</label>
                         <input type="number" name="duration" id="duration" required 
-                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
 
                     <div>
-                        <label for="max_attempts" class="block text-sm font-medium text-gray-700 mb-2">Nombre de Tentatives</label>
-                        <input type="number" name="max_attempts" id="max_attempts" value="1" required 
-                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <label for="max_attempts" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre de Tentatives</label>
+                        <input type="number" name="max_attempts" id="max_attempts" required 
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
 
                     <div>
-                        <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">Date de Début</label>
+                        <label for="start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date de Début</label>
                         <input type="datetime-local" name="start_date" id="start_date" required 
-                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
 
                     <div>
-                        <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">Date de Fin</label>
+                        <label for="end_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date de Fin</label>
                         <input type="datetime-local" name="end_date" id="end_date" required 
-                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
                 </div>
             </div>
@@ -86,21 +86,17 @@
                 <!-- Questions will be added here dynamically -->
             </div>
 
-            <!-- Add Question Button -->
-            <div class="flex justify-center">
+            <!-- Action Buttons -->
+            <div class="flex space-x-4">
                 <button type="button" id="add-question-btn" 
-                        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all flex items-center space-x-2">
+                        class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all space-x-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                     </svg>
                     <span>Ajouter une Question</span>
                 </button>
-            </div>
-
-            <!-- Submit Button -->
-            <div class="flex justify-end">
                 <button type="submit" 
-                        class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all flex items-center space-x-2">
+                        class="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all space-x-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
@@ -120,21 +116,21 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('question_count').value = questionCount;
 
         const questionContainer = document.createElement('div');
-        questionContainer.classList.add('bg-white', 'rounded-xl', 'shadow-lg', 'border', 'border-gray-200', 'p-6', 'space-y-6');
+        questionContainer.classList.add('bg-white', 'dark:bg-gray-800', 'rounded-xl', 'shadow-lg', 'border', 'border-gray-200', 'dark:border-gray-700', 'p-6', 'space-y-6');
         questionContainer.setAttribute('id', `question_${questionCount}`);
 
         questionContainer.innerHTML = `
             <div class="flex justify-between items-center">
-                <h2 class="text-lg font-bold text-gray-900">Question ${questionCount}</h2>
-                <button type="button" class="remove-question-btn px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all" data-question-id="${questionCount}">
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white">Question ${questionCount}</h2>
+                <button type="button" class="remove-question-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all" data-question-id="${questionCount}">
                     Supprimer
                 </button>
             </div>
 
             <div>
-                <label for="question_type_${questionCount}" class="block text-sm font-medium text-gray-700 mb-2">Type de Question</label>
+                <label for="question_type_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type de Question</label>
                 <select name="question_type_${questionCount}" id="question_type_${questionCount}" required 
-                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="MCQ">QCM</option>
                     <option value="short_answer">Réponse Courte</option>
                     <option value="open">Question Ouverte</option>
@@ -142,20 +138,20 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
 
             <div>
-                <label for="question_wording_${questionCount}" class="block text-sm font-medium text-gray-700 mb-2">Énoncé</label>
+                <label for="question_wording_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Énoncé</label>
                 <textarea name="question_wording_${questionCount}" id="question_wording_${questionCount}" rows="3" 
-                          class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                          class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
             </div>
 
             <div>
-                <label for="question_points_${questionCount}" class="block text-sm font-medium text-gray-700 mb-2">Points</label>
+                <label for="question_points_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Points</label>
                 <input type="number" name="question_points_${questionCount}" id="question_points_${questionCount}" required 
-                       class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                       class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
 
             <div class="mcq-choices-container space-y-4" id="mcq_choices_${questionCount}">
                 <input type="hidden" name="mcq_choice_count_${questionCount}" id="mcq_choice_count_${questionCount}" value="0">
-                <button type="button" class="add-mcq-choice-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all" data-question-id="${questionCount}">
+                <button type="button" class="add-mcq-choice-btn px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all" data-question-id="${questionCount}">
                     Ajouter un Choix
                 </button>
             </div>
@@ -182,26 +178,26 @@ document.addEventListener('DOMContentLoaded', function () {
             choiceCountElem.value = choiceCount;
 
             const choiceContainer = document.createElement('div');
-            choiceContainer.classList.add('bg-gray-50', 'rounded-lg', 'p-4', 'space-y-4');
+            choiceContainer.classList.add('bg-gray-50', 'dark:bg-gray-700', 'rounded-lg', 'p-4', 'space-y-4');
             choiceContainer.setAttribute('id', `mcq_choice_${questionId}_${choiceCount}`);
 
             choiceContainer.innerHTML = `
                 <div class="flex justify-between items-center">
-                    <h3 class="text-md font-bold text-gray-900">Choix ${choiceCount}</h3>
-                    <button type="button" class="remove-mcq-choice-btn px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all" 
+                    <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix ${choiceCount}</h3>
+                    <button type="button" class="remove-mcq-choice-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all" 
                             data-question-id="${questionId}" data-choice-id="${choiceCount}">
                         Supprimer
                     </button>
                 </div>
                 <div>
-                    <label for="mcq_choice_text_${questionId}_${choiceCount}" class="block text-sm font-medium text-gray-700 mb-2">Texte du Choix</label>
+                    <label for="mcq_choice_text_${questionId}_${choiceCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Texte du Choix</label>
                     <input type="text" name="mcq_choice_text_${questionId}_${choiceCount}" id="mcq_choice_text_${questionId}_${choiceCount}" required 
-                           class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <div class="flex items-center space-x-2">
                     <input type="checkbox" name="mcq_choice_correct_${questionId}_${choiceCount}" id="mcq_choice_correct_${questionId}_${choiceCount}"
-                           class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                    <label for="mcq_choice_correct_${questionId}_${choiceCount}" class="text-sm font-medium text-gray-700">
+                           class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
+                    <label for="mcq_choice_correct_${questionId}_${choiceCount}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Réponse Correcte
                     </label>
                 </div>

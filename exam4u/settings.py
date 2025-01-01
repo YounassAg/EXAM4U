@@ -13,9 +13,7 @@ SECRET_KEY = 'django-insecure-!@++5f1ll8-25y-4_-k2s%ay6gcb2v)95vok54ug!cwk3nwou4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-DEBUG = False
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-
 
 
 # Application definition
@@ -69,10 +67,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'examen_online',
-        'USER': 'examen_online',
-        'PASSWORD': 'examen_online',
+        'USER': 'root',
+        'PASSWORD': '+*-/',
         'HOST': 'localhost',
-        'PORT': '3306',
+        'PORT': '3307',
     }
 }
 
@@ -96,14 +94,17 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

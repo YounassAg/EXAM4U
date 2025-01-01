@@ -1,91 +1,99 @@
 {% extends 'base.html' %}
 
-{% block title %}Dashboard Étudiant - Exam4U{% endblock %}
+{% block title %}Tableau de Bord - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen" style="background-color: var(--bg-secondary)">
+<div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
     {% include 'components/student_sidebar.html' %}
-
-    <!-- Main Content Area -->
+    
     <div class="flex-1 p-8 space-y-8">
-        <!-- Welcome Banner -->
-        <div style="background-color: var(--card-bg)" class="rounded-xl shadow-lg border border-opacity-20" style="border-color: var(--border-color)">
-            <div class="p-6">
-                <h1 class="text-2xl font-bold" style="color: var(--text-primary)">
-                    Bienvenue, {{ user.first_name }}!
-                </h1>
-                <p style="color: var(--text-secondary)" class="mt-2">Voici un aperçu de vos activités académiques.</p>
+        <!-- Title Section -->
+        <div class="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-xl"></div>
+            <div class="relative z-10 flex items-center space-x-4">
+                {% include 'components/icons.html' with icon="home" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                <div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Tableau de Bord</h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">Bienvenue sur votre tableau de bord</p>
+                </div>
             </div>
         </div>
 
-        <!-- Quick Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Average Score -->
-            <div style="background-color: var(--card-bg)" class="rounded-xl shadow-lg border border-opacity-20" style="border-color: var(--border-color)">
-                <div class="flex items-center p-6">
-                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                        </svg>
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Total Courses -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total des Cours</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ total_courses }}</p>
                     </div>
-                </div>
-            </div>
-
-            <!-- Upcoming Exams -->
-            <div style="background-color: var(--card-bg)" class="rounded-xl shadow-lg border border-opacity-20" style="border-color: var(--border-color)">
-                <div class="flex items-center p-6">
-                    <div class="p-3 rounded-full bg-green-100 text-green-600">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
+                    <div class="w-12 h-12 rounded-lg bg-blue-600/10 flex items-center justify-center">
+                        {% include 'components/icons.html' with icon="book" class="w-6 h-6 text-blue-600" %}
                     </div>
                 </div>
             </div>
 
             <!-- Completed Exams -->
-            <div style="background-color: var(--card-bg)" class="rounded-xl shadow-lg border border-opacity-20" style="border-color: var(--border-color)">
-                <div class="flex items-center p-6">
-                    <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                        </svg>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Examens Complétés</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ completed_exams }}</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-lg bg-green-600/10 flex items-center justify-center">
+                        {% include 'components/icons.html' with icon="check" class="w-6 h-6 text-green-600" %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Exams -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Examens à Venir</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ upcoming_exams }}</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-lg bg-amber-600/10 flex items-center justify-center">
+                        {% include 'components/icons.html' with icon="calendar" class="w-6 h-6 text-amber-600" %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Average Score -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Note Moyenne</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ average_score|default:"N/A" }}</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-lg bg-purple-600/10 flex items-center justify-center">
+                        {% include 'components/icons.html' with icon="chart" class="w-6 h-6 text-purple-600" %}
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Recent Activity -->
-        <div style="background-color: var(--card-bg)" class="rounded-xl shadow-lg border border-opacity-20" style="border-color: var(--border-color)">
-            <div class="p-6">
-                <h2 class="text-xl font-bold" style="color: var(--text-primary)">Activités Récentes</h2>
-                <div class="space-y-4">
-                    {% for activity in recent_activities %}
-                        <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                            <div class="flex-shrink-0">
-                                {% if activity.type == 'exam_completed' %}
-                                    <div class="p-2 bg-green-100 rounded-full">
-                                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                                        </svg>
-                                    </div>
-                                {% else %}
-                                    <div class="p-2 bg-blue-100 rounded-full">
-                                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                        </svg>
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="ml-4">
-                                <p class="text-sm font-medium text-gray-900">{{ activity.description }}</p>
-                                <p class="text-sm text-gray-500">{{ activity.timestamp }}</p>
-                            </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Activité Récente</h2>
+            <div class="space-y-6">
+                {% for activity in recent_activity %}
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 rounded-lg bg-blue-600/10 flex items-center justify-center">
+                            {% include 'components/icons.html' with icon=activity.icon class="w-5 h-5 text-blue-600" %}
                         </div>
-                    {% empty %}
-                        <p class="text-gray-500 text-center py-4">Aucune activité récente</p>
-                    {% endfor %}
-                </div>
+                        <div class="flex-1">
+                            <p class="text-gray-900 dark:text-white font-medium">{{ activity.title }}</p>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm">{{ activity.description }}</p>
+                        </div>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">{{ activity.date }}</span>
+                    </div>
+                {% empty %}
+                    <div class="text-center py-4">
+                        <p class="text-gray-600 dark:text-gray-400">Aucune activité récente</p>
+                    </div>
+                {% endfor %}
             </div>
         </div>
     </div>

@@ -1,21 +1,28 @@
 {% extends 'base.html' %}
 
-{% block title %}Examens - Exam4U{% endblock %}
+{% block title %}Mes Examens - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen bg-gray-50">
+<div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
     {% include 'components/student_sidebar.html' %}
 
     <div class="flex-1 p-8 space-y-8">
         <!-- Title Section -->
-        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-            <h1 class="text-2xl font-bold text-gray-900">Examens Disponibles</h1>
-            <p class="text-gray-600 mt-2">Parcourez et passez vos examens</p>
+        <div class="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-xl"></div>
+            <div class="relative z-10 flex items-center space-x-4">
+                {% include 'components/icons.html' with icon="document" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                <div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Mes Examens</h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">Parcourez et passez vos examens</p>
+                </div>
+            </div>
         </div>
+
         {% if messages %}
-            <div class="messages mt-8 space-y-4">
+            <div class="space-y-4">
                 {% for message in messages %}
-                    <div class="message {{ message.tags }} bg-white p-4 rounded-lg border-l-4 border-red-500 shadow-md text-red">
+                    <div class="message {{ message.tags }} bg-white dark:bg-gray-800 p-4 rounded-lg border-l-4 {% if message.tags == 'error' %}border-red-500 text-red-600 dark:text-red-400{% else %}border-green-500 text-green-600 dark:text-green-400{% endif %} shadow-md transform hover:scale-[1.01] transition-all duration-300">
                         {{ message }}
                     </div>
                 {% endfor %}
@@ -25,67 +32,72 @@
         <!-- Exams List Section -->
         <div class="space-y-6">
             {% for exam in exams %}
-                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-                    <div class="flex items-center justify-between">
+                <div class="group bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 transform hover:scale-[1.01] hover:shadow-xl transition-all duration-300">
+                    <div class="flex items-start justify-between">
                         <div class="space-y-4">
-                            <div>
-                                <h2 class="text-xl font-bold text-gray-900">{{ exam.title }}</h2>
-                                <p class="text-gray-600 mt-1">{{ exam.description }}</p>
+                            <div class="flex items-center space-x-3">
+                                {% include 'components/icons.html' with icon="document" class="w-6 h-6 text-blue-600 dark:text-blue-400" %}
+                                <div>
+                                    <h2 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{{ exam.title }}</h2>
+                                    <p class="text-gray-600 dark:text-gray-400 mt-1">{{ exam.description }}</p>
+                                </div>
                             </div>
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-                                <div class="flex items-center text-gray-600">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                    </svg>
+                                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+                                    {% include 'components/icons.html' with icon="book" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
                                     <span>Cours: {{ exam.course.title }}</span>
                                 </div>
-                                <div class="flex items-center text-gray-600">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                    </svg>
+                                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+                                    {% include 'components/icons.html' with icon="group" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
                                     <span>Groupe: {{ exam.group }}</span>
                                 </div>
-                                <div class="flex items-center text-gray-600">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
+                                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+                                    {% include 'components/icons.html' with icon="clock" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
                                     <span>Durée: {{ exam.duration }} minutes</span>
                                 </div>
-                                <div class="flex items-center text-gray-600">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                                    </svg>
-                                    <span>Tentatives: {{ exam.max_attempts }}</span>
+                                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+                                    {% include 'components/icons.html' with icon="calendar" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
+                                    <span>Début: {{ exam.start_date|date:"d/m/Y H:i" }}</span>
                                 </div>
-                                <div class="flex items-center text-gray-600">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                    </svg>
-                                    <span>Date de début: {{ exam.start_date }}</span>
+                                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+                                    {% include 'components/icons.html' with icon="calendar" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
+                                    <span>Fin: {{ exam.end_date|date:"d/m/Y H:i" }}</span>
                                 </div>
-                                <div class="flex items-center text-gray-600">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                    </svg>
-                                    <span>Date de fin: {{ exam.end_date }}</span>
+                                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+                                    {% include 'components/icons.html' with icon="refresh" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
+                                    <span>Tentatives: {{ exam.attempts_taken }}/{{ exam.max_attempts }}</span>
                                 </div>
                             </div>
                         </div>
+                        
                         <div class="flex-shrink-0 ml-6">
-                            <a href="{% url 'take_exam' exam.id %}" 
-                               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all space-x-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                                </svg>
-                                <span>Passer l'Examen</span>
-                            </a>
+                            {% if exam.can_take %}
+                                <a href="{% url 'student:take_exam' exam.id %}" 
+                                   class="group inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300 hover:shadow-lg space-x-2">
+                                    <div class="transform group-hover:scale-110 transition-transform">
+                                        {% include 'components/icons.html' with icon="play" class="w-5 h-5" %}
+                                    </div>
+                                    <span>Passer l'Examen</span>
+                                </a>
+                            {% else %}
+                                <button disabled 
+                                        class="inline-flex items-center px-6 py-3 bg-gray-400 text-white rounded-lg cursor-not-allowed space-x-2">
+                                    <div>
+                                        {% include 'components/icons.html' with icon="lock" class="w-5 h-5" %}
+                                    </div>
+                                    <span>Non Disponible</span>
+                                </button>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
             {% empty %}
-                <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 text-center">
-                    <p class="text-gray-600">Aucun examen disponible pour le moment.</p>
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+                    <div class="flex flex-col items-center justify-center text-center space-y-4">
+                        {% include 'components/icons.html' with icon="information" class="w-12 h-12 text-gray-400" %}
+                        <p class="text-gray-600 dark:text-gray-400">Aucun examen disponible pour le moment</p>
+                    </div>
                 </div>
             {% endfor %}
         </div>

@@ -4,56 +4,103 @@
 {% block title %}Examen Terminé - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen bg-gray-50">
+<div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
     {% include 'components/student_sidebar.html' %}
 
-    <div class="flex-1 p-8 space-y-8">
-        <!-- Title Section -->
-        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-            <h1 class="text-2xl font-bold text-gray-900">Examen Terminé</h1>
-            <p class="text-gray-600 mt-2">Votre examen a été soumis avec succès</p>
-        </div>
-
-        <!-- Exam Details -->
-        <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
-            <div class="space-y-6">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-900">{{ attempt.exam.title }}</h2>
-                    <p class="text-gray-600 mt-1">{{ attempt.exam.description }}</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-                    <div class="flex items-center text-gray-600">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                        </svg>
-                        <span>Cours: {{ attempt.exam.course.title }}</span>
+    <div class="flex-1 p-8">
+        <div class="max-w-3xl mx-auto space-y-8">
+            <!-- Success Card -->
+            <div class="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-full blur-xl animate-pulse"></div>
+                <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-gradient-to-tr from-green-500/10 to-emerald-500/10 rounded-full blur-xl"></div>
+                
+                <div class="relative z-10 flex flex-col items-center text-center space-y-6">
+                    <!-- Success Icon with Animation -->
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-full blur-lg animate-pulse"></div>
+                        <div class="relative w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center transform hover:scale-110 transition-transform">
+                            {% include 'components/icons.html' with icon="check" class="w-12 h-12 text-green-600 dark:text-green-400" %}
+                        </div>
                     </div>
-                    <div class="flex items-center text-gray-600">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span>Durée: {{ attempt.exam.duration }} minutes</span>
-                    </div>
-                    <div class="flex items-center text-gray-600">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        <span>Date de soumission: {{ attempt.submitted_at }}</span>
-                    </div>
-                </div>
 
-                <div class="border-t border-gray-200 pt-6">
-                    <div class="flex justify-center">
-                        <a href="{% url 'index' %}" 
-                           class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all space-x-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                            </svg>
-                            <span>Retour aux Dashboard</span>
+                    <!-- Success Message -->
+                    <div class="space-y-4">
+                        <h1 class="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                            Examen Terminé avec Succès !
+                        </h1>
+                        <p class="text-gray-600 dark:text-gray-400 max-w-lg mx-auto">
+                            Félicitations ! Vous avez terminé l'examen "{{ exam.title }}". Vos réponses ont été enregistrées avec succès.
+                        </p>
+                    </div>
+
+                    <!-- Exam Summary -->
+                    <div class="w-full max-w-lg bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6 space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-left">
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Cours</p>
+                                <p class="font-medium text-gray-900 dark:text-white">{{ exam.course.title }}</p>
+                            </div>
+                            <div class="text-left">
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Date de soumission</p>
+                                <p class="font-medium text-gray-900 dark:text-white">{{ attempt.submitted_at|date:"d/m/Y H:i" }}</p>
+                            </div>
+                            <div class="text-left">
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Durée</p>
+                                <p class="font-medium text-gray-900 dark:text-white">{{ exam.duration }} minutes</p>
+                            </div>
+                            <div class="text-left">
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Questions répondues</p>
+                                <p class="font-medium text-gray-900 dark:text-white">{{ attempt.questions_answered }}/{{ exam.total_questions }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mt-4">
+                        <a href="{% url 'student:exam_list' %}" 
+                           class="group inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-300 hover:shadow-lg space-x-2">
+                            <div class="transform group-hover:scale-110 transition-transform">
+                                {% include 'components/icons.html' with icon="list" class="w-5 h-5" %}
+                            </div>
+                            <span>Retour aux Examens</span>
+                        </a>
+                        <a href="{% url 'student:dashboard' %}" 
+                           class="group inline-flex items-center px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-all duration-300 hover:shadow-lg space-x-2">
+                            <div class="transform group-hover:scale-110 transition-transform">
+                                {% include 'components/icons.html' with icon="home" class="w-5 h-5" %}
+                            </div>
+                            <span>Tableau de Bord</span>
                         </a>
                     </div>
+
+                    <!-- Additional Info -->
+                    <div class="text-sm text-gray-500 dark:text-gray-400 mt-6">
+                        <p>Les résultats seront disponibles une fois que l'enseignant aura terminé la correction.</p>
+                        <p class="mt-2">Vous recevrez une notification par email lorsque vos résultats seront prêts.</p>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Tips Section -->
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <div class="flex items-center space-x-3 mb-4">
+                    {% include 'components/icons.html' with icon="light-bulb" class="w-6 h-6 text-yellow-500" %}
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Conseils pour la suite</h2>
+                </div>
+                <ul class="space-y-3 text-gray-600 dark:text-gray-400">
+                    <li class="flex items-start space-x-2">
+                        {% include 'components/icons.html' with icon="check" class="w-5 h-5 text-green-500 mt-0.5" %}
+                        <span>Révisez régulièrement le contenu du cours pour maintenir vos connaissances</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        {% include 'components/icons.html' with icon="check" class="w-5 h-5 text-green-500 mt-0.5" %}
+                        <span>Participez aux discussions de groupe pour partager vos expériences</span>
+                    </li>
+                    <li class="flex items-start space-x-2">
+                        {% include 'components/icons.html' with icon="check" class="w-5 h-5 text-green-500 mt-0.5" %}
+                        <span>N'hésitez pas à contacter votre enseignant pour des éclaircissements</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>

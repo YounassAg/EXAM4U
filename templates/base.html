@@ -1,170 +1,77 @@
 <!-- templates/base.html -->
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="fr" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Exam4U{% endblock %}</title>
     {% load static %}
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/index.css' %}">
-    <style>
-        :root {
-            /* Light theme variables */
-            --bg-primary: #ffffff;
-            --bg-secondary: #f8fafc;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --border-color: rgba(59, 130, 246, 0.1);
-            --navbar-bg: rgba(255, 255, 255, 0.85);
-            --card-bg: #ffffff;
-        }
-
-        /* Dark theme variables */
-        html.dark {
-            --bg-primary: #111827;
-            --bg-secondary: #1f2937;
-            --text-primary: #f3f4f6;
-            --text-secondary: #d1d5db;
-            --border-color: rgba(59, 130, 246, 0.2);
-            --navbar-bg: rgba(17, 24, 39, 0.85);
-            --card-bg: #1f2937;
-        }
-
-        @keyframes navbarGlow {
-            0%, 100% { box-shadow: 0 0 20px var(--border-color); }
-            50% { box-shadow: 0 0 30px var(--border-color); }
-        }
-
-        body {
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .navbar {
-            background: var(--navbar-bg);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-color);
-            animation: navbarGlow 4s ease-in-out infinite;
-        }
-
-        .nav-link {
-            position: relative;
-            color: var(--text-primary);
-            transition: all 0.3s ease;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -2px;
-            left: 0;
-            background: #3b82f6;
-            transition: width 0.3s ease;
-        }
-
-        .nav-link:hover {
-            color: #3b82f6;
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
-        }
-
-        .brand {
-            font-weight: 700;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            transition: all 0.3s ease;
-        }
-
-        .brand:hover {
-            transform: translateY(-1px);
-            text-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            border: none;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-        }
-
-        .footer {
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-            color: var(--text-secondary);
-        }
-
-        /* Theme toggle button styles */
-        .theme-toggle {
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: var(--text-primary);
-        }
-
-        .theme-toggle:hover {
-            background: var(--border-color);
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
+    {% block extra_css %}{% endblock %}
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen theme-transition bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
     <!-- Navigation -->
-    <nav class="navbar fixed w-full top-0 z-50 px-6 py-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <a href="{% url 'index' %}" class="brand text-2xl">Exam4U</a>
-            <div class="flex items-center space-x-8">
-                {% if not user.is_authenticated %}
-                    <a href="{% url 'index' %}" class="nav-link">Accueil</a>
-                    <a href="#features" class="nav-link">Fonctionnalités</a>
-                    <a href="#contact" class="nav-link">Contact</a>
-                    <button id="theme-toggle" class="theme-toggle">
-                        <i class="fas fa-sun"></i>
-                    </button>
-                    <a href="{% url 'register' %}" class="btn-primary px-4 py-2 rounded-lg text-white font-semibold">Register</a>
-                    <a href="{% url 'login' %}" class="btn-primary px-4 py-2 rounded-lg text-white font-semibold">Login</a>
-                {% else %}
-                    <button id="theme-toggle" class="theme-toggle">
-                        <i class="fas fa-sun"></i>
-                    </button>
-                    <a href="{% url 'logout' %}" class="btn-primary px-6 py-2 rounded-lg text-white font-semibold flex items-center space-x-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+    <nav class="fixed w-full z-50 theme-transition bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <a href="{% url 'index' %}" class="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300">
+                    Exam4U
+                </a>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-8">
+                    {% if not user.is_authenticated and request.path == '/' %}
+                        <a href="{% url 'index' %}" class="nav-link">Accueil</a>
+                        <a href="#features" class="nav-link">Fonctionnalités</a>
+                        <a href="#contact" class="nav-link">Contact</a>
+                    {% endif %}
+                </div>
+
+                <!-- Right Side -->
+                <div class="flex items-center space-x-6">
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle" class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 transition-all duration-300" aria-label="Toggle theme">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
                         </svg>
-                        <span>Se déconnecter</span>
-                    </a>
-                {% endif %}
+                    </button>
+
+                    <!-- Auth Buttons -->
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'register' %}" class="px-6 py-2.5 border-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 font-medium rounded-lg hover:bg-blue-600 hover:text-white dark:hover:bg-blue-400 dark:hover:text-gray-900 transform hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400">
+                            S'inscrire
+                        </a>
+                        <a href="{% url 'login' %}" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transform hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400">
+                            Se connecter
+                        </a>
+                    {% else %}
+                        <a href="{% url 'logout' %}" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transform hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400">
+                            Se déconnecter
+                        </a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main class="min-h-screen pt-20">
+    <main class="{% if request.path != '/' %}pt-24{% endif %}">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="footer py-8">
-        <div class="container mx-auto px-6">
-            <div class="flex justify-between items-center">
-                <div class="text-sm">© 2024 Exam4U. Tous droits réservés.</div>
-                <div class="flex space-x-6">
+    <footer class="theme-transition bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                <div class="flex items-center space-x-2">
+                    <span class="font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Exam4U</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">© 2024 Tous droits réservés</span>
+                </div>
+                <div class="flex space-x-8">
                     <a href="#" class="nav-link text-sm">Politique de confidentialité</a>
                     <a href="#" class="nav-link text-sm">Conditions d'utilisation</a>
+                    <a href="#" class="nav-link text-sm">Aide</a>
                 </div>
             </div>
         </div>
@@ -175,25 +82,50 @@
         document.addEventListener('DOMContentLoaded', function() {
             const themeToggle = document.getElementById('theme-toggle');
             const html = document.documentElement;
-            const icon = themeToggle.querySelector('i');
+            
+            // Check system preference and saved theme
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+            const savedTheme = localStorage.getItem('theme');
+            
+            // Set initial theme
+            if (savedTheme) {
+                setTheme(savedTheme);
+            } else {
+                setTheme(prefersDark.matches ? 'dark' : 'light');
+            }
 
-            // Check for saved theme preference
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            html.className = savedTheme;
-            updateIcon(savedTheme === 'dark');
-
-            // Toggle theme
-            themeToggle.addEventListener('click', function() {
-                const isDark = html.classList.toggle('dark');
-                localStorage.setItem('theme', isDark ? 'dark' : 'light');
-                updateIcon(isDark);
+            // Listen for system theme changes
+            prefersDark.addEventListener('change', (e) => {
+                if (!localStorage.getItem('theme')) {
+                    setTheme(e.matches ? 'dark' : 'light');
+                }
             });
 
-            // Update icon based on theme
-            function updateIcon(isDark) {
-                icon.className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+            // Handle theme toggle click
+            themeToggle.addEventListener('click', function() {
+                const isDark = html.classList.contains('dark');
+                const newTheme = isDark ? 'light' : 'dark';
+                setTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+
+            function setTheme(theme) {
+                const isDark = theme === 'dark';
+                html.classList.toggle('dark', isDark);
+                
+                // Update icon
+                const sunPath = "M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z";
+                const moonPath = "M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z";
+                
+                const iconPath = themeToggle.querySelector('path');
+                iconPath.setAttribute('d', isDark ? moonPath : sunPath);
+                
+                // Update aria-label
+                themeToggle.setAttribute('aria-label', isDark ? 'Activer le mode clair' : 'Activer le mode sombre');
             }
         });
     </script>
+
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

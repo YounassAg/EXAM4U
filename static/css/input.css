@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+@layer components {
+    .container {
+        @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    }
+
+    /* Theme Transitions */
+    .theme-transition {
+        @apply transition-all duration-300;
+    }
+
+    /* Navigation */
+    .nav-link {
+        @apply relative text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300;
+    }
+    .nav-link::after {
+        content: '';
+        @apply absolute left-0 -bottom-1 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 transition-all duration-300;
+    }
+    .nav-link:hover::after {
+        @apply w-full opacity-100;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        @apply px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg 
+               hover:from-blue-700 hover:to-purple-700 transform hover:-translate-y-0.5
+               transition-all duration-300 
+               focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400;
+    }
+    .btn-secondary {
+        @apply px-6 py-2.5 border-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 font-medium rounded-lg 
+               hover:bg-blue-600 hover:text-white dark:hover:bg-blue-400 dark:hover:text-gray-900 transform hover:-translate-y-0.5
+               transition-all duration-300 
+               focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400;
+    }
+
+    /* Form Elements */
+    .form-input {
+        @apply w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+               bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+               focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 focus:border-transparent
+               transition-all duration-300;
+    }
+
+    .form-label {
+        @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2;
+    }
+
+    .form-select {
+        @apply w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
+               bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+               focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 focus:border-transparent
+               transition-all duration-300;
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+        @apply relative p-2 rounded-lg text-gray-500 dark:text-gray-400 
+               hover:bg-gray-100 dark:hover:bg-gray-700 
+               focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400
+               transition-all duration-300;
+    }
+    .theme-toggle svg {
+        @apply w-5 h-5 transform transition-transform duration-500;
+    }
+    .theme-toggle:hover svg {
+        @apply rotate-12;
+    }
+}
