@@ -111,6 +111,22 @@
 document.addEventListener('DOMContentLoaded', function () {
     let questionCount = 0;
 
+    // Make handleQuestionTypeChange globally accessible
+    window.handleQuestionTypeChange = function(questionId) {
+        const questionType = document.getElementById(`question_type_${questionId}`).value;
+        const mcqSection = document.getElementById(`mcq_section_${questionId}`);
+        
+        if (questionType === 'MCQ') {
+            mcqSection.classList.remove('hidden');
+        } else {
+            mcqSection.classList.add('hidden');
+            // Clear MCQ choices when switching to other types
+            const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
+            const choiceCountElem = document.getElementById(`mcq_choice_count_${questionId}`);
+            choicesContainer.innerHTML = `<input type="hidden" name="mcq_choice_count_${questionId}" id="mcq_choice_count_${questionId}" value="0">`;
+        }
+    };
+
     document.getElementById('add-question-btn').addEventListener('click', function () {
         questionCount++;
         document.getElementById('question_count').value = questionCount;
@@ -130,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div>
                 <label for="question_type_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type de Question</label>
                 <select name="question_type_${questionCount}" id="question_type_${questionCount}" required 
+                        onchange="handleQuestionTypeChange(${questionCount})"
                         class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="MCQ">QCM</option>
                     <option value="short_answer">Réponse Courte</option>
@@ -139,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             <div>
                 <label for="question_wording_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Énoncé</label>
-                <textarea name="question_wording_${questionCount}" id="question_wording_${questionCount}" rows="3" 
+                <textarea name="question_wording_${questionCount}" id="question_wording_${questionCount}" rows="3" required
                           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
             </div>
 
@@ -149,15 +166,19 @@ document.addEventListener('DOMContentLoaded', function () {
                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
 
-            <div class="mcq-choices-container space-y-4" id="mcq_choices_${questionCount}">
-                <input type="hidden" name="mcq_choice_count_${questionCount}" id="mcq_choice_count_${questionCount}" value="0">
-                <button type="button" class="add-mcq-choice-btn px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all" data-question-id="${questionCount}">
+            <!-- MCQ Choices Section -->
+            <div class="mcq-choices-section hidden" id="mcq_section_${questionCount}">
+                <div class="mcq-choices-container space-y-4" id="mcq_choices_${questionCount}">
+                    <input type="hidden" name="mcq_choice_count_${questionCount}" id="mcq_choice_count_${questionCount}" value="0">
+                </div>
+                <button type="button" class="add-mcq-choice-btn mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all" data-question-id="${questionCount}">
                     Ajouter un Choix
                 </button>
             </div>
         `;
 
         document.getElementById('questions-container').appendChild(questionContainer);
+        handleQuestionTypeChange(questionCount); // Initialize visibility
     });
 
     // Handle removing questions
@@ -178,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function () {
             choiceCountElem.value = choiceCount;
 
             const choiceContainer = document.createElement('div');
-            choiceContainer.classList.add('bg-gray-50', 'dark:bg-gray-700', 'rounded-lg', 'p-4', 'space-y-4');
+            choiceContainer.classList.add('bg-gray-50', 'dark:bg-gray-700', 'rounded-lg', 'p-4', 'space-y-4', 'mb-4');
             choiceContainer.setAttribute('id', `mcq_choice_${questionId}_${choiceCount}`);
 
             choiceContainer.innerHTML = `
@@ -204,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
             `;
 
             const mcqChoicesContainer = document.getElementById(`mcq_choices_${questionId}`);
-            mcqChoicesContainer.insertBefore(choiceContainer, event.target);
+            mcqChoicesContainer.appendChild(choiceContainer);
         }
     });
 

@@ -100,7 +100,8 @@
                     </div>
                     <span>Retour</span>
                 </button>
-                <button type="submit" 
+                <button type="button" 
+                        onclick="confirmSubmit()"
                         class="group inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300 hover:shadow-lg space-x-2">
                     <div class="transform group-hover:scale-110 transition-transform">
                         {% include 'components/icons.html' with icon="check" class="w-5 h-5" %}
@@ -132,6 +133,13 @@
                 examForm.submit();
             }
         }, 1000);
+    }
+
+    // Confirmation dialog before submitting
+    function confirmSubmit() {
+        if (confirm("Est-ce que tu es sûr de vouloir soumettre les réponses ?")) {
+            document.getElementById('examForm').submit();
+        }
     }
 
     // Start the timer when the page loads
