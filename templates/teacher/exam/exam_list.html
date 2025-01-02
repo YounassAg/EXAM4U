@@ -79,6 +79,13 @@
                                 </div>
                                 <span>Corriger</span>
                             </a>
+                            <a href="{% url 'rattrapage_exam' exam.id %}" 
+                            class="group inline-flex items-center px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-all duration-300 hover:shadow-md space-x-2">
+                                <div class="transform group-hover:scale-110 transition-transform">
+                                    {% include 'components/icons.html' with icon="replay" class="w-5 h-5" %}
+                                </div>
+                                <span>Rattrapage</span>
+                            </a>
                             <a href="{% url 'edit_exam' exam.id %}" 
                                class="group inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300 hover:shadow-md space-x-2">
                                 <div class="transform group-hover:scale-110 transition-transform">

@@ -1,0 +1,19 @@
+<form method="post">
+    {% csrf_token %}
+    <h2>Select students for retake exam: {{ exam.title }}</h2>
+
+    <div class="space-y-4">
+        {% for student in students %}
+            <div class="flex items-center space-x-4">
+                <input type="checkbox" name="students" value="{{ student.id }}" id="student_{{ student.id }}">
+                <label for="student_{{ student.id }}">
+                    {{ student.first_name }} {{ student.last_name }} ({{ student.group }})
+                </label>
+            </div>
+        {% endfor %}
+    </div>
+
+    <button type="submit" class="mt-4 inline-flex items-center px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg">
+        Assign Retake
+    </button>
+</form>

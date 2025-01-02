@@ -432,24 +432,28 @@ def take_exam(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     student = request.user.userprofile
 
-    # Check the number of completed or abandoned attempts
-    completed_attempts_count = ExamAttempt.objects.filter(exam=exam, student=student, status__in=['completed', 'abandoned']).count()
-
-    if completed_attempts_count >= exam.max_attempts:
-        messages.error(request, f"You have already reached the maximum number of attempts ({exam.max_attempts}) for the exam '{exam.title}'. You cannot take it again.")
-        return redirect('student_exam_list')
-
-    # Check if there is an existing attempt in progress (first attempt)
+    # Check for an existing in-progress attempt first
     attempt = ExamAttempt.objects.filter(exam=exam, student=student, status='in_progress').first()
 
-    # If no in-progress attempt, create a new one for the second attempt
+    # If there is no in-progress attempt, allow the student to start a new attempt
     if not attempt:
-        attempt = ExamAttempt.objects.create(exam=exam, student=student)
+        # Check if the student has exceeded the max attempts for completed or abandoned attempts
+        completed_or_abandoned_attempts = ExamAttempt.objects.filter(
+            exam=exam, student=student, status__in=['completed', 'abandoned']
+        ).count()
+
+        # If max attempts are reached, don't allow a new attempt
+        if completed_or_abandoned_attempts >= exam.max_attempts:
+            messages.error(request, f"You have already reached the maximum number of attempts ({exam.max_attempts}) for the exam '{exam.title}'.")
+            return redirect('student_exam_list')
+
+        # If max attempts not reached, create a new attempt with 'in_progress' status
+        attempt = ExamAttempt.objects.create(exam=exam, student=student, status='in_progress', start_date=timezone.now())
 
     # Fetch the questions for the exam
     questions = Question.objects.filter(exam=exam).prefetch_related('mcqchoice_set')
 
-    # Handling POST request for saving responses
+    # Handle POST request for saving responses
     if request.method == 'POST':
         form = ExamForm(request.POST, questions=questions)
         if form.is_valid():
@@ -481,13 +485,47 @@ def take_exam(request, exam_id):
             # Redirect to the exam completion page
             return redirect('exam_completed', attempt_id=attempt.id)
     else:
-        form = ExamForm(questions=questions)
+        # If the exam is still in progress, pre-fill the responses
+        initial_responses = {
+            f'question_{response.question.id}': response.response_text
+            for response in attempt.response_set.all()
+        }
+
+        form = ExamForm(questions=questions, initial=initial_responses)
 
     # Render the exam page
     return render(request, 'student/exam/take_exam.html', {
         'exam': exam,
         'form': form,
-        'questions': questions
+        'questions': questions,
+        'attempt': attempt,  # Pass the current attempt to the template
+    })
+
+@login_required
+@role_required('teacher')
+def rattrapage_exam(request, exam_id):
+    # Get the exam object
+    exam = get_object_or_404(Exam, id=exam_id)
+
+    # Get all students in the same group as the exam
+    students = UserProfile.objects.filter(group=exam.group, role='student')
+
+    if request.method == 'POST':
+        selected_students = request.POST.getlist('students')
+        # Create an attempt for each selected student
+        for student_id in selected_students:
+            student = UserProfile.objects.get(id=student_id)
+
+        # Create a new ExamAttempt for the student
+        ExamAttempt.objects.create(exam=exam, student=student)
+        messages.success(request, f"Exam attempt created for {student.first_name} {student.last_name}.")
+
+        return redirect('teacher_exam_list')  # Redirect back to the exam list page after processing
+
+    # Render the page with a list of students and checkboxes
+    return render(request, 'teacher/exam/rattrapage_exam.html', {
+        'exam': exam,
+        'students': students
     })
 
 @login_required
