@@ -432,20 +432,28 @@ def take_exam(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     student = request.user.userprofile
 
-    completed_attempt = ExamAttempt.objects.filter(exam=exam, student=student, status='completed').exists()
-    if completed_attempt:
-        messages.error(request, f"You have already completed the exam '{exam.title}'. You cannot take it again.")
+    # Check the number of completed or abandoned attempts
+    completed_attempts_count = ExamAttempt.objects.filter(exam=exam, student=student, status__in=['completed', 'abandoned']).count()
+
+    if completed_attempts_count >= exam.max_attempts:
+        messages.error(request, f"You have already reached the maximum number of attempts ({exam.max_attempts}) for the exam '{exam.title}'. You cannot take it again.")
         return redirect('student_exam_list')
 
+    # Check if there is an existing attempt in progress (first attempt)
     attempt = ExamAttempt.objects.filter(exam=exam, student=student, status='in_progress').first()
+
+    # If no in-progress attempt, create a new one for the second attempt
     if not attempt:
         attempt = ExamAttempt.objects.create(exam=exam, student=student)
 
+    # Fetch the questions for the exam
     questions = Question.objects.filter(exam=exam).prefetch_related('mcqchoice_set')
 
+    # Handling POST request for saving responses
     if request.method == 'POST':
         form = ExamForm(request.POST, questions=questions)
         if form.is_valid():
+            # Save the student's responses
             for question in questions:
                 if question.question_type == 'MCQ':
                     response_data = form.cleaned_data[f'question_{question.id}']
@@ -458,18 +466,24 @@ def take_exam(request, exam_id):
                 else:
                     response_text = form.cleaned_data[f'question_{question.id}']
 
+                # Store the response
                 Response.objects.create(
                     attempt=attempt,
                     question=question,
                     response_text=response_text
                 )
+
+            # Mark the attempt as completed after saving responses
             attempt.status = 'completed'
             attempt.end_date = timezone.now()
             attempt.save()
+
+            # Redirect to the exam completion page
             return redirect('exam_completed', attempt_id=attempt.id)
     else:
         form = ExamForm(questions=questions)
 
+    # Render the exam page
     return render(request, 'student/exam/take_exam.html', {
         'exam': exam,
         'form': form,
