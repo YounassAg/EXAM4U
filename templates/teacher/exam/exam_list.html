@@ -22,11 +22,11 @@
         <!-- Add Exam Button -->
         <div>
             <a href="{% url 'create_exam' %}" 
-               class="group inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300 hover:shadow-lg space-x-2">
+               class="group inline-flex items-center px-6 py-2.5 bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg transition-all duration-300 hover:shadow-md space-x-2">
                 <div class="transform group-hover:scale-110 transition-transform">
                     {% include 'components/icons.html' with icon="plus" class="w-5 h-5" %}
                 </div>
-                <span>Créer un Examen</span>
+                <span class="font-medium">Créer un Examen</span>
             </a>
         </div>
 
@@ -73,34 +73,34 @@
 
                         <div class="flex flex-col space-y-2">
                             <a href="{% url 'exam_attempts' exam.id %}" 
-                               class="group inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-300 hover:shadow-md space-x-2">
+                               class="group inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border-2 border-green-500 dark:border-green-400 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-gray-700 rounded-lg transition-all duration-300 hover:shadow-md space-x-2">
                                 <div class="transform group-hover:scale-110 transition-transform">
                                     {% include 'components/icons.html' with icon="check" class="w-5 h-5" %}
                                 </div>
-                                <span>Corriger</span>
+                                <span class="font-medium">Corriger</span>
                             </a>
                             <a href="{% url 'rattrapage_exam' exam.id %}" 
-                            class="group inline-flex items-center px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-all duration-300 hover:shadow-md space-x-2">
+                               class="group inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border-2 border-yellow-500 dark:border-yellow-400 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-gray-700 rounded-lg transition-all duration-300 hover:shadow-md space-x-2">
                                 <div class="transform group-hover:scale-110 transition-transform">
                                     {% include 'components/icons.html' with icon="replay" class="w-5 h-5" %}
                                 </div>
-                                <span>Rattrapage</span>
+                                <span class="font-medium">Rattrapage</span>
                             </a>
                             <a href="{% url 'edit_exam' exam.id %}" 
-                               class="group inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300 hover:shadow-md space-x-2">
+                               class="group inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border-2 border-blue-500 dark:border-blue-400 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg transition-all duration-300 hover:shadow-md space-x-2">
                                 <div class="transform group-hover:scale-110 transition-transform">
                                     {% include 'components/icons.html' with icon="document" class="w-5 h-5" %}
                                 </div>
-                                <span>Modifier</span>
+                                <span class="font-medium">Modifier</span>
                             </a>
                             <form method="post" action="{% url 'delete_exam' exam.id %}" class="inline">
                                 {% csrf_token %}
                                 <button type="submit" 
-                                        class="group w-full inline-flex items-center justify-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all duration-300 hover:shadow-md space-x-2">
+                                        class="group w-full inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 border-2 border-red-500 dark:border-red-400 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg transition-all duration-300 hover:shadow-md space-x-2">
                                     <div class="transform group-hover:scale-110 transition-transform">
                                         {% include 'components/icons.html' with icon="trash" class="w-5 h-5" %}
                                     </div>
-                                    <span>Supprimer</span>
+                                    <span class="font-medium">Supprimer</span>
                                 </button>
                             </form>
                         </div>
@@ -109,13 +109,11 @@
             {% empty %}
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
                     <div class="flex flex-col items-center justify-center text-center space-y-4">
-                        {% include 'components/icons.html' with icon="information" class="w-12 h-12 text-gray-400" %}
-                        <p class="text-gray-600 dark:text-gray-400">Aucun examen créé pour le moment</p>
-                        <a href="{% url 'create_exam' %}" 
-                           class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300 space-x-2">
-                            {% include 'components/icons.html' with icon="plus" class="w-5 h-5" %}
-                            <span>Créer votre premier examen</span>
-                        </a>
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
+                            {% include 'components/icons.html' with icon="information" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Aucun examen trouvé</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Commencez par créer votre premier examen</p>
                     </div>
                 </div>
             {% endfor %}
