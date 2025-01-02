@@ -1,45 +1,49 @@
-<!-- Sidebar -->
-<aside class="w-64 min-h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
-    <!-- Logo Section -->
-    <div class="flex items-center justify-center h-20 border-b border-gray-200 dark:border-gray-700">
-        <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">Exam4U</span>
-    </div>
-
-    <!-- Navigation Links -->
-    <nav class="px-4 py-6 space-y-2">
-        <!-- Dashboard -->
-        <a href="{% url 'student_dashboard' %}" class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group">
-            {% include 'components/icons.html' with icon="home" class="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" %}
-            <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400">Tableau de Bord</span>
-        </a>
-
-        <!-- Courses -->
-        <a href="{% url 'student_courses' %}" class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group">
-            {% include 'components/icons.html' with icon="book" class="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" %}
-            <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400">Mes Cours</span>
-        </a>
-
-        <!-- Exams -->
-        <a href="{% url 'student_exam_list' %}" class="flex items-center px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group">
-            {% include 'components/icons.html' with icon="document" class="w-5 h-5 mr-3 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" %}
-            <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400">Examens</span>
-        </a>
-    </nav>
-
-    <!-- User Section -->
-    <div class="absolute bottom-0 w-64 border-t border-gray-200 dark:border-gray-700">
-        <div class="px-4 py-6">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <div class="w-10 h-10 rounded-full bg-blue-600/10 flex items-center justify-center">
-                        {% include 'components/icons.html' with icon="user" class="w-6 h-6 text-blue-600" %}
-                    </div>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ user.first_name }} {{ user.last_name }}</p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">Étudiant</p>
-                </div>
+<!-- Student Sidebar -->
+<div class="hidden md:flex md:flex-col w-64 min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border-r border-gray-200 dark:border-gray-700 relative">
+    <div class="absolute inset-0 bg-gradient-to-b from-blue-500/5 to-purple-500/5 pointer-events-none"></div>
+    
+    <!-- Profile Section -->
+    <div class="relative p-6 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-300">
+                <span class="text-white text-lg font-semibold">{{ user.username|make_list|first|upper }}</span>
+            </div>
+            <div>
+                <h2 class="text-sm font-semibold text-gray-900 dark:text-white">{{ user.get_full_name }}</h2>
+                <p class="text-xs bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-semibold">Étudiant</p>
             </div>
         </div>
     </div>
-</aside>
+
+    <!-- Navigation -->
+    <nav class="relative flex-1 px-3 py-4">
+        <div class="space-y-1">
+            <!-- Dashboard -->
+            <a href="{% url 'student_dashboard' %}" 
+               class="group flex items-center px-3 py-2 text-sm font-medium rounded-xl transition-all duration-300 {% if request.resolver_match.url_name == 'student_dashboard' %}bg-gradient-to-r from-blue-600/10 to-purple-600/10 text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400 hover:bg-gradient-to-r hover:from-blue-600/5 hover:to-purple-600/5 hover:text-blue-600 dark:hover:text-blue-400{% endif %}">
+                <div class="w-5 h-5 mr-3">
+                    {% include 'components/icons.html' with icon="home" class="w-5 h-5" %}
+                </div>
+                <span>Tableau de bord</span>
+            </a>
+
+            <!-- My Courses -->
+            <a href="{% url 'student_courses' %}"
+               class="group flex items-center px-3 py-2 text-sm font-medium rounded-xl transition-all duration-300 {% if request.resolver_match.url_name == 'student_courses' %}bg-gradient-to-r from-blue-600/10 to-purple-600/10 text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400 hover:bg-gradient-to-r hover:from-blue-600/5 hover:to-purple-600/5 hover:text-blue-600 dark:hover:text-blue-400{% endif %}">
+                <div class="w-5 h-5 mr-3">
+                    {% include 'components/icons.html' with icon="book" class="w-5 h-5" %}
+                </div>
+                <span>Mes Cours</span>
+            </a>
+
+            <!-- Exams -->
+            <a href="{% url 'student_exam_list' %}"
+               class="group flex items-center px-3 py-2 text-sm font-medium rounded-xl transition-all duration-300 {% if request.resolver_match.url_name == 'student_exam_list' %}bg-gradient-to-r from-blue-600/10 to-purple-600/10 text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400 hover:bg-gradient-to-r hover:from-blue-600/5 hover:to-purple-600/5 hover:text-blue-600 dark:hover:text-blue-400{% endif %}">
+                <div class="w-5 h-5 mr-3">
+                    {% include 'components/icons.html' with icon="document" class="w-5 h-5" %}
+                </div>
+                <span>Examens</span>
+            </a>
+        </div>
+    </nav>
+</div>
