@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction, IntegrityError
-from django.db.models import Avg
+from django.db.models import Avg, Sum
+import csv
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth import login, authenticate, logout
 from django.forms import modelformset_factory
@@ -712,3 +713,51 @@ def delete_course(request, course_id):
         return redirect('teacher_courses')
         
     return render(request, 'teacher/courses/delete_course.html', {'course': course})
+
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from .models import Exam, Question, Response, UserProfile  # Assuming `UserProfile` has `nom` and `prenom`
+
+@login_required
+@role_required('teacher')
+def download_exam_results(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    group = exam.group
+
+    # Get the requested format from the query parameters (default to 'full' format)
+    file_format = request.GET.get('format', 'full')
+
+    # Prepare student data
+    students_in_group = UserProfile.objects.filter(group=group, role='student')
+    questions = exam.question_set.all()
+
+    if file_format == 'full':
+        # Detailed Results (Full Details) format
+        response = HttpResponse(content_type='text/csv')
+        response.charset = 'utf-8'
+        response.write('\ufeff')  # Add BOM for Excel compatibility
+        response['Content-Disposition'] = f'attachment; filename="{exam.title}_full_results.csv"'
+        writer = csv.writer(response, quoting=csv.QUOTE_MINIMAL)
+
+        # Write headers
+        header_row = ['CIN', 'Prenom', 'Nom'] + \
+                     [f'{question.wording} ({question.points} points)' for question in questions] + ['Total général'] + ['EMARGEMENT']
+        writer.writerow(header_row)
+
+        # Write student data
+        for student in students_in_group:
+            attempt = ExamAttempt.objects.filter(exam=exam, student=student).first()
+            if attempt:
+                responses = Response.objects.filter(attempt=attempt).order_by('question__id')
+                row = [student.user.username, student.first_name, student.last_name]
+                total_score = 0
+                for question in questions:
+                    response_obj = responses.filter(question=question).first()
+                    question_score = response_obj.response_grade if response_obj else 0
+                    row.append(question_score)
+                    total_score += question_score
+                row.append(total_score)
+                writer.writerow(row)
+        return response
+
+    return HttpResponse(status=400, content="Invalid format.")
