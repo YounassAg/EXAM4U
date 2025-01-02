@@ -120,38 +120,31 @@
         <!-- Dynamic Group Loading Script -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const specialitySelect = document.getElementById('speciality');
-                const groupSelect = document.getElementById('group');
+                const specialtySelect = document.getElementById('speciality');
+        const groupSelect = document.getElementById('group');
 
-                specialitySelect.addEventListener('change', function() {
-                    const specialityId = this.value;
-                    if (specialityId) {
-                        groupSelect.innerHTML = '<option value="">Chargement...</option>';
-                        groupSelect.disabled = true;
+        specialtySelect.addEventListener('change', function() {
+            const specialtyId = this.value;
 
-                        fetch(`/api/groups/${specialityId}/`)
-                            .then(response => response.json())
-                            .then(data => {
-                                groupSelect.innerHTML = '<option value="">Sélectionnez un groupe</option>';
-                                data.forEach(group => {
-                                    const option = document.createElement('option');
-                                    option.value = group.id;
-                                    option.textContent = group.name;
-                                    groupSelect.appendChild(option);
-                                });
-                                groupSelect.disabled = false;
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                groupSelect.innerHTML = '<option value="">Erreur de chargement</option>';
-                                groupSelect.disabled = false;
-                            });
-                    } else {
-                        groupSelect.innerHTML = '<option value="">Sélectionnez un groupe</option>';
-                        groupSelect.disabled = true;
-                    }
+            fetch(`/get-groups/${specialtyId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    // Clear existing options
+                    groupSelect.innerHTML = '<option value="" class="bg-gray-900">Sélectionnez un groupe</option>';
+                    
+                    // Populate new options
+                    data.forEach(group => {
+                        const option = document.createElement('option');
+                        option.value = group.id;
+                        option.textContent = `${group.group_code} (${group.year})`;
+                        groupSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching groups:', error);
                 });
-            });
+        });
+    });
         </script>
     </div>
 </div>

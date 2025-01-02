@@ -746,9 +746,11 @@ def download_exam_results(request, exam_id):
 
         # Write student data
         for student in students_in_group:
-            attempt = ExamAttempt.objects.filter(exam=exam, student=student).first()
-            if attempt:
-                responses = Response.objects.filter(attempt=attempt).order_by('question__id')
+            # Get the highest grade attempt for the student
+            best_attempt = ExamAttempt.objects.filter(exam=exam, student=student).order_by('-grade').first()
+            
+            if best_attempt:
+                responses = Response.objects.filter(attempt=best_attempt).order_by('question__id')
                 row = [student.user.username, student.first_name, student.last_name]
                 total_score = 0
                 for question in questions:
@@ -758,6 +760,7 @@ def download_exam_results(request, exam_id):
                     total_score += question_score
                 row.append(total_score)
                 writer.writerow(row)
+        
         return response
 
     return HttpResponse(status=400, content="Invalid format.")
