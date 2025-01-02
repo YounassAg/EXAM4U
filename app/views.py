@@ -426,24 +426,22 @@ def teacher_exam_list(request):
     exams = Exam.objects.filter(course__teacher=teacher_profile).order_by('-start_date')  # Sorting by start_date
     return render(request, 'teacher/exam/exam_list.html', {'exams': exams})
 
-@role_required('student')
 @login_required
+@role_required('student')
 def take_exam(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     student = request.user.userprofile
 
-    # Check if the student has already completed this exam
     completed_attempt = ExamAttempt.objects.filter(exam=exam, student=student, status='completed').exists()
     if completed_attempt:
         messages.error(request, f"You have already completed the exam '{exam.title}'. You cannot take it again.")
         return redirect('student_exam_list')
 
-    # Check if the student has an in-progress attempt
     attempt = ExamAttempt.objects.filter(exam=exam, student=student, status='in_progress').first()
     if not attempt:
         attempt = ExamAttempt.objects.create(exam=exam, student=student)
 
-    questions = Question.objects.filter(exam=exam)
+    questions = Question.objects.filter(exam=exam).prefetch_related('mcqchoice_set')
 
     if request.method == 'POST':
         form = ExamForm(request.POST, questions=questions)
@@ -477,6 +475,7 @@ def take_exam(request, exam_id):
         'form': form,
         'questions': questions
     })
+
 @login_required
 @role_required('teacher')
 def delete_exam(request, exam_id):
@@ -507,10 +506,9 @@ def exam_attempts(request, exam_id):
     }
     return render(request, 'teacher/exam/exam_attempts.html', context)
 
-
 @login_required
 def grade_attempt(request, attempt_id):
-    """View to grade a specific exam attempt"""
+    """View to grade a specific exam attempt manually"""
     attempt = get_object_or_404(ExamAttempt.objects.select_related(
         'exam', 'student', 'student__user', 'exam__course'
     ), id=attempt_id)
@@ -534,6 +532,7 @@ def grade_attempt(request, attempt_id):
         total_possible_points = 0
         
         for response in responses:
+            # Manually set the grade via the form (POST data)
             response_grade = float(request.POST.get(f'grade_{response.id}', 0))
             response.response_grade = response_grade
             response.save()
@@ -541,7 +540,7 @@ def grade_attempt(request, attempt_id):
             total_points += response_grade
             total_possible_points += response.question.points
         
-        # Calculate final grade as percentage
+        # Calculate final grade as the sum of all graded points
         if total_possible_points > 0:
             final_grade = total_points
         else:
@@ -556,41 +555,9 @@ def grade_attempt(request, attempt_id):
     
     responses_data = []
     for response in responses:
-        if response.question.question_type == 'MCQ':
-            # For MCQ, calculate automatic grade
-            selected_answers = response.response_text.split(',') if response.response_text else []
-            correct_choices = MCQChoice.objects.filter(
-                question=response.question,
-                is_correct=True
-            )
-            total_correct = len(correct_choices)
-            
-            if total_correct > 0:
-                # Check if all selected answers are correct and no correct answers are missing
-                selected_choices = MCQChoice.objects.filter(
-                    question=response.question,
-                    choice_label__in=selected_answers
-                )
-                
-                correct_selected = selected_choices.filter(is_correct=True).count()
-                incorrect_selected = selected_choices.count() - correct_selected
-                
-                if response.question.allow_multiple_answers:
-                    # Partial credit for multiple answer questions
-                    suggested_grade = (correct_selected / total_correct) * response.question.points
-                    if incorrect_selected > 0:
-                        suggested_grade *= 0.5  # Penalty for incorrect selections
-                else:
-                    # Single answer questions - all or nothing
-                    suggested_grade = response.question.points if correct_selected == total_correct and incorrect_selected == 0 else 0
-            else:
-                suggested_grade = 0
-        else:
-            suggested_grade = None
-            
         responses_data.append({
             'response': response,
-            'suggested_grade': suggested_grade
+            'suggested_grade': None  # No automatic grading
         })
     
     context = {

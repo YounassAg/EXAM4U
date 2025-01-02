@@ -72,23 +72,13 @@
                         </div>
                         
                         <div class="flex-shrink-0 ml-6">
-                            {% if exam.can_take %}
-                                <a href="{% url 'student:take_exam' exam.id %}" 
-                                   class="group inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300 hover:shadow-lg space-x-2">
-                                    <div class="transform group-hover:scale-110 transition-transform">
-                                        {% include 'components/icons.html' with icon="play" class="w-5 h-5" %}
-                                    </div>
-                                    <span>Passer l'Examen</span>
-                                </a>
-                            {% else %}
-                                <button disabled 
-                                        class="inline-flex items-center px-6 py-3 bg-gray-400 text-white rounded-lg cursor-not-allowed space-x-2">
-                                    <div>
-                                        {% include 'components/icons.html' with icon="lock" class="w-5 h-5" %}
-                                    </div>
-                                    <span>Non Disponible</span>
-                                </button>
-                            {% endif %}
+                            <a href="{% url 'take_exam' exam.id %}" 
+                                class="group inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300 hover:shadow-lg space-x-2">
+                                <div class="transform group-hover:scale-110 transition-transform">
+                                    {% include 'components/icons.html' with icon="play" class="w-5 h-5" %}
+                                </div>
+                                <span>Passer l'Examen</span>
+                            </a>
                         </div>
                     </div>
                 </div>

@@ -51,7 +51,7 @@
         </div>
 
         <!-- Questions Form -->
-        <form id="examForm" method="post" action="{% url 'student:submit_exam' exam.id %}" class="space-y-8">
+        <form id="examForm" method="post" class="space-y-8">
             {% csrf_token %}
             {% for question in questions %}
                 <div class="group bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 transform hover:scale-[1.01] hover:shadow-xl transition-all duration-300">
@@ -64,32 +64,58 @@
                                     Question {{ forloop.counter }}
                                 </h3>
                                 <p class="text-gray-700 dark:text-gray-300 mt-2">
-                                    {{ question.text }}
+                                    {{ question.wording }}
                                 </p>
                             </div>
                         </div>
-
-                        <!-- Choices -->
+        
+                        <!-- Choices or Answer Field -->
                         <div class="ml-9 space-y-3">
-                            {% for choice in question.choices %}
-                                <label class="relative flex items-start p-4 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
-                                    <div class="flex items-center h-5">
-                                        <input type="radio" 
-                                               name="question_{{ question.id }}" 
-                                               value="{{ choice.id }}"
-                                               class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-400 dark:border-gray-600"
-                                               required>
-                                    </div>
-                                    <div class="ml-3">
-                                        <span class="text-gray-700 dark:text-gray-300">{{ choice.text }}</span>
-                                    </div>
-                                </label>
-                            {% endfor %}
+                            {% if question.question_type == 'MCQ' %}
+                                {% for choice in question.mcqchoice_set.all %}
+                                    {% if question.allow_multiple_answers %}
+                                        <label class="relative flex items-start p-4 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
+                                            <div class="flex items-center h-5">
+                                                <input type="checkbox" 
+                                                       name="question_{{ question.id }}" 
+                                                       value="{{ choice.id }}"
+                                                       class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-400 dark:border-gray-600">
+                                            </div>
+                                            <div class="ml-3">
+                                                <span class="text-gray-700 dark:text-gray-300">{{ choice.choice_label }}</span>
+                                            </div>
+                                        </label>
+                                    {% else %}
+                                        <label class="relative flex items-start p-4 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
+                                            <div class="flex items-center h-5">
+                                                <input type="radio" 
+                                                       name="question_{{ question.id }}" 
+                                                       value="{{ choice.id }}"
+                                                       class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-400 dark:border-gray-600"
+                                                       required>
+                                            </div>
+                                            <div class="ml-3">
+                                                <span class="text-gray-700 dark:text-gray-300">{{ choice.choice_label }}</span>
+                                            </div>
+                                        </label>
+                                    {% endif %}
+                                {% endfor %}
+                            {% elif question.question_type == 'short_answer' %}
+                                <input type="text" 
+                                       name="question_{{ question.id }}" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:ring-blue-400"
+                                       required>
+                            {% elif question.question_type == 'open' %}
+                                <textarea name="question_{{ question.id }}" 
+                                          rows="4" 
+                                          class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:ring-blue-400"
+                                          required></textarea>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
             {% endfor %}
-
+        
             <!-- Submit Button -->
             <div class="flex justify-end space-x-4">
                 <button type="button" 
@@ -106,46 +132,17 @@
                     <div class="transform group-hover:scale-110 transition-transform">
                         {% include 'components/icons.html' with icon="check" class="w-5 h-5" %}
                     </div>
-                    <span>Soumettre l'Examen</span>
+                    <span>Soumettre</span>
                 </button>
             </div>
         </form>
-    </div>
-</div>
-
-{% block extra_js %}
-<script>
-    // Timer functionality
-    function startTimer(duration) {
-        let timer = duration * 60;
-        const timerDisplay = document.getElementById('timer');
-        const examForm = document.getElementById('examForm');
-
-        const countdown = setInterval(() => {
-            const minutes = parseInt(timer / 60, 10);
-            const seconds = parseInt(timer % 60, 10);
-
-            timerDisplay.textContent = minutes.toString().padStart(2, '0') + ':' + 
-                                     seconds.toString().padStart(2, '0');
-
-            if (--timer < 0) {
-                clearInterval(countdown);
-                examForm.submit();
+        
+        <script>
+        function confirmSubmit() {
+            if (confirm("Are you sure you want to submit your answers?")) {
+                document.getElementById("examForm").submit();
             }
-        }, 1000);
-    }
-
-    // Confirmation dialog before submitting
-    function confirmSubmit() {
-        if (confirm("Est-ce que tu es sûr de vouloir soumettre les réponses ?")) {
-            document.getElementById('examForm').submit();
         }
-    }
-
-    // Start the timer when the page loads
-    document.addEventListener('DOMContentLoaded', () => {
-        startTimer({{ exam.duration }});
-    });
-</script>
-{% endblock %}
+        </script>
+        
 {% endblock %}
