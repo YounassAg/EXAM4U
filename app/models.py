@@ -88,15 +88,30 @@ class MCQChoice(models.Model):
 
 
 class ExamAttempt(models.Model):
+    EXAM_TYPE_CHOICES = [
+        ('normal', 'Normal'),
+        ('rattrapage', 'Rattrapage'),
+    ]
+
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     student = models.ForeignKey(UserProfile, on_delete=models.CASCADE, limit_choices_to={'role': 'student'})
     start_date = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField(null=True, blank=True)
-    status = models.CharField(max_length=11, choices=[('in_progress', 'In Progress'), ('completed', 'Completed'), ('abandoned', 'Abandoned')], default='in_progress')
+    status = models.CharField(
+        max_length=11,
+        choices=[('in_progress', 'In Progress'), ('completed', 'Completed'), ('abandoned', 'Abandoned')],
+        default='in_progress'
+    )
     grade = models.FloatField(null=True, blank=True)
+    type = models.CharField(
+        max_length=15,
+        choices=EXAM_TYPE_CHOICES,
+        default='normal'
+    )
 
     def __str__(self):
-        return f"{self.exam.title} - {self.student.user.first_name} {self.student.user.last_name} ({self.status})"
+        return f"{self.exam.title} - {self.student.user.first_name} {self.student.user.last_name} ({self.type})"
+
 
 
 class Response(models.Model):

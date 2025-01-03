@@ -410,8 +410,12 @@ def rattrapage_exam(request, exam_id):
         selected_students = request.POST.getlist('students')
         for student_id in selected_students:
             student = UserProfile.objects.get(id=student_id)
-        ExamAttempt.objects.create(exam=exam, student=student)
-        messages.success(request, f"Exam attempt created for {student.first_name} {student.last_name}.")
+            ExamAttempt.objects.create(
+                exam=exam,
+                student=student,
+                type='rattrapage'
+            )
+            messages.success(request, f"Exam attempt created for {student.first_name} {student.last_name}.")
         return redirect('teacher_exam_list')
     return render(request, 'teacher/exam/rattrapage_exam.html', {
         'exam': exam,
@@ -453,9 +457,11 @@ def grade_attempt(request, attempt_id):
     attempt = get_object_or_404(ExamAttempt.objects.select_related(
         'exam', 'student', 'student__user', 'exam__course'
     ), id=attempt_id)
+    
     if request.user.userprofile.role != 'teacher' or request.user.userprofile != attempt.exam.course.teacher:
         messages.error(request, "Vous n'avez pas la permission de corriger cet examen.")
         return redirect('dashboard')
+    
     responses = Response.objects.filter(
         attempt=attempt
     ).select_related(
@@ -463,6 +469,7 @@ def grade_attempt(request, attempt_id):
     ).prefetch_related(
         'question__mcqchoice_set'
     )
+    
     if request.method == 'POST':
         total_points = 0
         total_possible_points = 0
@@ -472,21 +479,20 @@ def grade_attempt(request, attempt_id):
             response.save()
             total_points += response_grade
             total_possible_points += response.question.points
-        if total_possible_points > 0:
-            final_grade = total_points
-        else:
-            final_grade = 0
+        final_grade = total_points if total_possible_points > 0 else 0
         attempt.grade = final_grade
         attempt.status = 'completed'
         attempt.save()
         messages.success(request, 'La correction a été enregistrée avec succès!')
-        return redirect('exam_attempts', exam_id=attempt.exam.id)  
+        return redirect('exam_attempts', exam_id=attempt.exam.id)
+    
     responses_data = []
     for response in responses:
         responses_data.append({
             'response': response,
-            'suggested_grade': None
+            'suggested_grade': response.response_grade if response.response_grade is not None else None
         })
+    
     context = {
         'attempt': attempt,
         'responses_data': responses_data,
@@ -756,7 +762,6 @@ def download_student_result(request, attempt_id):
     logo.drawHeight = logo.drawWidth * (325/1419)
     elements.append(logo)
     elements.append(Spacer(1, 20))
-    elements.append(Paragraph("Relevé de Notes", title_style))
     student_info = [
         ['Nom et prénom:', f"{attempt.student.first_name} {attempt.student.last_name}"],
         ['CIN:', attempt.student.user.username],
@@ -796,7 +801,7 @@ def download_student_result(request, attempt_id):
             # Split student answers using the exact separator
             if response.response_text:
                 # Clean up the response text first
-                cleaned_response = response.response_text.replace('~±■~■■~', ' ~±ſ~ƟƢ~ ')  # Handle malformed separator
+                cleaned_response = response.response_text.replace('~±■~■■~', ' ~±ſ~ƟƢ~ ')
                 student_answers = [ans.strip() for ans in cleaned_response.split(' ~±ſ~ƟƢ~ ')]
                 
                 # Process each answer
