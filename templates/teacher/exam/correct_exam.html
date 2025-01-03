@@ -126,35 +126,40 @@
                     </div>
                     <span>Retour</span>
                 </button>
-                <button type="submit" 
-                        class="group inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-300 hover:shadow-lg space-x-2">
-                    <div class="transform group-hover:scale-110 transition-transform">
-                        {% include 'components/icons.html' with icon="check" class="w-5 h-5" %}
-                    </div>
-                    <span>Soumettre les Notes</span>
-                </button>
+                <div class="flex space-x-2">
+                    <button type="submit" 
+                            class="group inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all duration-300 hover:shadow-lg space-x-2">
+                        <div class="transform group-hover:scale-110 transition-transform">
+                            {% include 'components/icons.html' with icon="check" class="w-5 h-5" %}
+                        </div>
+                        <span>Soumettre les Notes</span>
+                    </button>
+                    <a href="{% url 'download_student_result' attempt.id %}" 
+                        class="group inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300 hover:shadow-lg space-x-2">
+                        <div class="transform group-hover:scale-110 transition-transform">
+                            {% include 'components/icons.html' with icon="download" class="w-5 h-5" %}
+                        </div>
+                        <span>Télécharger Résultat</span>
+                    </a>
+                </div>
             </div>
         </form>
     </div>
 </div>
 
-{% block extra_js %}
 <script>
-function toggleCorrectAnswer(button) {
-    const answerDiv = button.nextElementSibling;
-    const toggleText = button.querySelector('.toggle-text');
-    const toggleIcon = button.querySelector('.toggle-icon');
-    
-    if (answerDiv.classList.contains('hidden')) {
-        answerDiv.classList.remove('hidden');
-        toggleText.textContent = 'Masquer les réponses correctes';
-        toggleIcon.style.transform = 'rotate(180deg)';
-    } else {
-        answerDiv.classList.add('hidden');
-        toggleText.textContent = 'Afficher les réponses correctes';
-        toggleIcon.style.transform = 'rotate(0deg)';
+    function toggleCorrectAnswer(button) {
+        const correctAnswersDiv = button.nextElementSibling;
+        const icon = button.querySelector('.toggle-icon');
+        const text = button.querySelector('.toggle-text');
+
+        correctAnswersDiv.classList.toggle('hidden');
+        icon.classList.toggle('rotate-180');
+        if (correctAnswersDiv.classList.contains('hidden')) {
+            text.innerText = 'Afficher les réponses correctes';
+        } else {
+            text.innerText = 'Masquer les réponses correctes';
+        }
     }
-}
 </script>
-{% endblock %}
 {% endblock %}
