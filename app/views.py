@@ -373,7 +373,7 @@ def take_exam(request, exam_id):
                     response_data = form.cleaned_data[f'question_{question.id}']
                     if question.allow_multiple_answers:
                         selected_choices = MCQChoice.objects.filter(id__in=response_data)
-                        response_text = ', '.join([choice.choice_label for choice in selected_choices])
+                        response_text = ' ~±ſ~ƟƢ~ '.join([choice.choice_label for choice in selected_choices])
                     else:
                         selected_choice = MCQChoice.objects.get(id=response_data)
                         response_text = selected_choice.choice_label
@@ -712,6 +712,22 @@ def download_student_result(request, attempt_id):
         leftIndent=20,
         spaceAfter=12
     )
+    correct_answer_style = ParagraphStyle(
+        'CorrectAnswerStyle',
+        parent=styles['Normal'],
+        fontSize=11,
+        leftIndent=20,
+        textColor=HexColor('#2e7d32'),  # Green color
+        spaceAfter=6
+    )
+    incorrect_answer_style = ParagraphStyle(
+        'IncorrectAnswerStyle',
+        parent=styles['Normal'],
+        fontSize=11,
+        leftIndent=20,
+        textColor=HexColor('#c62828'),  # Red color
+        spaceAfter=6
+    )
     code_style = ParagraphStyle(
         'CodeStyle',
         parent=styles['Code'],
@@ -763,18 +779,52 @@ def download_student_result(request, attempt_id):
     ]))
     elements.append(info_table)
     elements.append(Spacer(1, 30))
+
     for i, response in enumerate(responses, 1):
         question_text = f"Question {i}: {response.question.wording}"
         elements.append(Paragraph(question_text, question_style))
-        if response.question.question_type == 'open':
+        
+        if response.question.question_type == 'MCQ':
+            # Get all correct choices for this question
+            correct_choices = MCQChoice.objects.filter(
+                question=response.question,
+                is_correct=True
+            ).values_list('choice_label', flat=True)
+            
+            elements.append(Paragraph("Réponses choisies:", answer_style))
+            
+            # Split student answers using the exact separator
+            if response.response_text:
+                # Clean up the response text first
+                cleaned_response = response.response_text.replace('~±■~■■~', ' ~±ſ~ƟƢ~ ')  # Handle malformed separator
+                student_answers = [ans.strip() for ans in cleaned_response.split(' ~±ſ~ƟƢ~ ')]
+                
+                # Process each answer
+                for answer in student_answers:
+                    if not answer:
+                        continue
+                    
+                    # Check if this specific answer matches any correct choice
+                    is_correct = any(correct_choice.strip() == answer.strip() 
+                                   for correct_choice in correct_choices)
+                    
+                    # Use the appropriate style based on correctness
+                    style = correct_answer_style if is_correct else incorrect_answer_style
+                    
+                    # Add the answer with its color
+                    elements.append(Paragraph(answer, style))
+            
+        elif response.question.question_type == 'open':
             elements.append(Paragraph("Réponse:", answer_style))
             cleaned_text = clean_text(response.response_text)
             elements.append(Preformatted(cleaned_text, code_style))
-        else:
+        else:  # short_answer
             elements.append(Paragraph(f"Réponse: {clean_text(response.response_text)}", answer_style))
+            
         grade_text = f"★ Note: {response.response_grade}/{response.question.points}" if response.response_grade is not None else "☐ Non noté"
         elements.append(Paragraph(grade_text, grade_style))
         elements.append(Spacer(1, 15))
+
     doc.build(elements, canvasmaker=NumberedCanvas)
     buffer.seek(0)
     response = HttpResponse(buffer, content_type='application/pdf')
