@@ -572,6 +572,7 @@ def download_exam_results(request, exam_id):
     file_format = request.GET.get('format', 'full')
     students_in_group = UserProfile.objects.filter(group=group, role='student')
     questions = exam.question_set.all()
+    
     if file_format == 'full':
         response = HttpResponse(content_type='text/csv')
         response.charset = 'utf-8'
@@ -595,6 +596,31 @@ def download_exam_results(request, exam_id):
                 row.append(total_score)
                 writer.writerow(row)
         return response
+    
+    elif file_format == 'generic':
+        response = HttpResponse(content_type='text/csv')
+        response.charset = 'utf-8'
+        response.write('\ufeff')
+        response['Content-Disposition'] = f'attachment; filename="{exam.title}_generic_results.csv"'
+        writer = csv.writer(response, quoting=csv.QUOTE_MINIMAL)
+        header_row = ['CIN', 'Prenom', 'Nom'] + \
+                     [f'Question {i+1}' for i in range(len(questions))] + ['Total général'] + ['EMARGEMENT']
+        writer.writerow(header_row)
+        for student in students_in_group:
+            best_attempt = ExamAttempt.objects.filter(exam=exam, student=student).order_by('-grade').first()
+            if best_attempt:
+                responses = Response.objects.filter(attempt=best_attempt).order_by('question__id')
+                row = [student.user.username, student.first_name, student.last_name]
+                total_score = 0
+                for question in questions:
+                    response_obj = responses.filter(question=question).first()
+                    question_score = response_obj.response_grade if response_obj else 0
+                    row.append(question_score)
+                    total_score += question_score
+                row.append(total_score)
+                writer.writerow(row)
+        return response
+
     return HttpResponse(status=400, content="Invalid format.")
 
 

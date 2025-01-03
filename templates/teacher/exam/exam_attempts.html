@@ -11,13 +11,15 @@
         <div class="rounded-xl shadow-lg p-6" style="background-color: var(--card-bg); border: 1px solid var(--border-color)">
             <h1 class="text-2xl font-bold" style="color: var(--text-primary)">{{ exam.title }}</h1>
             <p style="color: var(--text-secondary)" class="mt-2">Tentatives des étudiants</p>
-            <form method="get" action="{% url 'download_exam_results' exam.id %}" class="mt-4 space-y-4">
+            <form method="get" action="{% url 'download_exam_results' exam.id %}" class="mt-4 space-y-4"> 
                 <label for="format" class="form-label">Sélectionnez le format de téléchargement:</label>
                 <select name="format" id="format" class="form-select">
                     <option value="full">Résultats détaillés (détails complets)</option>
+                    <option value="generic">Résultats génériques (Question 1, Question 2, ...)</option>
                 </select>
                 <button type="submit" class="btn-primary">Télécharger</button>
             </form>
+            
 
         </div>
 
