@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function () {
             `;
 
             const mcqChoicesContainer = document.getElementById(`mcq_choices_${questionId}`);
-            mcqChoicesContainer.insertBefore(choiceContainer, event.target);
+            mcqChoicesContainer.appendChild(choiceContainer);
         }
     });
 
