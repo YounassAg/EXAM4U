@@ -8,14 +8,17 @@ from django.contrib.auth.decorators import login_required
 from .forms import UserRegistrationForm, LoginForm, ExamForm
 from .models import Course, Group, Exam, Question, MCQChoice, UserProfile, Specialty, ExamAttempt, Response
 from django.http import JsonResponse, HttpResponse
+from datetime import datetime
+from reportlab.lib.colors import HexColor
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, Preformatted
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
 from io import BytesIO
 import csv
+import re
 
 
 def role_required(role):
@@ -630,13 +633,51 @@ def download_exam_results(request, exam_id):
 
     return HttpResponse(status=400, content="Invalid format.")
 
+class NumberedCanvas(canvas.Canvas):
+    def __init__(self, *args, **kwargs):
+        canvas.Canvas.__init__(self, *args, **kwargs)
+        self._saved_page_states = []
+
+    def showPage(self):
+        self._saved_page_states.append(dict(self.__dict__))
+        self._startPage()
+
+    def save(self):
+        num_pages = len(self._saved_page_states)
+        for state in self._saved_page_states:
+            self.__dict__.update(state)
+            self.draw_page_number(num_pages)
+            canvas.Canvas.showPage(self)
+        canvas.Canvas.save(self)
+
+    def draw_page_number(self, page_count):
+        self.setFont("Helvetica", 9)
+        self.drawRightString(
+            letter[0] - 72,
+            72/2,
+            f"Page {self._pageNumber} sur {page_count}"
+        )
+        # Draw footer line
+        self.setStrokeColor(HexColor('#CCCCCC'))
+        self.line(72, 72/2 + 15, letter[0] - 72, 72/2 + 15)
+
+def clean_text(text):
+    """Clean text from special characters and normalize line endings"""
+    text = text.replace('\r\n', '\n').replace('\r', '\n')
+    text = ''.join(char for char in text if ord(char) >= 32 or char == '\n')
+    text = re.sub(r'[\u200B-\u200D\uFEFF]', '', text)
+    text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)
+    lines = text.split('\n')
+    lines = [line.rstrip() for line in lines]
+    text = '\n'.join(lines).strip()
+    return text
+
 def download_student_result(request, attempt_id):
-    # Get the attempt and related responses
     attempt = get_object_or_404(ExamAttempt, pk=attempt_id)
     responses = Response.objects.filter(attempt=attempt)
-    
-    # Create the PDF buffer and document
     buffer = BytesIO()
+    
+    # Create the document with custom page layout
     doc = SimpleDocTemplate(
         buffer,
         pagesize=letter,
@@ -645,28 +686,30 @@ def download_student_result(request, attempt_id):
         topMargin=72,
         bottomMargin=72
     )
-    
-    # Create custom styles
+
+    # Styles
     styles = getSampleStyleSheet()
     
-    # Header style
-    header_style = ParagraphStyle(
-        'CustomHeader',
+    title_style = ParagraphStyle(
+        'CustomTitle',
         parent=styles['Heading1'],
-        fontSize=14,
-        spaceAfter=30
+        fontSize=16,
+        textColor=HexColor('#1a237e'),
+        spaceAfter=20,
+        alignment=1  # Center alignment
     )
-    
-    # Question style
+
     question_style = ParagraphStyle(
         'QuestionStyle',
         parent=styles['Normal'],
         fontSize=12,
         fontName='Helvetica-Bold',
-        spaceAfter=6
+        textColor=HexColor('#2c3e50'),
+        spaceAfter=6,
+        borderPadding=(10, 0, 10, 0),
+        backColor=HexColor('#f8f9fa')
     )
-    
-    # Answer style
+
     answer_style = ParagraphStyle(
         'AnswerStyle',
         parent=styles['Normal'],
@@ -674,71 +717,96 @@ def download_student_result(request, attempt_id):
         leftIndent=20,
         spaceAfter=12
     )
-    
-    # Grade style
+
+    code_style = ParagraphStyle(
+        'CodeStyle',
+        parent=styles['Code'],
+        fontName='Courier',
+        fontSize=10,
+        leftIndent=40,
+        rightIndent=20,
+        spaceAfter=12,
+        backColor=HexColor('#f8f9fa'),
+        borderColor=HexColor('#e9ecef'),
+        borderWidth=1,
+        borderPadding=8,
+        borderRadius=5
+    )
+
     grade_style = ParagraphStyle(
         'GradeStyle',
         parent=styles['Normal'],
         fontSize=11,
-        textColor=colors.darkblue,
+        textColor=HexColor('#1e88e5'),
         leftIndent=20,
         spaceAfter=20
     )
-    
-    # Build the document content
+
     elements = []
-    
+
     # Add logo
     logo = Image("templates/components/images/ofppt-header.png")
     logo.drawWidth = 6 * inch
-    logo.drawHeight = logo.drawWidth * (325/1419)  # Maintain aspect ratio
+    logo.drawHeight = logo.drawWidth * (325/1419)
     elements.append(logo)
     elements.append(Spacer(1, 20))
+
+    # Add title
+    elements.append(Paragraph("Relevé de Notes", title_style))
     
-    # Add student information table
+    # Student information in a styled table
+    current_date = datetime.now().strftime('%d/%m/%Y')
     student_info = [
         ['Nom et prénom:', f"{attempt.student.first_name} {attempt.student.last_name}"],
         ['CIN:', attempt.student.user.username],
         ['Contrôle:', attempt.exam.title],
-        ['Date:', ''],
+        ['Date:', current_date],
         ['Note finale:', f"{attempt.grade}/20" if attempt.grade is not None else "Non noté"]
     ]
-    
+
+    # Create table with gradient background
     info_table = Table(student_info, colWidths=[2*inch, 4*inch])
     info_table.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
         ('FONTSIZE', (0, 0), (-1, -1), 11),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ('TOPPADDING', (0, 0), (-1, -1), 12),
         ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('BACKGROUND', (0, 0), (-1, -1), HexColor('#f8f9fa')),
+        ('TEXTCOLOR', (0, 0), (0, -1), HexColor('#2c3e50')),
+        ('GRID', (0, 0), (-1, -1), 1, HexColor('#e9ecef')),
+        ('BORDERCOLOR', (0, 0), (-1, -1), HexColor('#e9ecef')),
+        ('ALIGN', (1, 0), (1, -1), 'LEFT'),
     ]))
-    
+
     elements.append(info_table)
     elements.append(Spacer(1, 30))
-    
-    # Add questions and answers
+
+    # Add questions and answers with enhanced styling
     for i, response in enumerate(responses, 1):
-        # Question
-        question_text = f"{i}. {response.question.wording}"
+        # Add question with background
+        question_text = f"Question {i}: {response.question.wording}"
         elements.append(Paragraph(question_text, question_style))
         
-        # Student's answer
-        answer_text = f"Réponse: {response.response_text}"
-        elements.append(Paragraph(answer_text, answer_style))
-        
-        # Grade for this question
-        grade_text = f"Note: {response.response_grade}/{response.question.points}" if response.response_grade is not None else "Non noté"
+        if response.question.question_type == 'open':
+            elements.append(Paragraph("Réponse:", answer_style))
+            cleaned_text = clean_text(response.response_text)
+            elements.append(Preformatted(cleaned_text, code_style))
+        else:
+            elements.append(Paragraph(f"Réponse: {clean_text(response.response_text)}", answer_style))
+
+        # Add grade with icon-like prefix
+        grade_text = f"★ Note: {response.response_grade}/{response.question.points}" if response.response_grade is not None else "☐ Non noté"
         elements.append(Paragraph(grade_text, grade_style))
-        
-        # Add space between questions
-        elements.append(Spacer(1, 10))
+        elements.append(Spacer(1, 15))
+
+    # Generate PDF with custom canvas for page numbers
+    doc.build(elements, canvasmaker=NumberedCanvas)
     
-    # Generate the PDF
-    doc.build(elements)
-    
-    # Prepare the response
     buffer.seek(0)
     response = HttpResponse(buffer, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{attempt.student.last_name}_{attempt.exam.title}_result.pdf"'
+    filename = f"resultat_{attempt.student.last_name}_{attempt.exam.title}_{current_date}.pdf"
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
     
     return response
 
