@@ -37,19 +37,6 @@
             </div>
         </div>
 
-        <!-- Timer Section -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                    {% include 'components/icons.html' with icon="clock" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
-                    <span>Temps Restant:</span>
-                </div>
-                <div id="timer" class="text-xl font-mono font-bold text-blue-600 dark:text-blue-400">
-                    {{ exam.duration }}:00
-                </div>
-            </div>
-        </div>
-
         <!-- Questions Form -->
         <form id="examForm" method="post" class="space-y-8">
             {% csrf_token %}
@@ -139,7 +126,7 @@
         
         <script>
         function confirmSubmit() {
-            if (confirm("Are you sure you want to submit your answers?")) {
+            if (confirm("Etes-vous sûr de vouloir soumettre vos réponses?")) {
                 document.getElementById("examForm").submit();
             }
         }

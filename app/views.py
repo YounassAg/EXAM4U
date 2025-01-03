@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction, IntegrityError
-from django.db.models import Avg
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
@@ -48,10 +47,8 @@ def user_register(request):
                 return redirect('student_dashboard')
     else:
         form = UserRegistrationForm()
-        
     groups = Group.objects.all()
     specialties = Specialty.objects.all()
-
     return render(request, 'auth/register.html', {
         'form': form,
         'groups': groups,
@@ -86,43 +83,8 @@ def user_logout(request):
 @login_required
 @role_required('teacher')
 def teacher_dashboard(request):
-    teacher_profile = UserProfile.objects.get(user=request.user, role='teacher')
-    active_courses = Course.objects.filter(teacher=teacher_profile)
-    total_students = UserProfile.objects.filter(
-        role='student',
-        group__in=[exam.group for exam in Exam.objects.filter(course__teacher=teacher_profile)]
-    ).distinct().count()
-    pending_grading = ExamAttempt.objects.filter(
-        exam__course__teacher=teacher_profile,
-        status='completed',
-        response__response_grade__isnull=True
-    ).distinct().count()
-    upcoming_exams = Exam.objects.filter(
-        course__teacher=teacher_profile,
-        start_date__gt=timezone.now()
-    ).count()
-    course_performance = []
-    for course in active_courses:
-        exam_attempts = ExamAttempt.objects.filter(
-            exam__course=course,
-            status='completed',
-            grade__isnull=False
-        )
-        average_grade = exam_attempts.aggregate(Avg('grade'))['grade__avg']
-        if average_grade is not None:
-            course_performance.append({
-                'title': course.title,
-                'average': round(average_grade, 1),
-                'performance_class': 'emerald' if average_grade >= 10 else 'amber'
-            })
-    context = {
-        'active_courses_count': active_courses.count(),
-        'total_students': total_students,
-        'pending_grading': pending_grading,
-        'upcoming_exams': upcoming_exams,
-        'course_performance': course_performance,
-    }
-    return render(request, 'teacher/dashboard.html', context)
+    return render(request, 'teacher/dashboard.html')
+
 
 @login_required
 @role_required('teacher')
@@ -130,6 +92,7 @@ def teacher_courses(request):
     teacher = request.user.userprofile
     courses = Course.objects.filter(teacher=teacher)
     return render(request, 'teacher/courses/courses.html', {'courses': courses})
+
 
 
 @login_required
@@ -369,8 +332,8 @@ def student_exam_list(request):
     return render(request, 'student/exam/exam_list.html', context)
 
 
-@role_required('teacher')
 @login_required
+@role_required('teacher')
 def teacher_exam_list(request):
     teacher_profile = request.user.userprofile
     exams = Exam.objects.filter(course__teacher=teacher_profile).order_by('-start_date')
@@ -388,7 +351,7 @@ def take_exam(request, exam_id):
             exam=exam, student=student, status__in=['completed', 'abandoned']
         ).count()
         if completed_or_abandoned_attempts >= exam.max_attempts:
-            messages.error(request, f"You have already reached the maximum number of attempts ({exam.max_attempts}) for the exam '{exam.title}'.")
+            messages.error(request, f"Vous avez déjà atteint le nombre maximum de tentatives {exam.max_attempts} pour l'examen '{exam.title}'.")
             return redirect('student_exam_list')
         attempt = ExamAttempt.objects.create(exam=exam, student=student, status='in_progress', start_date=timezone.now())
     questions = Question.objects.filter(exam=exam).prefetch_related('mcqchoice_set')
@@ -528,8 +491,8 @@ def exam_completed(request, attempt_id):
     return render(request, 'student/exam/exam_completed.html', {'attempt': attempt})
 
 
-@role_required('teacher')
 @login_required
+@role_required('teacher')
 def create_course(request):
     if request.method == 'POST':
         try:
@@ -557,8 +520,8 @@ def create_course(request):
         })
 
 
-@role_required('teacher')
 @login_required
+@role_required('teacher')
 def edit_course(request, course_id):
     course = get_object_or_404(Course, id=course_id, teacher=request.user.userprofile)
     if request.method == 'POST':
@@ -587,8 +550,8 @@ def edit_course(request, course_id):
         })
 
 
-@role_required('teacher')
 @login_required
+@role_required('teacher')
 def delete_course(request, course_id):
     course = get_object_or_404(Course, id=course_id, teacher=request.user.userprofile)   
     if request.method == 'POST':
