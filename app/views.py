@@ -633,6 +633,7 @@ def download_exam_results(request, exam_id):
 
     return HttpResponse(status=400, content="Invalid format.")
 
+
 class NumberedCanvas(canvas.Canvas):
     def __init__(self, *args, **kwargs):
         canvas.Canvas.__init__(self, *args, **kwargs)
@@ -661,8 +662,8 @@ class NumberedCanvas(canvas.Canvas):
         self.setStrokeColor(HexColor('#CCCCCC'))
         self.line(72, 72/2 + 15, letter[0] - 72, 72/2 + 15)
 
+
 def clean_text(text):
-    """Clean text from special characters and normalize line endings"""
     text = text.replace('\r\n', '\n').replace('\r', '\n')
     text = ''.join(char for char in text if ord(char) >= 32 or char == '\n')
     text = re.sub(r'[\u200B-\u200D\uFEFF]', '', text)
@@ -672,12 +673,11 @@ def clean_text(text):
     text = '\n'.join(lines).strip()
     return text
 
+
 def download_student_result(request, attempt_id):
     attempt = get_object_or_404(ExamAttempt, pk=attempt_id)
     responses = Response.objects.filter(attempt=attempt)
     buffer = BytesIO()
-    
-    # Create the document with custom page layout
     doc = SimpleDocTemplate(
         buffer,
         pagesize=letter,
@@ -686,19 +686,15 @@ def download_student_result(request, attempt_id):
         topMargin=72,
         bottomMargin=72
     )
-
-    # Styles
     styles = getSampleStyleSheet()
-    
     title_style = ParagraphStyle(
         'CustomTitle',
         parent=styles['Heading1'],
         fontSize=16,
         textColor=HexColor('#1a237e'),
         spaceAfter=20,
-        alignment=1  # Center alignment
+        alignment=1
     )
-
     question_style = ParagraphStyle(
         'QuestionStyle',
         parent=styles['Normal'],
@@ -709,7 +705,6 @@ def download_student_result(request, attempt_id):
         borderPadding=(10, 0, 10, 0),
         backColor=HexColor('#f8f9fa')
     )
-
     answer_style = ParagraphStyle(
         'AnswerStyle',
         parent=styles['Normal'],
@@ -717,7 +712,6 @@ def download_student_result(request, attempt_id):
         leftIndent=20,
         spaceAfter=12
     )
-
     code_style = ParagraphStyle(
         'CodeStyle',
         parent=styles['Code'],
@@ -732,7 +726,6 @@ def download_student_result(request, attempt_id):
         borderPadding=8,
         borderRadius=5
     )
-
     grade_style = ParagraphStyle(
         'GradeStyle',
         parent=styles['Normal'],
@@ -741,30 +734,20 @@ def download_student_result(request, attempt_id):
         leftIndent=20,
         spaceAfter=20
     )
-
     elements = []
-
-    # Add logo
     logo = Image("templates/components/images/ofppt-header.png")
     logo.drawWidth = 6 * inch
     logo.drawHeight = logo.drawWidth * (325/1419)
     elements.append(logo)
     elements.append(Spacer(1, 20))
-
-    # Add title
     elements.append(Paragraph("Relevé de Notes", title_style))
-    
-    # Student information in a styled table
-    current_date = datetime.now().strftime('%d/%m/%Y')
     student_info = [
         ['Nom et prénom:', f"{attempt.student.first_name} {attempt.student.last_name}"],
         ['CIN:', attempt.student.user.username],
         ['Contrôle:', attempt.exam.title],
-        ['Date:', current_date],
+        ['Date:', ''],
         ['Note finale:', f"{attempt.grade}/20" if attempt.grade is not None else "Non noté"]
     ]
-
-    # Create table with gradient background
     info_table = Table(student_info, colWidths=[2*inch, 4*inch])
     info_table.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
@@ -778,37 +761,27 @@ def download_student_result(request, attempt_id):
         ('BORDERCOLOR', (0, 0), (-1, -1), HexColor('#e9ecef')),
         ('ALIGN', (1, 0), (1, -1), 'LEFT'),
     ]))
-
     elements.append(info_table)
     elements.append(Spacer(1, 30))
-
-    # Add questions and answers with enhanced styling
     for i, response in enumerate(responses, 1):
-        # Add question with background
         question_text = f"Question {i}: {response.question.wording}"
         elements.append(Paragraph(question_text, question_style))
-        
         if response.question.question_type == 'open':
             elements.append(Paragraph("Réponse:", answer_style))
             cleaned_text = clean_text(response.response_text)
             elements.append(Preformatted(cleaned_text, code_style))
         else:
             elements.append(Paragraph(f"Réponse: {clean_text(response.response_text)}", answer_style))
-
-        # Add grade with icon-like prefix
         grade_text = f"★ Note: {response.response_grade}/{response.question.points}" if response.response_grade is not None else "☐ Non noté"
         elements.append(Paragraph(grade_text, grade_style))
         elements.append(Spacer(1, 15))
-
-    # Generate PDF with custom canvas for page numbers
     doc.build(elements, canvasmaker=NumberedCanvas)
-    
     buffer.seek(0)
     response = HttpResponse(buffer, content_type='application/pdf')
-    filename = f"resultat_{attempt.student.last_name}_{attempt.exam.title}_{current_date}.pdf"
+    filename = f"resultat_{attempt.student.last_name}_{attempt.exam.title}.pdf"
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
-    
     return response
+
 
 def custom_403(request, exception):
     return render(request, 'errors/403.html', status=403)
