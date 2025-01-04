@@ -11,7 +11,7 @@
         <div class="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
             <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-xl"></div>
             <div class="relative z-10 flex items-center space-x-4">
-                {% include 'components/icons.html' with icon="document" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                {% include 'components/icons.html' with icon="clipboard" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
                 <div>
                     <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Mes Examens</h1>
                     <p class="text-gray-600 dark:text-gray-400 mt-2">Parcourez et passez vos examens</p>
@@ -31,65 +31,59 @@
 
         <!-- Exams List Section -->
         <div class="space-y-6">
-            {% for exam in exams %}
-                <div class="group bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 transform hover:scale-[1.01] hover:shadow-xl transition-all duration-300">
-                    <div class="flex items-start justify-between">
+            <!-- Exam Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for exam in exams %}
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300">
                         <div class="space-y-4">
+                            <!-- Exam Title -->
                             <div class="flex items-center space-x-3">
-                                {% include 'components/icons.html' with icon="document" class="w-6 h-6 text-blue-600 dark:text-blue-400" %}
-                                <div>
-                                    <h2 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{{ exam.title }}</h2>
-                                    <p class="text-gray-600 dark:text-gray-400 mt-1">{{ exam.description }}</p>
+                                <div class="p-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                                    {% include 'components/icons.html' with icon="certificate" class="w-6 h-6 text-blue-600 dark:text-blue-400" %}
                                 </div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ exam.title }}</h3>
                             </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-                                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                                    {% include 'components/icons.html' with icon="book" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
-                                    <span>Cours: {{ exam.course.title }}</span>
-                                </div>
-                                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                                    {% include 'components/icons.html' with icon="group" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
-                                    <span>Groupe: {{ exam.group }}</span>
-                                </div>
-                                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                                    {% include 'components/icons.html' with icon="clock" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
+
+                            <!-- Exam Info -->
+                            <div class="space-y-3">
+                                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                    <div class="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg mr-2.5">
+                                        {% include 'components/icons.html' with icon="clock-alert" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
+                                    </div>
                                     <span>Durée: {{ exam.duration }} minutes</span>
                                 </div>
-                                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                                    {% include 'components/icons.html' with icon="calendar" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
-                                    <span>Début: {{ exam.start_date|date:"d/m/Y H:i" }}</span>
-                                </div>
-                                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                                    {% include 'components/icons.html' with icon="calendar" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
-                                    <span>Fin: {{ exam.end_date|date:"d/m/Y H:i" }}</span>
-                                </div>
-                                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                                    {% include 'components/icons.html' with icon="refresh" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
-                                    <span>Tentatives: {{ exam.attempts_taken }}/{{ exam.max_attempts }}</span>
+                                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                    <div class="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg mr-2.5">
+                                        {% include 'components/icons.html' with icon="presentation" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
+                                    </div>
+                                    <span>{{ exam.course.title }}</span>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="flex-shrink-0 ml-6">
-                            <a href="{% url 'take_exam' exam.id %}" 
-                                class="group inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-300 hover:shadow-lg space-x-2">
-                                <div class="transform group-hover:scale-110 transition-transform">
-                                    {% include 'components/icons.html' with icon="play" class="w-5 h-5" %}
-                                </div>
-                                <span>Passer l'Examen</span>
-                            </a>
+
+                            <!-- Take Exam Button -->
+                            <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <a href="{% url 'take_exam' exam.id %}" 
+                                   class="w-full inline-flex items-center justify-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-lg p-2 transition-all duration-300">
+                                    <div class="p-2 bg-blue-100 dark:bg-gray-800/50 rounded-lg">
+                                        {% include 'components/icons.html' with icon="play" class="w-4 h-4" %}
+                                    </div>
+                                    <span class="font-medium">Commencer l'examen</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% empty %}
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
-                    <div class="flex flex-col items-center justify-center text-center space-y-4">
-                        {% include 'components/icons.html' with icon="information" class="w-12 h-12 text-gray-400" %}
-                        <p class="text-gray-600 dark:text-gray-400">Aucun examen disponible pour le moment</p>
+                {% empty %}
+                    <div class="col-span-full bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+                        <div class="flex flex-col items-center justify-center text-center space-y-4">
+                            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
+                                {% include 'components/icons.html' with icon="clipboard" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                            </div>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Aucun examen disponible</h3>
+                            <p class="text-gray-600 dark:text-gray-400">Vous n'avez pas d'examens pour le moment</p>
+                        </div>
                     </div>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>

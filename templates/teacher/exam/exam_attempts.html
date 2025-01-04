@@ -4,23 +4,32 @@
 {% block title %}Tentatives d'Examen - {{ exam.title }} - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen" style="background-color: var(--bg-secondary)">
+<div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
     {% include 'components/teacher_sidebar.html' %}
     <div class="flex-1 p-8 space-y-8">
         <!-- Title Section -->
-        <div class="rounded-xl shadow-lg p-6" style="background-color: var(--card-bg); border: 1px solid var(--border-color)">
-            <h1 class="text-2xl font-bold" style="color: var(--text-primary)">{{ exam.title }}</h1>
-            <p style="color: var(--text-secondary)" class="mt-2">Tentatives des étudiants</p>
-            <form method="get" action="{% url 'download_exam_results' exam.id %}" class="mt-4 space-y-4"> 
-                <label for="format" class="form-label">Sélectionnez le format de téléchargement:</label>
-                <select name="format" id="format" class="form-select">
-                    <option value="full">Résultats détaillés (détails complets)</option>
-                    <option value="generic">Résultats génériques (Question 1, Question 2, ...)</option>
-                </select>
-                <button type="submit" class="btn-primary">Télécharger</button>
+        <div class="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-xl"></div>
+            <div class="relative z-10 flex items-center space-x-4">
+                {% include 'components/icons.html' with icon="document" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                <div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{{ exam.title }}</h1>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">Tentatives des étudiants</p>
+                </div>
+            </div>
+            <form method="get" action="{% url 'download_exam_results' exam.id %}" class="mt-6 space-y-4">
+                <div class="flex flex-col space-y-2">
+                    <label for="format" class="text-sm font-medium text-gray-700 dark:text-gray-300">Sélectionnez le format de téléchargement:</label>
+                    <select name="format" id="format" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="full">Résultats détaillés (détails complets)</option>
+                        <option value="generic">Résultats génériques (Question 1, Question 2, ...)</option>
+                    </select>
+                </div>
+                <button type="submit" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl transition-all duration-300 hover:shadow-lg transform hover:scale-[1.02] space-x-3">
+                    {% include 'components/icons.html' with icon="download" class="w-5 h-5 mr-2" %}
+                    <span class="font-medium">Télécharger</span>
+                </button>
             </form>
-            
-
         </div>
 
         <!-- Attempts Table -->
