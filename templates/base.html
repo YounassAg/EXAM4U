@@ -60,39 +60,11 @@
 
                 <!-- Navigation Links (Desktop) -->
                 <div class="desktop-nav items-center space-x-8">
-                    {% if not user.is_authenticated and request.path == '/' %}
-                        <a href="{% url 'index' %}" class="nav-link">Accueil</a>
-                        <a href="#features" class="nav-link">Fonctionnalités</a>
-                        <a href="#contact" class="nav-link">Contact</a>
-                    {% endif %}
-                    
-                    {% if user.is_authenticated %}
-                        {% if user.userprofile.role == 'teacher' %}
-                            <a href="{% url 'teacher_dashboard' %}" 
-                               class="nav-link {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
-                                Tableau de bord
-                            </a>
-                            <a href="{% url 'teacher_courses' %}" 
-                               class="nav-link {% if request.resolver_match.url_name == 'teacher_courses' %}active{% endif %}">
-                                Mes Cours
-                            </a>
-                            <a href="{% url 'teacher_exam_list' %}" 
-                               class="nav-link {% if request.resolver_match.url_name == 'teacher_exam_list' %}active{% endif %}">
-                                Examens
-                            </a>
-                        {% else %}
-                            <a href="{% url 'student_dashboard' %}" 
-                               class="nav-link {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
-                                Tableau de bord
-                            </a>
-                            <a href="{% url 'student_courses' %}" 
-                               class="nav-link {% if request.resolver_match.url_name == 'student_courses' %}active{% endif %}">
-                                Mes Cours
-                            </a>
-                            <a href="{% url 'student_exam_list' %}" 
-                               class="nav-link {% if request.resolver_match.url_name == 'student_exam_list' %}active{% endif %}">
-                                Examens
-                            </a>
+                    {% if not user.is_authenticated %}
+                        {% if request.path == '/' %}
+                            <a href="{% url 'index' %}" class="nav-link">Accueil</a>
+                            <a href="#features" class="nav-link">Fonctionnalités</a>
+                            <a href="#contact" class="nav-link">Contact</a>
                         {% endif %}
                     {% endif %}
                 </div>
