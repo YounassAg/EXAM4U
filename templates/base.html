@@ -8,6 +8,45 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
     {% block extra_css %}{% endblock %}
+    <style>
+        /* Custom styles for navigation */
+        @media screen and (max-width: 1023px) {
+            .desktop-nav {
+                display: none;
+            }
+            .mobile-menu-button {
+                display: block;
+            }
+        }
+
+        @media screen and (min-width: 1024px) {
+            .desktop-nav {
+                display: flex;
+            }
+            .mobile-menu-button {
+                display: none;
+            }
+            .mobile-menu {
+                display: none !important;
+            }
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: rgb(37, 99, 235);
+        }
+
+        .nav-link.active {
+            color: rgb(37, 99, 235);
+        }
+    </style>
 </head>
 <body class="min-h-screen theme-transition bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
     <!-- Navigation -->
@@ -20,11 +59,41 @@
                 </a>
 
                 <!-- Navigation Links (Desktop) -->
-                <div class="hidden lg:flex items-center space-x-8">
+                <div class="desktop-nav items-center space-x-8">
                     {% if not user.is_authenticated and request.path == '/' %}
                         <a href="{% url 'index' %}" class="nav-link">Accueil</a>
                         <a href="#features" class="nav-link">Fonctionnalités</a>
                         <a href="#contact" class="nav-link">Contact</a>
+                    {% endif %}
+                    
+                    {% if user.is_authenticated %}
+                        {% if user.userprofile.role == 'teacher' %}
+                            <a href="{% url 'teacher_dashboard' %}" 
+                               class="nav-link {% if request.resolver_match.url_name == 'teacher_dashboard' %}active{% endif %}">
+                                Tableau de bord
+                            </a>
+                            <a href="{% url 'teacher_courses' %}" 
+                               class="nav-link {% if request.resolver_match.url_name == 'teacher_courses' %}active{% endif %}">
+                                Mes Cours
+                            </a>
+                            <a href="{% url 'teacher_exam_list' %}" 
+                               class="nav-link {% if request.resolver_match.url_name == 'teacher_exam_list' %}active{% endif %}">
+                                Examens
+                            </a>
+                        {% else %}
+                            <a href="{% url 'student_dashboard' %}" 
+                               class="nav-link {% if request.resolver_match.url_name == 'student_dashboard' %}active{% endif %}">
+                                Tableau de bord
+                            </a>
+                            <a href="{% url 'student_courses' %}" 
+                               class="nav-link {% if request.resolver_match.url_name == 'student_courses' %}active{% endif %}">
+                                Mes Cours
+                            </a>
+                            <a href="{% url 'student_exam_list' %}" 
+                               class="nav-link {% if request.resolver_match.url_name == 'student_exam_list' %}active{% endif %}">
+                                Examens
+                            </a>
+                        {% endif %}
                     {% endif %}
                 </div>
 
@@ -38,7 +107,7 @@
                     </button>
 
                     <!-- Auth Buttons (Desktop) -->
-                    <div class="hidden lg:flex items-center space-x-4 ml-6">
+                    <div class="desktop-nav items-center space-x-4 ml-6">
                         {% if not user.is_authenticated %}
                             <a href="{% url 'register' %}" class="px-6 py-2.5 border-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 font-medium rounded-lg hover:bg-blue-600 hover:text-white dark:hover:bg-blue-400 dark:hover:text-gray-900 transform hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400">
                                 S'inscrire
@@ -54,7 +123,7 @@
                     </div>
 
                     <!-- Mobile Menu Button -->
-                    <button id="mobile-menu-button" class="lg:hidden p-2 ml-4 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400" aria-label="Toggle mobile menu">
+                    <button id="mobile-menu-button" class="mobile-menu-button p-2 ml-4 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400" aria-label="Toggle mobile menu">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path class="mobile-menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                             <path class="mobile-menu-close hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
