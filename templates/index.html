@@ -6,91 +6,1371 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="relative min-h-screen flex items-center">
-    <div class="container mx-auto px-4 py-32">
-        <div class="grid md:grid-cols-2 gap-12 items-center">
-            <div class="space-y-8">
-                <h1 class="text-5xl font-bold leading-tight">
-                    Créez et passez vos examens en ligne simplement
+<section class="hero">
+    <!-- Animated Background -->
+    <div class="hero-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="grid-overlay"></div>
+        <div class="particles">
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+
+    <div class="hero-content">
+        <div class="hero-text">
+            <div class="hero-title">
+                <h1>
+                    <span class="gradient-text slide-in">Créez</span>
+                    <span class="gradient-text-alt slide-in delay-1">et passez</span>
+                    <span class="gradient-text-special slide-in delay-2">vos examens</span>
                 </h1>
-                <p class="text-xl text-gray-600 dark:text-gray-400">
-                    Une plateforme moderne pour les enseignants et les étudiants, conçue pour simplifier la création, la gestion et le passage d'examens en ligne.
-                </p>
-                <div class="flex flex-wrap gap-4">
-                    <a href="{% url 'register' %}" class="btn-primary">
-                        Commencer maintenant
-                    </a>
-                    <a href="#features" class="btn-secondary">
-                        En savoir plus
-                    </a>
-                </div>
+                <div class="title-decoration"></div>
             </div>
-            <div class="relative">
-                <div class="absolute inset-0 bg-black/5 dark:bg-white/5 rounded-2xl transform rotate-6"></div>
-                <img src="{% static 'images/hero-illustration.svg' %}" alt="Illustration" class="relative w-full rounded-2xl">
+            <p class="hero-description fade-in delay-3">
+                Une plateforme <span class="accent">moderne</span> et 
+                <span class="accent-alt">intuitive</span> pour révolutionner 
+                vos examens en ligne.
+            </p>
+            <div class="hero-buttons fade-in delay-4">
+                <a href="{% url 'register' %}" class="btn btn-primary">
+                    <span>Commencer maintenant</span>
+                    <svg class="btn-icon" viewBox="0 0 24 24">
+                        <path d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                </a>
+                <a href="#features" class="btn btn-secondary">
+                    <span>Explorer</span>
+                    <svg class="btn-icon" viewBox="0 0 24 24">
+                        <path d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+        <div class="hero-illustration">
+            <div class="illustration-container">
+                <img src="{% static 'images/hero-illustration.svg' %}" alt="Illustration">
+                <div class="glow-effect"></div>
+                <div class="floating-element elem-1"></div>
+                <div class="floating-element elem-2"></div>
+                <div class="floating-element elem-3"></div>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Features Section -->
-<section id="features" class="py-24 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4">
-        <div class="text-center max-w-3xl mx-auto mb-16">
-            <h2 class="text-3xl font-bold mb-4">Fonctionnalités principales</h2>
-            <p class="text-gray-600 dark:text-gray-400">Découvrez les outils qui font d'Exam4U la meilleure plateforme pour vos examens en ligne.</p>
+<section id="features" class="features">
+    <div class="features-bg">
+        <!-- Animated Background Elements -->
+        <div class="features-orb orb-left"></div>
+        <div class="features-orb orb-right"></div>
+        <div class="features-grid-overlay"></div>
+    </div>
+
+    <div class="section-content">
+        <div class="section-header">
+            <div class="header-decoration">
+                <span class="line"></span>
+                <span class="dot"></span>
+            </div>
+            <h2 class="section-title">
+                <span class="gradient-text fade-in">Fonctionnalités</span>
+                <span class="gradient-text-alt fade-in delay-1">principales</span>
+            </h2>
+            <p class="section-description fade-in delay-2">
+                Découvrez les outils innovants qui font d'<span class="accent">Exam4U</span> 
+                la meilleure plateforme pour vos examens en ligne.
+            </p>
         </div>
         
-        <div class="grid md:grid-cols-3 gap-8">
+        <div class="features-cards">
             <!-- Feature 1 -->
-            <div class="p-6 bg-white dark:bg-black rounded-xl border border-gray-200 dark:border-gray-800">
-                <div class="w-12 h-12 bg-black dark:bg-white text-white dark:text-black rounded-lg flex items-center justify-center mb-4">
-                    {% include 'components/icons.html' with icon="document" class="w-6 h-6" %}
+            <div class="feature-card" data-aos="fade-up">
+                <div class="card-glass"></div>
+                <div class="card-content">
+                    <div class="feature-icon">
+                        <div class="icon-glow"></div>
+                        {% include 'components/icons.html' with icon="document" class="icon" %}
+                        <div class="icon-bg"></div>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Création d'examens</h3>
+                        <p>Créez facilement des examens personnalisés avec différents types de questions et formats interactifs.</p>
+                    </div>
+                    <div class="card-decoration">
+                        <svg viewBox="0 0 100 100" class="card-shape">
+                            <circle cx="50" cy="50" r="40" class="shape-circle" />
+                            <path d="M20 50 L80 50" class="shape-line" />
+                            <path d="M50 20 L50 80" class="shape-line" />
+                        </svg>
+                    </div>
                 </div>
-                <h3 class="text-xl font-bold mb-2">Création d'examens</h3>
-                <p class="text-gray-600 dark:text-gray-400">Créez facilement des examens personnalisés avec différents types de questions.</p>
             </div>
 
             <!-- Feature 2 -->
-            <div class="p-6 bg-white dark:bg-black rounded-xl border border-gray-200 dark:border-gray-800">
-                <div class="w-12 h-12 bg-black dark:bg-white text-white dark:text-black rounded-lg flex items-center justify-center mb-4">
-                    {% include 'components/icons.html' with icon="clock" class="w-6 h-6" %}
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="card-glass"></div>
+                <div class="card-content">
+                    <div class="feature-icon">
+                        <div class="icon-glow"></div>
+                        {% include 'components/icons.html' with icon="clock" class="icon" %}
+                        <div class="icon-bg"></div>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Gestion du temps</h3>
+                        <p>Définissez des limites de temps précises et gérez efficacement le déroulement de vos examens.</p>
+                    </div>
+                    <div class="card-decoration">
+                        <svg viewBox="0 0 100 100" class="card-shape">
+                            <circle cx="50" cy="50" r="40" class="shape-circle" />
+                            <path d="M30 50 Q50 20 70 50" class="shape-curve" />
+                        </svg>
+                    </div>
                 </div>
-                <h3 class="text-xl font-bold mb-2">Gestion du temps</h3>
-                <p class="text-gray-600 dark:text-gray-400">Définissez des limites de temps précises pour chaque examen.</p>
             </div>
 
             <!-- Feature 3 -->
-            <div class="p-6 bg-white dark:bg-black rounded-xl border border-gray-200 dark:border-gray-800">
-                <div class="w-12 h-12 bg-black dark:bg-white text-white dark:text-black rounded-lg flex items-center justify-center mb-4">
-                    {% include 'components/icons.html' with icon="chart" class="w-6 h-6" %}
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="card-glass"></div>
+                <div class="card-content">
+                    <div class="feature-icon">
+                        <div class="icon-glow"></div>
+                        {% include 'components/icons.html' with icon="chart" class="icon" %}
+                        <div class="icon-bg"></div>
+                    </div>
+                    <div class="feature-content">
+                        <h3>Analyse des résultats</h3>
+                        <p>Visualisez et analysez les performances des étudiants avec des graphiques détaillés en temps réel.</p>
+                    </div>
+                    <div class="card-decoration">
+                        <svg viewBox="0 0 100 100" class="card-shape">
+                            <path d="M20 80 L40 40 L60 60 L80 20" class="shape-graph" />
+                            <circle cx="40" cy="40" r="4" class="shape-dot" />
+                            <circle cx="60" cy="60" r="4" class="shape-dot" />
+                        </svg>
+                    </div>
                 </div>
-                <h3 class="text-xl font-bold mb-2">Analyse des résultats</h3>
-                <p class="text-gray-600 dark:text-gray-400">Visualisez et analysez les performances des étudiants en temps réel.</p>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Contact Section -->
-<section id="contact" class="py-24">
-    <div class="container mx-auto px-4">
-        <div class="max-w-3xl mx-auto text-center">
-            <h2 class="text-3xl font-bold mb-4">Contactez-nous</h2>
-            <p class="text-gray-600 dark:text-gray-400 mb-8">Des questions ? Notre équipe est là pour vous aider.</p>
-            
-            <form class="space-y-6 text-left">
-                <div>
-                    <label for="email" class="block text-sm font-medium mb-2">Email</label>
-                    <input type="email" id="email" name="email" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent">
-                </div>
-                <div>
-                    <label for="message" class="block text-sm font-medium mb-2">Message</label>
-                    <textarea id="message" name="message" rows="4" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent"></textarea>
-                </div>
-                <button type="submit" class="btn-primary w-full">Envoyer le message</button>
-            </form>
+<section id="contact" class="contact">
+    <div class="contact-bg">
+        <div class="contact-orb orb-top"></div>
+        <div class="contact-orb orb-bottom"></div>
+        <div class="contact-grid-overlay"></div>
+    </div>
+
+    <div class="section-content">
+        <div class="section-header">
+            <div class="header-decoration">
+                <span class="line"></span>
+                <span class="dot"></span>
+            </div>
+            <h2 class="section-title">
+                <span class="gradient-text fade-in">Contactez</span>
+                <span class="gradient-text-alt fade-in delay-1">nous</span>
+            </h2>
+            <p class="section-description fade-in delay-2">
+                Des questions ? Notre équipe d'experts est là pour vous accompagner.
+            </p>
+        </div>
+        
+        <div class="contact-container">
+            <div class="contact-card" data-aos="fade-up">
+                <div class="card-glass"></div>
+                <form class="contact-form">
+                    <div class="form-group">
+                        <label for="email">
+                            <span class="label-text">Email</span>
+                            <span class="label-decoration"></span>
+                        </label>
+                        <div class="input-container">
+                            <input type="email" id="email" name="email" 
+                                   placeholder="votre@email.com" required>
+                            <div class="input-decoration">
+                                <svg viewBox="0 0 24 24" class="input-icon">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                    <path d="M22 6l-10 7L2 6"/>
+                                </svg>
+                            </div>
+                            <div class="input-focus-effect"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message">
+                            <span class="label-text">Message</span>
+                            <span class="label-decoration"></span>
+                        </label>
+                        <div class="input-container">
+                            <textarea id="message" name="message" rows="4" 
+                                      placeholder="Comment pouvons-nous vous aider ?" required></textarea>
+                            <div class="input-decoration">
+                                <svg viewBox="0 0 24 24" class="input-icon">
+                                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                                </svg>
+                            </div>
+                            <div class="input-focus-effect"></div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-button">
+                        <span class="button-content">
+                            <span class="button-text">Envoyer le message</span>
+                            <svg class="button-icon" viewBox="0 0 24 24">
+                                <path d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </span>
+                        <div class="button-decoration"></div>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </section>
+
+<style>
+/* Base Styles */
+:root {
+    --primary: #4F46E5;
+    --primary-dark: #4338CA;
+    --secondary: #A855F7;
+    --accent: #EC4899;
+    --text: #1F2937;
+    --text-light: #6B7280;
+    --bg: #ffffff;
+    --bg-alt: #F9FAFB;
+}
+
+.dark {
+    --text: #F9FAFB;
+    --text-light: #D1D5DB;
+    --bg: #111827;
+    --bg-alt: #1F2937;
+}
+
+/* Animations */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+@keyframes slide-in {
+    from { transform: translateX(-100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Hero Section */
+.hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--bg), var(--bg-alt));
+}
+
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+}
+
+.orb-1 {
+    top: 20%;
+    right: 20%;
+    width: 300px;
+    height: 300px;
+    background: linear-gradient(to right, rgba(79, 70, 229, 0.2), rgba(168, 85, 247, 0.2));
+    animation: pulse 6s ease-in-out infinite;
+}
+
+.orb-2 {
+    bottom: 20%;
+    left: 20%;
+    width: 400px;
+    height: 400px;
+    background: linear-gradient(to right, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2));
+    animation: pulse 8s ease-in-out infinite;
+}
+
+.orb-3 {
+    top: 50%;
+    left: 50%;
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(to right, rgba(236, 72, 153, 0.2), rgba(79, 70, 229, 0.2));
+    animation: pulse 4s ease-in-out infinite;
+}
+
+.grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(var(--text-light) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--text-light) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.05;
+}
+
+.particles span {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--primary);
+    border-radius: 50%;
+    animation: float 3s ease-in-out infinite;
+}
+
+.particles span:nth-child(1) { top: 20%; left: 20%; animation-delay: 0s; }
+.particles span:nth-child(2) { top: 40%; right: 30%; animation-delay: 1s; }
+.particles span:nth-child(3) { bottom: 30%; left: 40%; animation-delay: 2s; }
+.particles span:nth-child(4) { top: 60%; right: 40%; animation-delay: 3s; }
+.particles span:nth-child(5) { bottom: 40%; left: 30%; animation-delay: 4s; }
+.particles span:nth-child(6) { top: 30%; right: 20%; animation-delay: 5s; }
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.hero-text {
+    max-width: 600px;
+}
+
+.hero-title h1 {
+    font-size: 4.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 2rem;
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: block;
+}
+
+.gradient-text-alt {
+    background: linear-gradient(135deg, var(--secondary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: block;
+}
+
+.gradient-text-special {
+    background: linear-gradient(135deg, var(--accent), var(--primary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: block;
+}
+
+.slide-in {
+    animation: slide-in 0.6s ease-out forwards;
+}
+
+.delay-1 { animation-delay: 0.2s; }
+.delay-2 { animation-delay: 0.4s; }
+.delay-3 { animation-delay: 0.6s; }
+.delay-4 { animation-delay: 0.8s; }
+
+.hero-description {
+    font-size: 1.25rem;
+    color: var(--text-light);
+    margin-bottom: 2.5rem;
+    animation: fade-in 0.6s ease-out forwards;
+}
+
+.accent {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.accent-alt {
+    color: var(--secondary);
+    font-weight: 600;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding: 1rem 2rem;
+    border-radius: 1rem;
+    font-weight: 600;
+    font-size: 1.125rem;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    box-shadow: 0 10px 20px -10px var(--primary);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 30px -15px var(--primary);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    color: var(--text);
+}
+
+.btn-secondary:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.btn-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-left: 0.5rem;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+    transition: transform 0.3s ease;
+}
+
+.btn:hover .btn-icon {
+    transform: translateX(4px);
+}
+
+.hero-illustration {
+    position: relative;
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .hero-illustration {
+        display: block;
+    }
+
+    .hero-content {
+        grid-template-columns: 1fr 1fr;
+        text-align: left;
+        gap: 4rem;
+    }
+
+    .hero-buttons {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 1024px) {
+    .hero-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .hero-text {
+        max-width: 100%;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .section-content {
+        padding: 0 2rem;
+    }
+}
+
+.illustration-container {
+    position: relative;
+    transform: perspective(1000px) rotateY(-10deg);
+    transition: transform 0.3s ease;
+}
+
+.illustration-container:hover {
+    transform: perspective(1000px) rotateY(0deg);
+}
+
+.illustration-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 2rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.glow-effect {
+    position: absolute;
+    inset: -2rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 2rem;
+    filter: blur(60px);
+    opacity: 0.2;
+    z-index: -1;
+}
+
+.floating-element {
+    position: absolute;
+    background: var(--primary);
+    border-radius: 1rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+.elem-1 {
+    top: 20%;
+    left: -2rem;
+    width: 3rem;
+    height: 3rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+.elem-2 {
+    bottom: 20%;
+    right: -2rem;
+    width: 3rem;
+    height: 3rem;
+    background: linear-gradient(135deg, var(--secondary), var(--accent));
+    animation-delay: 1s;
+}
+
+.elem-3 {
+    top: 50%;
+    right: 20%;
+    width: 2rem;
+    height: 2rem;
+    background: linear-gradient(135deg, var(--accent), var(--primary));
+    border-radius: 50%;
+    animation-delay: 2s;
+}
+
+/* Features Section Styles */
+.features {
+    position: relative;
+    padding: 10rem 0;
+    background: linear-gradient(135deg, var(--bg-alt), var(--bg));
+    overflow: hidden;
+}
+
+.features-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.features-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+}
+
+.orb-left {
+    top: -10%;
+    left: -10%;
+    width: 50%;
+    height: 50%;
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(168, 85, 247, 0.15));
+    animation: pulse 10s ease-in-out infinite;
+}
+
+.orb-right {
+    bottom: -10%;
+    right: -10%;
+    width: 60%;
+    height: 60%;
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(79, 70, 229, 0.15));
+    animation: pulse 12s ease-in-out infinite;
+}
+
+.features-grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(var(--text-light) 1px, transparent 1px),
+        linear-gradient(90deg, var(--text-light) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.03;
+    mask-image: radial-gradient(circle at center, black, transparent 80%);
+}
+
+.features-line {
+    display: none;
+}
+
+.section-header {
+    position: relative;
+    text-align: center;
+    margin-bottom: 6rem;
+}
+
+.header-decoration {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.header-decoration .line {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+}
+
+.header-decoration .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-left: 8px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.section-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+}
+
+.section-description {
+    font-size: 1.25rem;
+    color: var(--text-light);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.features-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 3rem;
+    padding: 2rem;
+}
+
+.feature-card {
+    position: relative;
+    min-height: 380px;
+    border-radius: 2rem;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 40px -20px rgba(79, 70, 229, 0.15);
+}
+
+.card-glass {
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(20px);
+    border-radius: inherit;
+    transition: all 0.3s ease;
+}
+
+.card-content {
+    position: relative;
+    z-index: 1;
+    padding: 2.5rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.feature-icon {
+    position: relative;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 16px -8px rgba(79, 70, 229, 0.25);
+}
+
+.feature-card:hover .feature-icon {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px -8px rgba(79, 70, 229, 0.35);
+}
+
+.icon {
+    width: 1.75rem;
+    height: 1.75rem;
+    color: white;
+}
+
+.feature-content h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    transition: all 0.3s ease;
+}
+
+.feature-content p {
+    font-size: 1.125rem;
+    color: var(--text-light);
+    line-height: 1.7;
+    opacity: 0.9;
+}
+
+.card-decoration {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    width: 100px;
+    height: 100px;
+    opacity: 0.1;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover .card-decoration {
+    opacity: 0.2;
+    transform: scale(1.1);
+}
+
+.card-shape {
+    width: 100%;
+    height: 100%;
+}
+
+.shape-circle {
+    fill: none;
+    stroke: var(--primary);
+    stroke-width: 2;
+    stroke-dasharray: 251.2;
+    stroke-dashoffset: 251.2;
+    transition: stroke-dashoffset 1s ease;
+}
+
+.feature-card:hover .shape-circle {
+    stroke-dashoffset: 0;
+}
+
+.shape-line {
+    stroke: var(--secondary);
+    stroke-width: 2;
+    stroke-dasharray: 60;
+    stroke-dashoffset: 60;
+    transition: stroke-dashoffset 0.8s ease;
+}
+
+.feature-card:hover .shape-line {
+    stroke-dashoffset: 0;
+}
+
+.shape-curve {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2;
+    stroke-dasharray: 80;
+    stroke-dashoffset: 80;
+    transition: stroke-dashoffset 0.8s ease;
+}
+
+.feature-card:hover .shape-curve {
+    stroke-dashoffset: 0;
+}
+
+.shape-graph {
+    fill: none;
+    stroke: var(--primary);
+    stroke-width: 2;
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    transition: stroke-dashoffset 1s ease;
+}
+
+.feature-card:hover .shape-graph {
+    stroke-dashoffset: 0;
+}
+
+.shape-dot {
+    fill: var(--secondary);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.feature-card:hover .shape-dot {
+    opacity: 1;
+}
+
+/* Contact Section Styles */
+.contact {
+    position: relative;
+    padding: 10rem 0;
+    background: linear-gradient(135deg, var(--bg), var(--bg-alt));
+}
+
+.contact-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+.contact-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+}
+
+.orb-top {
+    top: -20%;
+    right: -10%;
+    width: 60%;
+    height: 60%;
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(168, 85, 247, 0.1));
+    animation: pulse 15s ease-in-out infinite;
+}
+
+.orb-bottom {
+    bottom: -20%;
+    left: -10%;
+    width: 70%;
+    height: 70%;
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(79, 70, 229, 0.1));
+    animation: pulse 18s ease-in-out infinite;
+}
+
+.contact-grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(var(--text-light) 1px, transparent 1px),
+        linear-gradient(90deg, var(--text-light) 1px, transparent 1px);
+    background-size: 50px 50px;
+    opacity: 0.03;
+    mask-image: radial-gradient(circle at center, black, transparent 70%);
+}
+
+.contact-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.contact-card {
+    position: relative;
+    border-radius: 2rem;
+    overflow: hidden;
+}
+
+.contact-form {
+    position: relative;
+    z-index: 1;
+    padding: 3rem;
+}
+
+.form-group {
+    margin-bottom: 2.5rem;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.label-text {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-right: 0.5rem;
+}
+
+.label-decoration {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--text-light), transparent);
+    opacity: 0.2;
+}
+
+.input-container {
+    position: relative;
+}
+
+.input-container input,
+.input-container textarea {
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    color: var(--text);
+    font-size: 1.125rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px -6px rgba(0, 0, 0, 0.1);
+}
+
+.input-container input:focus,
+.input-container textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 16px -8px rgba(79, 70, 229, 0.25);
+}
+
+.input-decoration {
+    position: absolute;
+    top: 50%;
+    right: 1.5rem;
+    transform: translateY(-50%);
+}
+
+.input-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    stroke: var(--text-light);
+    stroke-width: 1.5;
+    fill: none;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+
+.input-container:focus-within .input-icon {
+    stroke: var(--primary);
+    opacity: 1;
+}
+
+.input-focus-effect {
+    position: absolute;
+    inset: -2px;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.input-container:focus-within .input-focus-effect {
+    opacity: 0.1;
+}
+
+.submit-button {
+    position: relative;
+    width: 100%;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border: none;
+    border-radius: 1rem;
+    color: white;
+    font-size: 1.125rem;
+    font-weight: 600;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 16px -8px rgba(79, 70, 229, 0.25);
+}
+
+.button-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button-text {
+    margin-right: 0.75rem;
+}
+
+.button-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+    transition: transform 0.3s ease;
+}
+
+.submit-button:hover .button-icon {
+    transform: translateX(4px);
+}
+
+.button-decoration {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--secondary), var(--accent));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.submit-button:hover .button-decoration {
+    opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 2.5rem;
+    }
+    
+    .features-cards {
+        grid-template-columns: 1fr;
+        padding: 1.5rem;
+        gap: 2rem;
+    }
+    
+    .feature-card {
+        min-height: 340px;
+    }
+    
+    .contact-form {
+        padding: 2rem;
+    }
+    
+    .submit-button {
+        padding: 1rem;
+    }
+}
+
+/* Add smooth scrolling for the entire page */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Enhance dark mode colors */
+.dark {
+    --text: #F9FAFB;
+    --text-light: #D1D5DB;
+    --bg: #0F172A;
+    --bg-alt: #1E293B;
+}
+
+/* Improve responsive behavior */
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 2.5rem;
+    }
+    
+    .features-cards {
+        grid-template-columns: 1fr;
+        padding: 1.5rem;
+        gap: 2rem;
+    }
+    
+    .feature-card {
+        min-height: 340px;
+    }
+    
+    .contact-form {
+        padding: 2rem;
+    }
+    
+    .submit-button {
+        padding: 1rem;
+    }
+}
+
+/* Add prefers-reduced-motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .hero-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .hero-text {
+        max-width: 100%;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .hero-illustration {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .section-content {
+        padding: 0 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-title h1 {
+        font-size: 3.5rem;
+    }
+
+    .hero-description {
+        font-size: 1.125rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+    }
+
+    .section-description {
+        font-size: 1.125rem;
+        padding: 0 1rem;
+    }
+
+    .features {
+        padding: 6rem 0;
+    }
+
+    .features-cards {
+        grid-template-columns: 1fr;
+        padding: 1.5rem;
+        gap: 2rem;
+    }
+
+    .feature-card {
+        min-height: auto;
+        padding-bottom: 2rem;
+    }
+
+    .contact {
+        padding: 6rem 0;
+    }
+
+    .contact-form {
+        padding: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-container input,
+    .input-container textarea {
+        padding: 1rem;
+        font-size: 1rem;
+    }
+
+    .submit-button {
+        padding: 1rem;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title h1 {
+        font-size: 2.75rem;
+    }
+
+    .hero-content {
+        padding: 2rem 1rem;
+    }
+
+    .orb {
+        opacity: 0.5;
+    }
+
+    .floating-element {
+        display: none;
+    }
+
+    .feature-icon {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .feature-content h3 {
+        font-size: 1.25rem;
+    }
+
+    .feature-content p {
+        font-size: 1rem;
+    }
+
+    .card-decoration {
+        display: none;
+    }
+
+    .section-header {
+        margin-bottom: 3rem;
+    }
+
+    .header-decoration {
+        transform: scale(0.8);
+    }
+}
+
+/* Tablet-specific adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .hero-title h1 {
+        font-size: 4rem;
+    }
+
+    .features-cards {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 2rem;
+    }
+
+    .feature-card {
+        min-height: 360px;
+    }
+}
+
+/* Landscape mode adjustments */
+@media (max-height: 600px) and (orientation: landscape) {
+    .hero {
+        min-height: 150vh;
+    }
+
+    .hero-content {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+
+    .hero-title h1 {
+        font-size: 3rem;
+    }
+}
+
+/* High-resolution screens */
+@media (min-width: 1536px) {
+    .hero-content {
+        max-width: 1400px;
+    }
+
+    .hero-title h1 {
+        font-size: 5rem;
+    }
+
+    .features-cards {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+}
+
+/* Print styles */
+@media print {
+    .hero-bg,
+    .features-bg,
+    .contact-bg,
+    .floating-element,
+    .card-decoration,
+    .header-decoration {
+        display: none;
+    }
+
+    .hero {
+        min-height: auto;
+    }
+
+    .hero-content {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-card {
+        break-inside: avoid;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+
+    // Parallax effect for orbs
+    window.addEventListener('mousemove', function(e) {
+        const orbs = document.querySelectorAll('.orb');
+        const x = e.clientX / window.innerWidth;
+        const y = e.clientY / window.innerHeight;
+
+        orbs.forEach(orb => {
+            const speed = parseFloat(orb.getAttribute('data-speed') || 1);
+            const offsetX = (x - 0.5) * 50 * speed;
+            const offsetY = (y - 0.5) * 50 * speed;
+            orb.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+        });
+    });
+
+    // Intersection Observer for animations
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate');
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
+
+    document.querySelectorAll('.feature-card, .contact-form').forEach(el => {
+        observer.observe(el);
+    });
+});
+</script>
 {% endblock %}

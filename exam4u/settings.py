@@ -76,8 +76,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'examen_online',
-        'USER': 'examen_online',
-        'PASSWORD': 'examen_online',
+        'USER': 'root',
+        'PASSWORD': 'root+*-/',
         'HOST': 'localhost',
         'PORT': '3306',
     }
