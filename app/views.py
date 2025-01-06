@@ -651,7 +651,44 @@ def download_exam_results(request, exam_id):
                 logo.drawHeight = logo.drawWidth * (325 / 1419)
                 elements.append(logo)
                 elements.append(Spacer(1, 20))
-
+                code_style = ParagraphStyle(
+                    'CodeStyle',
+                    parent=styles['Code'],
+                    fontName='Courier',
+                    fontSize=10,
+                    leftIndent=40,
+                    rightIndent=20,
+                    spaceAfter=12,
+                    backColor=HexColor('#f8f9fa'),
+                    borderColor=HexColor('#e9ecef'),
+                    borderWidth=1,
+                    borderPadding=8,
+                    borderRadius=5
+                )
+                grade_style = ParagraphStyle(
+                    'GradeStyle',
+                    parent=styles['Normal'],
+                    fontSize=11,
+                    textColor=HexColor('#1e88e5'),
+                    leftIndent=20,
+                    spaceAfter=20
+                )
+                correct_answer_style = ParagraphStyle(
+                    'CorrectAnswerStyle',
+                    parent=styles['Normal'],
+                    fontSize=11,
+                    leftIndent=20,
+                    textColor=HexColor('#2e7d32'),  # Green color
+                    spaceAfter=6
+                )
+                incorrect_answer_style = ParagraphStyle(
+                    'IncorrectAnswerStyle',
+                    parent=styles['Normal'],
+                    fontSize=11,
+                    leftIndent=20,
+                    textColor=HexColor('#c62828'),  # Red color
+                    spaceAfter=6
+                )
                 # Add Student and Exam Info
                 student_info = [
                     ['Nom et prénom:', f"{student.first_name} {student.last_name}"],
@@ -687,31 +724,35 @@ def download_exam_results(request, exam_id):
                         correct_choices = MCQChoice.objects.filter(
                             question=response.question, is_correct=True
                         ).values_list('choice_label', flat=True)
-                        selected_answers = (response.response_text or "").split(' ~±ſ~ƟƢ~ ')
+                        cleaned_response = response.response_text.replace('~±■~■■~', ' ~±ſ~ƟƢ~ ')
+                        student_answers = [ans.strip() for ans in cleaned_response.split(' ~±ſ~ƟƢ~ ')]
 
                         elements.append(Paragraph("Réponses choisies:", styles['Normal']))
-                        for answer in selected_answers:
-                            if not answer.strip():
+                        for answer in student_answers:
+                            if not answer:
                                 continue
-                            is_correct = answer.strip() in correct_choices
-                            style = ParagraphStyle(
-                                name="Correct" if is_correct else "Incorrect",
-                                parent=styles['Normal'],
-                                textColor=HexColor('#2e7d32') if is_correct else HexColor('#c62828')
-                            )
+                            
+                            # Check if this specific answer matches any correct choice
+                            is_correct = any(correct_choice.strip() == answer.strip() 
+                                        for correct_choice in correct_choices)
+                            
+                            # Use the appropriate style based on correctness
+                            style = correct_answer_style if is_correct else incorrect_answer_style
+                            
+                            # Add the answer with its color
                             elements.append(Paragraph(answer, style))
 
                     elif response.question.question_type == 'open':
                         elements.append(Paragraph("Réponse:", styles['Normal']))
                         cleaned_text = clean_text(response.response_text)
-                        elements.append(Preformatted(cleaned_text, styles['Code']))
+                        elements.append(Preformatted(cleaned_text, code_style))
 
                     else:  # short_answer
                         elements.append(Paragraph(f"Réponse: {clean_text(response.response_text)}", styles['Normal']))
 
                     # Add Question Grade
                     grade_text = f"★ Note: {response.response_grade}/{response.question.points}" if response.response_grade is not None else "☐ Non noté"
-                    elements.append(Paragraph(grade_text, styles['Normal']))
+                    elements.append(Paragraph(grade_text, grade_style))
                     elements.append(Spacer(1, 15))
 
                 # Build PDF and add to ZIP archive
