@@ -99,10 +99,13 @@
                 {% for question in exam.question_set.all %}
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 space-y-6" id="question_{{ forloop.counter }}">
                     <input type="hidden" name="question_id_{{ forloop.counter }}" value="{{ question.id }}">
-                    <div class="flex justify-between items-center">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
                         <h2 class="text-lg font-bold text-gray-900 dark:text-white">Question {{ forloop.counter }}</h2>
-                        <button type="button" class="remove-question-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all" data-question-id="{{ forloop.counter }}">
-                            Supprimer
+                        <button type="button" class="remove-question-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="{{ forloop.counter }}">
+                            <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
+                                {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                            </div>
+                            <span class="font-medium">Supprimer</span>
                         </button>
                     </div>
                     
@@ -130,39 +133,15 @@
                     </div>
 
                     <!-- MCQ Choices Section -->
-                    <div class="mcq-choices-section {% if question.question_type != 'MCQ' %}hidden{% endif %}" id="mcq_section_{{ forloop.counter }}">
-                        <input type="hidden" name="mcq_choice_count_{{ forloop.counter }}" id="mcq_choice_count_{{ forloop.counter }}" value="{{ question.mcqchoice_set.all|length }}">
+                    <div class="mcq-choices-section hidden" id="mcq_section_{{ forloop.counter }}">
                         <div class="mcq-choices-container space-y-4" id="mcq_choices_{{ forloop.counter }}">
-                            {% for choice in question.mcqchoice_set.all %}
-                            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-4 mb-4" id="mcq_choice_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
-                                <div class="flex justify-between items-center">
-                                    <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix {{ forloop.counter }}</h3>
-                                    <button type="button" class="remove-mcq-choice-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all" 
-                                            data-question-id="{{ forloop.parentloop.counter }}" data-choice-id="{{ forloop.counter }}">
-                                        Supprimer
-                                    </button>
-                                </div>
-                                <div>
-                                    <label for="mcq_choice_text_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Texte du Choix</label>
-                                    <input type="text" name="mcq_choice_text_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
-                                           id="mcq_choice_text_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
-                                           value="{{ choice.choice_label }}" required 
-                                           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <input type="checkbox" name="mcq_choice_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
-                                           id="mcq_choice_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
-                                           {% if choice.is_correct %}checked{% endif %}
-                                           class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
-                                    <label for="mcq_choice_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        Réponse Correcte
-                                    </label>
-                                </div>
-                            </div>
-                            {% endfor %}
+                            <input type="hidden" name="mcq_choice_count_{{ forloop.counter }}" id="mcq_choice_count_{{ forloop.counter }}" value="{{ question.mcqchoice_set.all|length }}">
                         </div>
-                        <button type="button" class="add-mcq-choice-btn mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all" data-question-id="{{ forloop.counter }}">
-                            Ajouter un Choix
+                        <button type="button" class="add-mcq-choice-btn mt-4 sm:w-40 group inline-flex items-center justify-center px-3 py-1.5 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="{{ forloop.counter }}">
+                            <div class="p-1 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                                {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
+                            </div>
+                            <span class="font-medium">Ajouter un Choix</span>
                         </button>
                     </div>
                 </div>
@@ -170,20 +149,20 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex space-x-4">
+            <div class="flex flex-col sm:flex-row gap-4">
                 <button type="button" id="add-question-btn" 
-                        class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all space-x-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                    <span>Ajouter une Question</span>
+                        class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-2">
+                    <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
+                    </div>
+                    <span class="font-medium">Ajouter une Question</span>
                 </button>
                 <button type="submit" 
-                        class="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all space-x-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    <span>Enregistrer les Modifications</span>
+                        class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-2">
+                    <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        {% include 'components/icons.html' with icon="check" class="w-4 h-4" %}
+                    </div>
+                    <span class="font-medium">Enregistrer les Modifications</span>
                 </button>
             </div>
         </form>
@@ -220,10 +199,13 @@ document.addEventListener('DOMContentLoaded', function () {
         questionContainer.setAttribute('id', `question_${questionCount}`);
 
         questionContainer.innerHTML = `
-            <div class="flex justify-between items-center">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
                 <h2 class="text-lg font-bold text-gray-900 dark:text-white">Question ${questionCount}</h2>
-                <button type="button" class="remove-question-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all" data-question-id="${questionCount}">
-                    Supprimer
+                <button type="button" class="remove-question-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${questionCount}">
+                    <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
+                        {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                    </div>
+                    <span class="font-medium">Supprimer</span>
                 </button>
             </div>
 
@@ -252,11 +234,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
             <!-- MCQ Choices Section -->
             <div class="mcq-choices-section hidden" id="mcq_section_${questionCount}">
-                <input type="hidden" name="mcq_choice_count_${questionCount}" id="mcq_choice_count_${questionCount}" value="0">
                 <div class="mcq-choices-container space-y-4" id="mcq_choices_${questionCount}">
+                    <input type="hidden" name="mcq_choice_count_${questionCount}" id="mcq_choice_count_${questionCount}" value="0">
                 </div>
-                <button type="button" class="add-mcq-choice-btn mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all" data-question-id="${questionCount}">
-                    Ajouter un Choix
+                <button type="button" class="add-mcq-choice-btn mt-4 sm:w-40 group inline-flex items-center justify-center px-3 py-1.5 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${questionCount}">
+                    <div class="p-1 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
+                    </div>
+                    <span class="font-medium">Ajouter un Choix</span>
                 </button>
             </div>
         `;
@@ -287,11 +272,14 @@ document.addEventListener('DOMContentLoaded', function () {
         choiceContainer.setAttribute('id', `mcq_choice_${questionId}_${choiceCount}`);
 
         choiceContainer.innerHTML = `
-            <div class="flex justify-between items-center">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
                 <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix ${choiceCount}</h3>
-                <button type="button" class="remove-mcq-choice-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all" 
+                <button type="button" class="remove-mcq-choice-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" 
                         data-question-id="${questionId}" data-choice-id="${choiceCount}">
-                    Supprimer
+                    <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
+                        {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                    </div>
+                    <span class="font-medium">Supprimer</span>
                 </button>
             </div>
             <div>

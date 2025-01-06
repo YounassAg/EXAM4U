@@ -98,18 +98,18 @@
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-4">
                 <button type="button" id="add-question-btn" 
-                        class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 space-x-2">
-                    <div class="p-1.5 bg-blue-500/20 rounded-lg transform group-hover:scale-110 transition-transform">
+                        class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-2">
+                    <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
                         {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
                     </div>
-                    <span>Ajouter une Question</span>
+                    <span class="font-medium">Ajouter une Question</span>
                 </button>
                 <button type="submit" 
-                        class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 space-x-2">
-                    <div class="p-1.5 bg-green-500/20 rounded-lg transform group-hover:scale-110 transition-transform">
+                        class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-2">
+                    <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
                         {% include 'components/icons.html' with icon="check" class="w-4 h-4" %}
                     </div>
-                    <span>Créer l'Examen</span>
+                    <span class="font-medium">Créer l'Examen</span>
                 </button>
             </div>
         </form>
@@ -160,13 +160,13 @@ document.addEventListener('DOMContentLoaded', function () {
         questionContainer.setAttribute('id', `question_${questionCount}`);
 
         questionContainer.innerHTML = `
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
                 <h2 class="text-lg font-bold text-gray-900 dark:text-white">Question ${questionCount}</h2>
-                <button type="button" class="remove-question-btn w-full sm:w-auto group inline-flex items-center justify-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 space-x-2" data-question-id="${questionCount}">
-                    <div class="p-1.5 bg-red-500/20 rounded-lg transform group-hover:scale-110 transition-transform">
+                <button type="button" class="remove-question-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${questionCount}">
+                    <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
                         {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
                     </div>
-                    <span>Supprimer</span>
+                    <span class="font-medium">Supprimer</span>
                 </button>
             </div>
 
@@ -198,11 +198,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div class="mcq-choices-container space-y-4" id="mcq_choices_${questionCount}">
                     <input type="hidden" name="mcq_choice_count_${questionCount}" id="mcq_choice_count_${questionCount}" value="0">
                 </div>
-                <button type="button" class="add-mcq-choice-btn mt-4 w-full sm:w-auto group inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 space-x-2" data-question-id="${questionCount}">
-                    <div class="p-1.5 bg-blue-500/20 rounded-lg transform group-hover:scale-110 transition-transform">
+                <button type="button" class="add-mcq-choice-btn mt-4 sm:w-40 group inline-flex items-center justify-center px-3 py-1.5 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${questionCount}">
+                    <div class="p-1 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
                         {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
                     </div>
-                    <span>Ajouter un Choix</span>
+                    <span class="font-medium">Ajouter un Choix</span>
                 </button>
             </div>
         `;
@@ -235,14 +235,14 @@ document.addEventListener('DOMContentLoaded', function () {
             choiceContainer.setAttribute('id', `mcq_choice_${questionId}_${choiceCount}`);
 
             choiceContainer.innerHTML = `
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
                     <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix ${choiceCount}</h3>
-                    <button type="button" class="remove-mcq-choice-btn w-full sm:w-auto group inline-flex items-center justify-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 space-x-2" 
+                    <button type="button" class="remove-mcq-choice-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" 
                             data-question-id="${questionId}" data-choice-id="${choiceCount}">
-                        <div class="p-1.5 bg-red-500/20 rounded-lg transform group-hover:scale-110 transition-transform">
+                        <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
                             {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
                         </div>
-                        <span>Supprimer</span>
+                        <span class="font-medium">Supprimer</span>
                     </button>
                 </div>
                 <div>
