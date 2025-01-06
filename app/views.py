@@ -404,7 +404,7 @@ def take_exam(request, exam_id):
             attempt.status = 'completed'
             attempt.end_date = timezone.now()
             attempt.save()
-            return redirect('exam_completed', attempt_id=attempt.id)
+            return redirect('exam_completed')
     else:
         initial_responses = {
             f'question_{response.question.id}': response.response_text
@@ -568,9 +568,8 @@ def grade_attempt(request, attempt_id):
 
 @login_required
 @role_required('student')
-def exam_completed(request, attempt_id):
-    attempt = get_object_or_404(ExamAttempt, id=attempt_id, student=request.user.userprofile)
-    return render(request, 'student/exam/exam_completed.html', {'attempt': attempt})
+def exam_completed(request):
+    return render(request, 'student/exam/exam_completed.html')
 
 
 @login_required
