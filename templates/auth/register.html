@@ -3,149 +3,255 @@
 {% block title %}Inscription - Exam4U{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center py-12 px-4">
-    <div class="max-w-md w-full space-y-8">
-        <!-- Header -->
-        <div class="text-center">
-            <h2 class="text-3xl font-bold">Créer un compte</h2>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">
-                Ou <a href="{% url 'login' %}" class="text-black dark:text-white hover:underline">connectez-vous</a> si vous avez déjà un compte
-            </p>
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-white dark:bg-gray-900">
+    <!-- Animated Background -->
+    <div class="absolute inset-0 z-0">
+        <div class="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-1/4 left-1/4 w-96 h-96 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div class="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,.1)_1px,transparent_1px),linear-gradient(to_right,rgba(0,0,0,.1)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,.1)_1px,transparent_1px),linear-gradient(to_right,rgba(255,255,255,.1)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20"></div>
+    </div>
+
+    <!-- Register Form Card -->
+    <div class="relative z-10 w-full max-w-2xl">
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-200 dark:border-gray-700 rounded-2xl shadow-[0_8px_40px_-12px_rgba(0,0,0,0.2)] dark:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.3)] overflow-hidden">
+            <div class="p-6 sm:p-8">
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Créer un compte</h2>
+                    <p class="mt-3 text-gray-600 dark:text-gray-400">
+                        Ou <a href="{% url 'login' %}" class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline font-medium transition-colors">connectez-vous</a> si vous avez déjà un compte
+                    </p>
+                </div>
+
+                <!-- Registration Form -->
+                <form method="POST" class="space-y-6">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="p-4 rounded-xl bg-red-50 dark:bg-red-900/50 border border-red-200 dark:border-red-800">
+                        <ul class="list-disc list-inside text-red-600 dark:text-red-400 text-sm">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <!-- Form Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- First Name -->
+                        <div class="form-group">
+                            <label for="first_name" class="block mb-2 text-gray-700 dark:text-gray-300 font-medium">Prénom</label>
+                            <div class="relative">
+                                <input type="text" 
+                                       name="first_name" 
+                                       id="first_name" 
+                                       required
+                                       class="form-input"
+                                       placeholder="Entrez votre prénom">
+                                <div class="focus-effect"></div>
+                            </div>
+                        </div>
+
+                        <!-- Last Name -->
+                        <div class="form-group">
+                            <label for="last_name" class="block mb-2 text-gray-700 dark:text-gray-300 font-medium">Nom</label>
+                            <div class="relative">
+                                <input type="text" 
+                                       name="last_name" 
+                                       id="last_name" 
+                                       required
+                                       class="form-input"
+                                       placeholder="Entrez votre nom">
+                                <div class="focus-effect"></div>
+                            </div>
+                        </div>
+
+                        <!-- Username -->
+                        <div class="form-group">
+                            <label for="username" class="block mb-2 text-gray-700 dark:text-gray-300 font-medium">CIN / Nom d'utilisateur</label>
+                            <div class="relative">
+                                <input type="text" 
+                                       name="username" 
+                                       id="username" 
+                                       required
+                                       class="form-input"
+                                       placeholder="Entrez votre CIN">
+                                <div class="focus-effect"></div>
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="form-group">
+                            <label for="email" class="block mb-2 text-gray-700 dark:text-gray-300 font-medium">Email</label>
+                            <div class="relative">
+                                <input type="email" 
+                                       name="email" 
+                                       id="email" 
+                                       required
+                                       class="form-input"
+                                       placeholder="Entrez votre email">
+                                <div class="focus-effect"></div>
+                            </div>
+                        </div>
+
+                        <!-- Speciality -->
+                        <div class="form-group">
+                            <label for="speciality" class="block mb-2 text-gray-700 dark:text-gray-300 font-medium">Spécialité</label>
+                            <div class="relative">
+                                <select name="specialty" 
+                                        id="speciality" 
+                                        required
+                                        class="form-select">
+                                    <option value="" disabled selected>Sélectionnez une spécialité</option>
+                                    {% for specialty in specialties %}
+                                        <option value="{{ specialty.id }}">{{ specialty.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </div>
+                                <div class="focus-effect"></div>
+                            </div>
+                        </div>
+
+                        <!-- Group -->
+                        <div class="form-group">
+                            <label for="group" class="block mb-2 text-gray-700 dark:text-gray-300 font-medium">Groupe</label>
+                            <div class="relative">
+                                <select name="group" 
+                                        id="group" 
+                                        required
+                                        class="form-select">
+                                    <option value="" disabled selected>Sélectionnez un groupe</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </div>
+                                <div class="focus-effect"></div>
+                            </div>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="form-group">
+                            <label for="password1" class="block mb-2 text-gray-700 dark:text-gray-300 font-medium">Mot de passe</label>
+                            <div class="relative">
+                                <input type="password" 
+                                       name="password1" 
+                                       id="password1" 
+                                       required
+                                       class="form-input"
+                                       placeholder="Entrez votre mot de passe">
+                                <div class="focus-effect"></div>
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="form-group">
+                            <label for="password2" class="block mb-2 text-gray-700 dark:text-gray-300 font-medium">Confirmer le mot de passe</label>
+                            <div class="relative">
+                                <input type="password" 
+                                       name="password2" 
+                                       id="password2" 
+                                       required
+                                       class="form-input"
+                                       placeholder="Confirmez votre mot de passe">
+                                <div class="focus-effect"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" 
+                            class="w-full py-3 px-6 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 dark:hover:from-blue-600 dark:hover:to-purple-600 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 transform hover:-translate-y-0.5 transition-all duration-300">
+                        Créer un compte
+                    </button>
+                </form>
+            </div>
         </div>
-
-        <!-- Registration Form -->
-        <form class="mt-8 space-y-6" method="POST">
-            {% csrf_token %}
-
-            {% if form.errors %}
-            <div class="rounded-lg bg-red-50 dark:bg-red-900/50 p-4 text-red-600 dark:text-red-200">
-                <ul class="list-disc list-inside">
-                    {% for field in form %}
-                        {% for error in field.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
-
-            <div class="space-y-4">
-                <!-- First Name -->
-                <div>
-                    <label for="first_name" class="form-label">
-                        Prénom
-                    </label>
-                    <input type="text" name="first_name" id="first_name" required
-                           class="form-input">
-                </div>
-
-                <!-- Last Name -->
-                <div>
-                    <label for="last_name" class="form-label">
-                        Nom
-                    </label>
-                    <input type="text" name="last_name" id="last_name" required
-                           class="form-input">
-                </div>
-
-                <!-- Username -->
-                <div>
-                    <label for="username" class="form-label">
-                        CIN / Nom d'utilisateur
-                    </label>
-                    <input type="text" name="username" id="username" required
-                           class="form-input">
-                </div>
-
-                <!-- Email -->
-                <div>
-                    <label for="email" class="form-label">
-                        Email
-                    </label>
-                    <input type="email" name="email" id="email" required
-                           class="form-input">
-                </div>
-
-                <!-- Speciality -->
-                <div>
-                    <label for="speciality" class="form-label">
-                        Spécialité
-                    </label>
-                    <select name="specialty" id="speciality" required
-                            class="form-select">
-                        <option value="">Sélectionnez une spécialité</option>
-                        {% for specialty in specialties %}
-                            <option value="{{ specialty.id }}">{{ specialty.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- Group -->
-                <div>
-                    <label for="group" class="form-label">
-                        Groupe
-                    </label>
-                    <select name="group" id="group" required
-                            class="form-select">
-                        <option value="">Sélectionnez un groupe</option>
-                    </select>
-                </div>
-
-                <!-- Password -->
-                <div>
-                    <label for="password1" class="form-label">
-                        Mot de passe
-                    </label>
-                    <input type="password" name="password1" id="password1" required
-                           class="form-input">
-                </div>
-
-                <!-- Confirm Password -->
-                <div>
-                    <label for="password2" class="form-label">
-                        Confirmer le mot de passe
-                    </label>
-                    <input type="password" name="password2" id="password2" required
-                           class="form-input">
-                </div>
-            </div>
-
-            <div>
-                <button type="submit" class="btn-primary w-full">
-                    Créer un compte
-                </button>
-            </div>
-        </form>
-
-        <!-- Dynamic Group Loading Script -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const specialtySelect = document.getElementById('speciality');
-        const groupSelect = document.getElementById('group');
-
-        specialtySelect.addEventListener('change', function() {
-            const specialtyId = this.value;
-
-            fetch(`/get-groups/${specialtyId}/`)
-                .then(response => response.json())
-                .then(data => {
-                    // Clear existing options
-                    groupSelect.innerHTML = '<option value="" class="bg-gray-900">Sélectionnez un groupe</option>';
-                    
-                    // Populate new options
-                    data.forEach(group => {
-                        const option = document.createElement('option');
-                        option.value = group.id;
-                        option.textContent = `${group.group_code} (${group.year})`;
-                        groupSelect.appendChild(option);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching groups:', error);
-                });
-        });
-    });
-        </script>
     </div>
 </div>
+
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+.animate-pulse {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.delay-1000 {
+    animation-delay: 1s;
+}
+
+/* Form styles */
+.form-input,
+.form-select {
+    @apply w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-300;
+}
+
+.form-select {
+    @apply appearance-none pr-10;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+/* Remove default arrow in IE */
+.form-select::-ms-expand {
+    display: none;
+}
+
+.focus-effect {
+    @apply absolute inset-0 rounded-xl bg-gradient-to-r from-blue-600/10 to-purple-600/10 dark:from-blue-400/5 dark:to-purple-400/5 opacity-0 transition-opacity duration-300 pointer-events-none;
+}
+
+/* Focus effects */
+.form-input:focus + .focus-effect,
+.form-select:focus + div + .focus-effect {
+    @apply opacity-100;
+}
+
+/* Dark mode selection color */
+@media (prefers-color-scheme: dark) {
+    ::selection {
+        background-color: rgba(96, 165, 250, 0.2);
+        color: #fff;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const specialtySelect = document.getElementById('speciality');
+    const groupSelect = document.getElementById('group');
+
+    specialtySelect.addEventListener('change', function() {
+        const specialtyId = this.value;
+
+        fetch(`/get-groups/${specialtyId}/`)
+            .then(response => response.json())
+            .then(data => {
+                groupSelect.innerHTML = '<option value="" disabled selected>Sélectionnez un groupe</option>';
+                
+                data.forEach(group => {
+                    const option = document.createElement('option');
+                    option.value = group.id;
+                    option.textContent = `${group.group_code} (${group.year})`;
+                    groupSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching groups:', error);
+            });
+    });
+});
+</script>
 {% endblock %}

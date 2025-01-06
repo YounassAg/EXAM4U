@@ -3,18 +3,23 @@
 {% block title %}Create Exam - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+<div class="flex min-h-screen bg-white dark:bg-gray-900">
     {% include 'components/teacher_sidebar.html' %}
 
-    <div class="flex-1 space-y-8 p-8">
+    <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
         <!-- Title Section -->
-        <div class="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-xl"></div>
-            <div class="relative z-10 flex items-center space-x-4">
-                {% include 'components/icons.html' with icon="document" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
-                <div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Créer un Nouvel Examen</h1>
-                    <p class="text-gray-600 dark:text-gray-400 mt-2">Configurez les détails et les questions de votre examen</p>
+        <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div class="relative z-10 p-6">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        {% include 'components/icons.html' with icon="document" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                    </div>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Créer un Nouvel Examen</h1>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Configurez les détails et les questions de votre examen</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -24,24 +29,24 @@
             {% csrf_token %}
             <input type="hidden" name="question_count" id="question_count" value="0">
 
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 space-y-6">
+            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 space-y-6">
                 <!-- Basic Info Section -->
                 <div>
                     <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titre de l'Examen</label>
                     <input type="text" name="title" id="title" required 
-                           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                           class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
                 </div>
 
                 <div>
                     <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
                     <textarea name="description" id="description" rows="3" 
-                              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                              class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300"></textarea>
                 </div>
 
                 <div>
                     <label for="course" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cours</label>
                     <select name="course" id="course" required 
-                            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
                         {% for course in courses %}
                             <option value="{{ course.id }}">{{ course.title }}</option>
                         {% endfor %}
@@ -51,36 +56,36 @@
                 <div>
                     <label for="group" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Groupe</label>
                     <select name="group" id="group" required 
-                            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
                         {% for group in groups %}
                             <option value="{{ group.id }}">{{ group }}</option>
                         {% endfor %}
                     </select>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                         <label for="duration" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Durée (minutes)</label>
                         <input type="number" name="duration" id="duration" required 
-                               class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                               class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
                     </div>
 
                     <div>
                         <label for="max_attempts" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre de Tentatives</label>
                         <input type="number" name="max_attempts" id="max_attempts" required 
-                               class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                               class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
                     </div>
 
                     <div>
                         <label for="start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date de Début</label>
                         <input type="datetime-local" name="start_date" id="start_date" required 
-                               class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                               class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
                     </div>
 
                     <div>
                         <label for="end_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date de Fin</label>
                         <input type="datetime-local" name="end_date" id="end_date" required 
-                               class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                               class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
                     </div>
                 </div>
             </div>
@@ -91,25 +96,40 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex space-x-4">
+            <div class="flex flex-col sm:flex-row gap-4">
                 <button type="button" id="add-question-btn" 
-                        class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all space-x-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
+                        class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 space-x-2">
+                    <div class="p-1.5 bg-blue-500/20 rounded-lg transform group-hover:scale-110 transition-transform">
+                        {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
+                    </div>
                     <span>Ajouter une Question</span>
                 </button>
                 <button type="submit" 
-                        class="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all space-x-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
+                        class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 space-x-2">
+                    <div class="p-1.5 bg-green-500/20 rounded-lg transform group-hover:scale-110 transition-transform">
+                        {% include 'components/icons.html' with icon="check" class="w-4 h-4" %}
+                    </div>
                     <span>Créer l'Examen</span>
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+.animate-pulse {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.delay-1000 {
+    animation-delay: 1s;
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -136,14 +156,17 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('question_count').value = questionCount;
 
         const questionContainer = document.createElement('div');
-        questionContainer.classList.add('bg-white', 'dark:bg-gray-800', 'rounded-xl', 'shadow-lg', 'border', 'border-gray-200', 'dark:border-gray-700', 'p-6', 'space-y-6');
+        questionContainer.classList.add('bg-white/80', 'dark:bg-gray-800/80', 'backdrop-blur-lg', 'rounded-2xl', 'shadow-lg', 'border', 'border-gray-200', 'dark:border-gray-700', 'p-6', 'space-y-6');
         questionContainer.setAttribute('id', `question_${questionCount}`);
 
         questionContainer.innerHTML = `
-            <div class="flex justify-between items-center">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h2 class="text-lg font-bold text-gray-900 dark:text-white">Question ${questionCount}</h2>
-                <button type="button" class="remove-question-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all" data-question-id="${questionCount}">
-                    Supprimer
+                <button type="button" class="remove-question-btn w-full sm:w-auto group inline-flex items-center justify-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 space-x-2" data-question-id="${questionCount}">
+                    <div class="p-1.5 bg-red-500/20 rounded-lg transform group-hover:scale-110 transition-transform">
+                        {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                    </div>
+                    <span>Supprimer</span>
                 </button>
             </div>
 
@@ -151,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <label for="question_type_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type de Question</label>
                 <select name="question_type_${questionCount}" id="question_type_${questionCount}" required 
                         onchange="handleQuestionTypeChange(${questionCount})"
-                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
                     <option value="MCQ">QCM</option>
                     <option value="short_answer">Réponse Courte</option>
                     <option value="open">Question Ouverte</option>
@@ -161,13 +184,13 @@ document.addEventListener('DOMContentLoaded', function () {
             <div>
                 <label for="question_wording_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Énoncé</label>
                 <textarea name="question_wording_${questionCount}" id="question_wording_${questionCount}" rows="3" required
-                          class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                          class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300"></textarea>
             </div>
 
             <div>
                 <label for="question_points_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Points</label>
                 <input type="number" name="question_points_${questionCount}" id="question_points_${questionCount}" required 
-                       class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                       class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
             </div>
 
             <!-- MCQ Choices Section -->
@@ -175,8 +198,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div class="mcq-choices-container space-y-4" id="mcq_choices_${questionCount}">
                     <input type="hidden" name="mcq_choice_count_${questionCount}" id="mcq_choice_count_${questionCount}" value="0">
                 </div>
-                <button type="button" class="add-mcq-choice-btn mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all" data-question-id="${questionCount}">
-                    Ajouter un Choix
+                <button type="button" class="add-mcq-choice-btn mt-4 w-full sm:w-auto group inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 space-x-2" data-question-id="${questionCount}">
+                    <div class="p-1.5 bg-blue-500/20 rounded-lg transform group-hover:scale-110 transition-transform">
+                        {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
+                    </div>
+                    <span>Ajouter un Choix</span>
                 </button>
             </div>
         `;
@@ -187,8 +213,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Handle removing questions
     document.addEventListener('click', function(event) {
-        if (event.target.classList.contains('remove-question-btn')) {
-            const questionId = event.target.getAttribute('data-question-id');
+        if (event.target.classList.contains('remove-question-btn') || event.target.closest('.remove-question-btn')) {
+            const button = event.target.classList.contains('remove-question-btn') ? event.target : event.target.closest('.remove-question-btn');
+            const questionId = button.getAttribute('data-question-id');
             const questionElement = document.getElementById(`question_${questionId}`);
             questionElement.remove();
         }
@@ -196,28 +223,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Handle adding MCQ choices
     document.addEventListener('click', function(event) {
-        if (event.target.classList.contains('add-mcq-choice-btn')) {
-            const questionId = event.target.getAttribute('data-question-id');
+        if (event.target.classList.contains('add-mcq-choice-btn') || event.target.closest('.add-mcq-choice-btn')) {
+            const button = event.target.classList.contains('add-mcq-choice-btn') ? event.target : event.target.closest('.add-mcq-choice-btn');
+            const questionId = button.getAttribute('data-question-id');
             const choiceCountElem = document.getElementById(`mcq_choice_count_${questionId}`);
             let choiceCount = parseInt(choiceCountElem.value) + 1;
             choiceCountElem.value = choiceCount;
 
             const choiceContainer = document.createElement('div');
-            choiceContainer.classList.add('bg-gray-50', 'dark:bg-gray-700', 'rounded-lg', 'p-4', 'space-y-4', 'mb-4');
+            choiceContainer.classList.add('bg-gray-50/80', 'dark:bg-gray-700/50', 'backdrop-blur-sm', 'rounded-xl', 'p-4', 'space-y-4', 'mb-4');
             choiceContainer.setAttribute('id', `mcq_choice_${questionId}_${choiceCount}`);
 
             choiceContainer.innerHTML = `
-                <div class="flex justify-between items-center">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix ${choiceCount}</h3>
-                    <button type="button" class="remove-mcq-choice-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all" 
+                    <button type="button" class="remove-mcq-choice-btn w-full sm:w-auto group inline-flex items-center justify-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 space-x-2" 
                             data-question-id="${questionId}" data-choice-id="${choiceCount}">
-                        Supprimer
+                        <div class="p-1.5 bg-red-500/20 rounded-lg transform group-hover:scale-110 transition-transform">
+                            {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                        </div>
+                        <span>Supprimer</span>
                     </button>
                 </div>
                 <div>
                     <label for="mcq_choice_text_${questionId}_${choiceCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Texte du Choix</label>
                     <input type="text" name="mcq_choice_text_${questionId}_${choiceCount}" id="mcq_choice_text_${questionId}_${choiceCount}" required 
-                           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                           class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
                 </div>
                 <div class="flex items-center space-x-2">
                     <input type="checkbox" name="mcq_choice_correct_${questionId}_${choiceCount}" id="mcq_choice_correct_${questionId}_${choiceCount}"
@@ -235,9 +266,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Handle removing MCQ choices
     document.addEventListener('click', function(event) {
-        if (event.target.classList.contains('remove-mcq-choice-btn')) {
-            const questionId = event.target.getAttribute('data-question-id');
-            const choiceId = event.target.getAttribute('data-choice-id');
+        if (event.target.classList.contains('remove-mcq-choice-btn') || event.target.closest('.remove-mcq-choice-btn')) {
+            const button = event.target.classList.contains('remove-mcq-choice-btn') ? event.target : event.target.closest('.remove-mcq-choice-btn');
+            const questionId = button.getAttribute('data-question-id');
+            const choiceId = button.getAttribute('data-choice-id');
             const choiceElement = document.getElementById(`mcq_choice_${questionId}_${choiceId}`);
             choiceElement.remove();
         }

@@ -3,61 +3,92 @@
 {% block title %}Modifier le Cours - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+<div class="flex min-h-screen bg-white dark:bg-gray-900">
     {% include 'components/teacher_sidebar.html' %}
 
-    <div class="flex-1 p-8 space-y-8">
+    <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
         <!-- Title Section -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Modifier le Cours</h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">Modifiez les détails de votre cours</p>
+        <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div class="relative z-10 p-6">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        {% include 'components/icons.html' with icon="academic-cap" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                    </div>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Modifier le Cours</h1>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Modifiez les détails de votre cours</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Form Section -->
         <form method="post" class="space-y-6">
             {% csrf_token %}
             
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 space-y-6">
-                <div>
-                    <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titre du Cours</label>
-                    <input type="text" name="title" id="title" value="{{ course.title }}" required 
-                           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
+            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 space-y-6">
+                <div class="space-y-6">
+                    <div>
+                        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titre du Cours</label>
+                        <input type="text" name="title" id="title" value="{{ course.title }}" required 
+                               class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300">
+                    </div>
 
-                <div>
-                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
-                    <textarea name="description" id="description" rows="3" 
-                              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ course.description }}</textarea>
-                </div>
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+                        <textarea name="description" id="description" rows="3" 
+                                  class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300">{{ course.description }}</textarea>
+                    </div>
 
-                <div>
-                    <label for="specialty" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Spécialité</label>
-                    <select name="specialty" id="specialty" required 
-                            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        {% for specialty in specialties %}
-                            <option value="{{ specialty.id }}" {% if specialty.id == course.specialty.id %}selected{% endif %}>
-                                {{ specialty.name }}
-                            </option>
-                        {% endfor %}
-                    </select>
+                    <div>
+                        <label for="specialty" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Spécialité</label>
+                        <select name="specialty" id="specialty" required 
+                                class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300">
+                            {% for specialty in specialties %}
+                                <option value="{{ specialty.id }}" {% if specialty.id == course.specialty.id %}selected{% endif %}>
+                                    {{ specialty.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex justify-end space-x-4">
+            <div class="flex flex-col sm:flex-row justify-end gap-4">
                 <a href="{% url 'teacher_courses' %}" 
-                   class="inline-flex items-center px-6 py-3 border border-gray-300 dark:border-gray-600 shadow-sm text-base font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    Annuler
+                   class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 shadow-sm text-base font-medium rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300">
+                    <div class="p-1.5 bg-gradient-to-br from-gray-500/10 to-gray-600/10 dark:from-gray-400/5 dark:to-gray-500/5 rounded-lg transform group-hover:scale-110 transition-transform">
+                        {% include 'components/icons.html' with icon="x" class="w-4 h-4" %}
+                    </div>
+                    <span class="ml-2">Annuler</span>
                 </a>
                 <button type="submit" 
-                        class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    Enregistrer les Modifications
+                        class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
+                    <div class="p-1.5 bg-blue-500/20 rounded-lg transform group-hover:scale-110 transition-transform">
+                        {% include 'components/icons.html' with icon="check" class="w-4 h-4" %}
+                    </div>
+                    <span class="ml-2">Enregistrer les Modifications</span>
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+.animate-pulse {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.delay-1000 {
+    animation-delay: 1s;
+}
+</style>
 {% endblock %} 

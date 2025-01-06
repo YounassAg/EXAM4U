@@ -4,131 +4,166 @@
 {% block title %}Tentatives d'Examen - {{ exam.title }} - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+<div class="flex min-h-screen bg-white dark:bg-gray-900">
     {% include 'components/teacher_sidebar.html' %}
-    <div class="flex-1 p-8 space-y-8">
+    
+    <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
         <!-- Title Section -->
-        <div class="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-xl"></div>
-            <div class="relative z-10 flex items-center space-x-4">
-                {% include 'components/icons.html' with icon="document" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
-                <div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{{ exam.title }}</h1>
-                    <p class="text-gray-600 dark:text-gray-400 mt-2">Tentatives des étudiants</p>
-                </div>
-            </div>
-            <form method="get" action="{% url 'download_exam_results' exam.id %}" class="mt-6 space-y-4">
-                <div class="flex flex-col space-y-2">
-                    <label for="format" class="text-sm font-medium text-gray-700 dark:text-gray-300">Sélectionnez le format de téléchargement:</label>
-                    <select name="format" id="format" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="full">Résultats détaillés (détails complets)</option>
-                        <option value="generic">Résultats génériques (Question 1, Question 2, ...)</option>
-                        <option value="zip">Tous les résultats des étudiants (ZIP)</option> <!-- New Option -->
-                    </select>
-                </div>
-                <button type="submit" class="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-lg p-2 transition-all duration-300">
-                    <div class="p-2 bg-blue-100 dark:bg-gray-800/50 rounded-lg">
-                        {% include 'components/icons.html' with icon="download" class="w-4 h-4" %}
+        <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div class="relative z-10 p-6">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        {% include 'components/icons.html' with icon="document" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
                     </div>
-                    <span class="font-medium">Télécharger</span>
-                </button>
-            </form>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">{{ exam.title }}</h1>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Tentatives des étudiants</p>
+                    </div>
+                </div>
+
+                <form method="get" action="{% url 'download_exam_results' exam.id %}" class="mt-6 space-y-4">
+                    <div class="flex flex-col space-y-2">
+                        <label for="format" class="text-sm font-medium text-gray-700 dark:text-gray-300">Format de téléchargement:</label>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <select name="format" id="format" class="flex-1 px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
+                                <option value="full">Résultats détaillés (détails complets)</option>
+                                <option value="generic">Résultats génériques (Question 1, Question 2, ...)</option>
+                                <option value="zip">Tous les résultats des étudiants (ZIP)</option>
+                            </select>
+                            <button type="submit" class="inline-flex items-center justify-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
+                                <div class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg">
+                                    {% include 'components/icons.html' with icon="download" class="w-4 h-4" %}
+                                </div>
+                                <span class="font-medium">Télécharger</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- Attempts Table -->
-        <div class="rounded-xl shadow-lg overflow-hidden" style="background-color: var(--card-bg); border: 1px solid var(--border-color)">
-            <table class="min-w-full divide-y" style="border-color: var(--border-color)">
-
-                <thead style="background-color: var(--bg-secondary)">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: var(--text-secondary)">
-                            Étudiant
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: var(--text-secondary)">
-                            Date
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: var(--text-secondary)">
-                            Statut
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: var(--text-secondary)">
-                            Type d'Examen
-                        </th>                        
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style="color: var(--text-secondary)">
-                            Note
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider" style="color: var(--text-secondary)">
-                            Actions
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y" style="border-color: var(--border-color)" id="attempts-table-body">
-                    {% for attempt in attempts %}
-                        <tr data-attempt-id="{{ attempt.id }}" class="transition-colors duration-200 hover:bg-opacity-50" style="background-color: var(--card-bg)">
-                            <td class="px-6 py-4">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10">
-                                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center text-white font-semibold">
-                                            {{ attempt.student.user.username|make_list|first|upper }}
-                                        </div>
-                                    </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium" style="color: var(--text-primary)">
-                                            {{ attempt.student.user.get_full_name }}
-                                        </div>
-                                        <div class="text-sm" style="color: var(--text-secondary)">
-                                            {{ attempt.student.user.username }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm" style="color: var(--text-secondary)">
-                                    {{ attempt.start_date|date:"d/m/Y" }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    {% if attempt.status == 'completed' %}bg-green-600/10 text-green-500
-                                    {% elif attempt.status == 'in_progress' %}bg-yellow-600/10 text-yellow-500
-                                    {% else %}bg-gray-600/10 text-gray-500{% endif %}">
-                                    {{ attempt.get_status_display }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm" style="color: var(--text-secondary)">
-                                    {{ attempt.get_type_display }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm" style="color: var(--text-secondary)">
-                                    {% if attempt.grade %}
-                                        {{ attempt.grade }}/20
-                                    {% else %}
-                                        Non noté
-                                    {% endif %}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <a href="{% url 'grade_attempt' attempt.id %}" 
-                                   class="inline-flex items-center space-x-2 text-green-600 dark:text-green-400 hover:shadow-[0_0_15px_rgba(34,197,94,0.25)] rounded-lg p-2 transition-all duration-300">
-                                    <div class="p-2 bg-green-50 dark:bg-green-800/50 rounded-lg">
-                                        {% include 'components/icons.html' with icon="clipboard-check" class="w-4 h-4" %}
-                                    </div>
-                                    <span class="font-medium">
-                                        {% if attempt.grade is not None %}
-                                            Modifier la correction
-                                        {% else %}
-                                            Corriger
-                                        {% endif %}
-                                    </span>
-                                </a>
-                            </td>
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50/80 dark:bg-gray-700/80">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Étudiant
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Date
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Statut
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Type d'Examen
+                            </th>                        
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Note
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Actions
+                            </th>
                         </tr>
-
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="attempts-table-body">
+                        {% for attempt in attempts %}
+                            <tr data-attempt-id="{{ attempt.id }}" class="transition-all duration-300 hover:bg-gray-50/80 dark:hover:bg-gray-700/80">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 flex items-center justify-center text-white font-semibold">
+                                                {{ attempt.student.user.first_name|make_list|first|upper }}
+                                            </div>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                                {{ attempt.student.user.get_full_name }}
+                                            </div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">
+                                                {{ attempt.student.user.username }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                                        {{ attempt.start_date|date:"d/m/Y" }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if attempt.status == 'completed' %}bg-green-100 dark:bg-green-800/30 text-green-600 dark:text-green-400
+                                        {% elif attempt.status == 'in_progress' %}bg-yellow-100 dark:bg-yellow-800/30 text-yellow-600 dark:text-yellow-400
+                                        {% else %}bg-gray-100 dark:bg-gray-800/30 text-gray-600 dark:text-gray-400{% endif %}">
+                                        {{ attempt.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                                        {{ attempt.get_type_display }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                                        {% if attempt.grade %}
+                                            {{ attempt.grade }}/20
+                                        {% else %}
+                                            Non noté
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-right whitespace-nowrap">
+                                    <a href="{% url 'grade_attempt' attempt.id %}" 
+                                       class="inline-flex items-center space-x-2 text-green-600 dark:text-green-400 hover:shadow-[0_0_15px_rgba(34,197,94,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
+                                        <div class="p-2 bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-400/5 dark:to-emerald-400/5 rounded-lg">
+                                            {% include 'components/icons.html' with icon="clipboard-check" class="w-4 h-4" %}
+                                        </div>
+                                        <span class="font-medium">
+                                            {% if attempt.grade is not None %}
+                                                Modifier
+                                            {% else %}
+                                                Corriger
+                                            {% endif %}
+                                        </span>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center">
+                                    <div class="flex flex-col items-center justify-center space-y-4">
+                                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 flex items-center justify-center">
+                                            {% include 'components/icons.html' with icon="information" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                                        </div>
+                                        <p class="text-gray-500 dark:text-gray-400">Aucune tentative d'examen trouvée</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+.animate-pulse {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.delay-1000 {
+    animation-delay: 1s;
+}
+</style>
 {% endblock %}

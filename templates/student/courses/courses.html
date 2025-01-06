@@ -3,56 +3,61 @@
 {% block title %}Mes Cours - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+<div class="flex min-h-screen bg-white dark:bg-gray-900">
     {% include 'components/student_sidebar.html' %}
     
-    <div class="flex-1 p-8 space-y-8">
+    <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
         <!-- Title Section -->
-        <div class="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-xl"></div>
-            <div class="relative z-10 flex items-center space-x-4">
-                {% include 'components/icons.html' with icon="academic-cap" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
-                <div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Mes Cours</h1>
-                    <p class="text-gray-600 dark:text-gray-400 mt-2">Consultez vos cours et accédez aux examens</p>
+        <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div class="relative z-10 p-6 md:p-8">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        {% include 'components/icons.html' with icon="academic-cap" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                    </div>
+                    <div>
+                        <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Mes Cours</h1>
+                        <p class="mt-2 text-base md:text-lg text-gray-600 dark:text-gray-400">Consultez vos cours et accédez aux examens</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Courses Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {% for course in courses %}
-                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300">
-                    <div class="space-y-4">
+                <div class="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300">
+                    <div class="p-4 md:p-6 space-y-4">
                         <!-- Course Title -->
                         <div class="flex items-center space-x-3">
-                            <div class="p-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                            <div class="p-2.5 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
                                 {% include 'components/icons.html' with icon="presentation" class="w-6 h-6 text-blue-600 dark:text-blue-400" %}
                             </div>
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ course.title }}</h3>
+                            <h3 class="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">{{ course.title }}</h3>
                         </div>
 
                         <!-- Course Info -->
                         <div class="space-y-3">
-                            <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                                <div class="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg mr-2.5">
+                            <div class="flex items-center p-2 space-x-3 bg-gray-50/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
+                                <div class="p-1.5 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
                                     {% include 'components/icons.html' with icon="calendar" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
                                 </div>
-                                <span>{{ course.duration }} heures</span>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">{{ course.duration }} heures</span>
                             </div>
-                            <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                                <div class="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg mr-2.5">
+                            <div class="flex items-center p-2 space-x-3 bg-gray-50/80 dark:bg-gray-800/50 backdrop-blur-sm rounded-lg hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
+                                <div class="p-1.5 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
                                     {% include 'components/icons.html' with icon="clipboard" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
                                 </div>
-                                <span>{{ course.exams.count }} examens</span>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">{{ course.exams.count }} examens</span>
                             </div>
                         </div>
 
                         <!-- View Exams Button -->
-                        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <div class="pt-4 mt-2 border-t border-gray-200 dark:border-gray-700">
                             <a href="{% url 'student_exam_list' %}" 
-                               class="w-full inline-flex items-center justify-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-lg p-2 transition-all duration-300">
-                                <div class="p-2 bg-blue-100 dark:bg-gray-800/50 rounded-lg">
+                               class="group/btn w-full inline-flex items-center justify-center space-x-2 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg p-2 transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5">
+                                <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
                                     {% include 'components/icons.html' with icon="eye" class="w-4 h-4" %}
                                 </div>
                                 <span class="font-medium">Voir les examens</span>
@@ -61,12 +66,12 @@
                     </div>
                 </div>
             {% empty %}
-                <div class="col-span-full bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+                <div class="col-span-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 md:p-8 hover:shadow-xl hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300">
                     <div class="flex flex-col items-center justify-center text-center space-y-4">
-                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 flex items-center justify-center">
                             {% include 'components/icons.html' with icon="academic-cap" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
                         </div>
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Aucun cours disponible</h3>
+                        <h3 class="text-lg font-medium bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Aucun cours disponible</h3>
                         <p class="text-gray-600 dark:text-gray-400">Vous n'êtes inscrit à aucun cours pour le moment</p>
                     </div>
                 </div>
@@ -74,4 +79,19 @@
         </div>
     </div>
 </div>
+
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+.animate-pulse {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.delay-1000 {
+    animation-delay: 1s;
+}
+</style>
 {% endblock %}

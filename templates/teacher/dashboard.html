@@ -3,24 +3,25 @@
 {% block title %}Tableau de Bord - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+<div class="flex min-h-screen bg-white dark:bg-gray-900">
     {% include 'components/teacher_sidebar.html' %}
 
     <!-- Main Content Area -->
-    <div class="flex-1 p-8 space-y-8">
+    <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
         <!-- Welcome Banner -->
-        <div class="relative overflow-hidden rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-xl"></div>
-            <div class="relative z-10 p-8">
+        <div class="relative overflow-hidden rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div class="relative z-10 p-6 md:p-8">
                 <div class="flex items-center space-x-4">
-                    <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10">
+                    <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
                         {% include 'components/icons.html' with icon="user" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
                     </div>
                     <div>
-                        <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
                             Bienvenue, Prof. {{ user.userprofile.last_name }}
                         </h1>
-                        <p class="mt-2 text-lg text-gray-600 dark:text-gray-400">
+                        <p class="mt-2 text-base md:text-lg text-gray-600 dark:text-gray-400">
                             {% if active_exams > 0 %}
                                 Vous avez {{ active_exams }} examen{{ active_exams|pluralize }} actif{{ active_exams|pluralize }} en cours
                             {% else %}
@@ -32,16 +33,15 @@
             </div>
         </div>
 
-
         <!-- Upcoming Exams & Recent Activity -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <!-- Upcoming Exams -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
                 <div class="p-6">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Examens à Venir</h3>
-                    <div class="space-y-4">
+                    <div class="space-y-3">
                         {% for exam in upcoming_exams %}
-                        <div class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div class="flex items-center p-4 bg-gray-50/80 dark:bg-gray-700/80 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-600">
                             <div class="flex-1">
                                 <p class="font-medium text-gray-900 dark:text-white">{{ exam.title }}</p>
                                 <p class="text-sm text-gray-600 dark:text-gray-400">{{ exam.group }}</p>
@@ -56,8 +56,8 @@
                             </div>
                         </div>
                         {% empty %}
-                        <div class="text-center text-gray-500 dark:text-gray-400">
-                            <p>Aucun examen à venir</p>
+                        <div class="text-center p-4 bg-gray-50/80 dark:bg-gray-700/80 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600">
+                            <p class="text-gray-500 dark:text-gray-400">Aucun examen à venir</p>
                         </div>
                         {% endfor %}
                     </div>
@@ -65,12 +65,12 @@
             </div>
 
             <!-- Recent Activity -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
                 <div class="p-6">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Activité Récente</h3>
-                    <div class="space-y-4">
+                    <div class="space-y-3">
                         {% for activity in recent_activities %}
-                        <div class="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div class="flex items-center p-4 bg-gray-50/80 dark:bg-gray-700/80 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-600">
                             <div class="flex-shrink-0">
                                 {% if activity.type == 'exam_completed' %}
                                     {% include 'components/icons.html' with icon="check" class="w-6 h-6 text-green-600 dark:text-green-400" %}
@@ -93,8 +93,8 @@
                             </div>
                         </div>
                         {% empty %}
-                        <div class="text-center text-gray-500 dark:text-gray-400">
-                            <p>Aucune activité récente</p>
+                        <div class="text-center p-4 bg-gray-50/80 dark:bg-gray-700/80 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600">
+                            <p class="text-gray-500 dark:text-gray-400">Aucune activité récente</p>
                         </div>
                         {% endfor %}
                     </div>
@@ -103,4 +103,19 @@
         </div>
     </div>
 </div>
+
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+.animate-pulse {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.delay-1000 {
+    animation-delay: 1s;
+}
+</style>
 {% endblock %}   

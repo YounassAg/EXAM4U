@@ -3,63 +3,115 @@
 {% block title %}Connexion - Exam4U{% endblock %}
 
 {% block content %}
-<div class="min-h-screen flex items-center justify-center py-12 px-4">
-    <div class="max-w-md w-full space-y-8">
-        <!-- Header -->
-        <div class="text-center">
-            <h2 class="text-3xl font-bold">Se connecter</h2>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">
-                Ou <a href="{% url 'register' %}" class="text-black dark:text-white hover:underline">créez un compte</a> si vous n'en avez pas
-            </p>
-        </div>
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-white dark:bg-gray-900">
+    <!-- Animated Background -->
+    <div class="absolute inset-0 z-0">
+        <div class="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-1/4 left-1/4 w-96 h-96 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div class="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,.1)_1px,transparent_1px),linear-gradient(to_right,rgba(0,0,0,.1)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,.1)_1px,transparent_1px),linear-gradient(to_right,rgba(255,255,255,.1)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20"></div>
+    </div>
 
-        <!-- Login Form -->
-        <form class="mt-8 space-y-6" method="POST">
-            {% csrf_token %}
+    <!-- Login Form Card -->
+    <div class="relative z-10 w-full max-w-md">
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border border-gray-200 dark:border-gray-700 rounded-2xl shadow-[0_8px_40px_-12px_rgba(0,0,0,0.2)] dark:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.3)] overflow-hidden">
+            <div class="p-6 sm:p-8">
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Se connecter</h2>
+                    <p class="mt-3 text-gray-600 dark:text-gray-400">
+                        Ou <a href="{% url 'register' %}" class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline font-medium transition-colors">créez un compte</a> si vous n'en avez pas
+                    </p>
+                </div>
 
-            {% if form.errors %}
-            <div class="rounded-lg bg-red-50 dark:bg-red-900/50 p-4 text-red-600 dark:text-red-200">
-                <ul class="list-disc list-inside">
-                    {% for field in form %}
-                        {% for error in field.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    {% endfor %}
-                    {% if form.non_field_errors %}
-                        {% for error in form.non_field_errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
+                <!-- Login Form -->
+                <form method="POST" class="space-y-6">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="p-4 rounded-xl bg-red-50 dark:bg-red-900/50 border border-red-200 dark:border-red-800">
+                        <ul class="list-disc list-inside text-red-600 dark:text-red-400 text-sm">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% if form.non_field_errors %}
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endif %}
+                        </ul>
+                    </div>
                     {% endif %}
-                </ul>
-            </div>
-            {% endif %}
 
-            <div class="space-y-4">
-                <!-- Username -->
-                <div>
-                    <label for="{{ form.username.id_for_label }}" class="form-label">
-                        Nom d'utilisateur
-                    </label>
-                    <input type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" required
-                           class="form-input">
-                </div>
+                    <!-- Username -->
+                    <div class="form-group">
+                        <label for="{{ form.username.id_for_label }}" class="block mb-2">
+                            <span class="text-gray-700 dark:text-gray-300 font-medium">Nom d'utilisateur</span>
+                        </label>
+                        <div class="relative">
+                            <input type="text" 
+                                   name="{{ form.username.html_name }}" 
+                                   id="{{ form.username.id_for_label }}" 
+                                   required
+                                   class="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-300"
+                                   placeholder="Entrez votre nom d'utilisateur">
+                            <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-600/10 to-purple-600/10 dark:from-blue-400/5 dark:to-purple-400/5 opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+                        </div>
+                    </div>
 
-                <!-- Password -->
-                <div>
-                    <label for="{{ form.password.id_for_label }}" class="form-label">
-                        Mot de passe
-                    </label>
-                    <input type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}" required
-                           class="form-input">
-                </div>
-            </div>
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label for="{{ form.password.id_for_label }}" class="block mb-2">
+                            <span class="text-gray-700 dark:text-gray-300 font-medium">Mot de passe</span>
+                        </label>
+                        <div class="relative">
+                            <input type="password" 
+                                   name="{{ form.password.html_name }}" 
+                                   id="{{ form.password.id_for_label }}" 
+                                   required
+                                   class="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-300"
+                                   placeholder="Entrez votre mot de passe">
+                            <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-600/10 to-purple-600/10 dark:from-blue-400/5 dark:to-purple-400/5 opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+                        </div>
+                    </div>
 
-            <div>
-                <button type="submit" class="btn-primary w-full">
-                    Se connecter
-                </button>
+                    <!-- Submit Button -->
+                    <button type="submit" 
+                            class="w-full py-3 px-6 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 dark:hover:from-blue-600 dark:hover:to-purple-600 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 transform hover:-translate-y-0.5 transition-all duration-300">
+                        Se connecter
+                    </button>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 </div>
+
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+.animate-pulse {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.delay-1000 {
+    animation-delay: 1s;
+}
+
+/* Focus effect for inputs */
+input:focus + .absolute {
+    opacity: 1;
+}
+
+/* Dark mode selection color */
+@media (prefers-color-scheme: dark) {
+    ::selection {
+        background-color: rgba(96, 165, 250, 0.2);
+        color: #fff;
+    }
+}
+</style>
 {% endblock %}

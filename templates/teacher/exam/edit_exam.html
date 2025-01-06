@@ -8,13 +8,18 @@
 
     <div class="flex-1 p-8 space-y-8">
         <!-- Title Section -->
-        <div class="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-xl"></div>
-            <div class="relative z-10 flex items-center space-x-4">
-                {% include 'components/icons.html' with icon="document" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
-                <div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Modifier l'Examen: {{ exam.title }}</h1>
-                    <p class="text-gray-600 dark:text-gray-400 mt-2">Modifiez les détails et les questions de votre examen</p>
+        <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div class="relative z-10 p-6">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        {% include 'components/icons.html' with icon="document" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                    </div>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Modifier l'Examen: {{ exam.title }}</h1>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Modifiez les détails et les questions de votre examen</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -247,8 +252,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             <!-- MCQ Choices Section -->
             <div class="mcq-choices-section hidden" id="mcq_section_${questionCount}">
+                <input type="hidden" name="mcq_choice_count_${questionCount}" id="mcq_choice_count_${questionCount}" value="0">
                 <div class="mcq-choices-container space-y-4" id="mcq_choices_${questionCount}">
-                    <input type="hidden" name="mcq_choice_count_${questionCount}" id="mcq_choice_count_${questionCount}" value="0">
                 </div>
                 <button type="button" class="add-mcq-choice-btn mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all" data-question-id="${questionCount}">
                     Ajouter un Choix
@@ -257,73 +262,87 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
 
         document.getElementById('questions-container').appendChild(questionContainer);
-        handleQuestionTypeChange(questionCount); // Initialize visibility
+
+        // Add event listener for the new remove question button
+        questionContainer.querySelector('.remove-question-btn').addEventListener('click', function() {
+            const questionId = this.getAttribute('data-question-id');
+            document.getElementById(`question_${questionId}`).remove();
+        });
+
+        // Add event listener for the new add MCQ choice button
+        questionContainer.querySelector('.add-mcq-choice-btn').addEventListener('click', function() {
+            const questionId = this.getAttribute('data-question-id');
+            addMCQChoice(questionId);
+        });
     });
 
-    // Initialize existing questions
-    for (let i = 1; i <= questionCount; i++) {
-        const questionTypeSelect = document.getElementById(`question_type_${i}`);
-        if (questionTypeSelect) {
-            questionTypeSelect.addEventListener('change', () => handleQuestionTypeChange(i));
-        }
+    // Function to add MCQ choice
+    function addMCQChoice(questionId) {
+        const choiceCountElem = document.getElementById(`mcq_choice_count_${questionId}`);
+        const choiceCount = parseInt(choiceCountElem.value) + 1;
+        choiceCountElem.value = choiceCount;
+
+        const choiceContainer = document.createElement('div');
+        choiceContainer.classList.add('bg-gray-50', 'dark:bg-gray-700', 'rounded-lg', 'p-4', 'space-y-4', 'mb-4');
+        choiceContainer.setAttribute('id', `mcq_choice_${questionId}_${choiceCount}`);
+
+        choiceContainer.innerHTML = `
+            <div class="flex justify-between items-center">
+                <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix ${choiceCount}</h3>
+                <button type="button" class="remove-mcq-choice-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all" 
+                        data-question-id="${questionId}" data-choice-id="${choiceCount}">
+                    Supprimer
+                </button>
+            </div>
+            <div>
+                <label for="mcq_choice_text_${questionId}_${choiceCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Texte du Choix</label>
+                <input type="text" name="mcq_choice_text_${questionId}_${choiceCount}" 
+                       id="mcq_choice_text_${questionId}_${choiceCount}" required 
+                       class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div class="flex items-center space-x-2">
+                <input type="checkbox" name="mcq_choice_correct_${questionId}_${choiceCount}" 
+                       id="mcq_choice_correct_${questionId}_${choiceCount}"
+                       class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
+                <label for="mcq_choice_correct_${questionId}_${choiceCount}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Réponse Correcte
+                </label>
+            </div>
+        `;
+
+        document.getElementById(`mcq_choices_${questionId}`).appendChild(choiceContainer);
+
+        // Add event listener for the new remove choice button
+        choiceContainer.querySelector('.remove-mcq-choice-btn').addEventListener('click', function() {
+            const questionId = this.getAttribute('data-question-id');
+            const choiceId = this.getAttribute('data-choice-id');
+            document.getElementById(`mcq_choice_${questionId}_${choiceId}`).remove();
+        });
     }
 
-    // Handle removing questions
-    document.addEventListener('click', function(event) {
-        if (event.target.classList.contains('remove-question-btn')) {
-            const questionId = event.target.getAttribute('data-question-id');
-            const questionElement = document.getElementById(`question_${questionId}`);
-            questionElement.remove();
-        }
+    // Add event listeners for existing remove question buttons
+    document.querySelectorAll('.remove-question-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const questionId = this.getAttribute('data-question-id');
+            document.getElementById(`question_${questionId}`).remove();
+        });
     });
 
-    // Handle adding MCQ choices
-    document.addEventListener('click', function(event) {
-        if (event.target.classList.contains('add-mcq-choice-btn')) {
-            const questionId = event.target.getAttribute('data-question-id');
-            const choiceCountElem = document.getElementById(`mcq_choice_count_${questionId}`);
-            let choiceCount = parseInt(choiceCountElem.value) + 1;
-            choiceCountElem.value = choiceCount;
-
-            const choiceContainer = document.createElement('div');
-            choiceContainer.classList.add('bg-gray-50', 'dark:bg-gray-700', 'rounded-lg', 'p-4', 'space-y-4');
-            choiceContainer.setAttribute('id', `mcq_choice_${questionId}_${choiceCount}`);
-
-            choiceContainer.innerHTML = `
-                <div class="flex justify-between items-center">
-                    <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix ${choiceCount}</h3>
-                    <button type="button" class="remove-mcq-choice-btn px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all" 
-                            data-question-id="${questionId}" data-choice-id="${choiceCount}">
-                        Supprimer
-                    </button>
-                </div>
-                <div>
-                    <label for="mcq_choice_text_${questionId}_${choiceCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Texte du Choix</label>
-                    <input type="text" name="mcq_choice_text_${questionId}_${choiceCount}" id="mcq_choice_text_${questionId}_${choiceCount}" required 
-                           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div class="flex items-center space-x-2">
-                    <input type="checkbox" name="mcq_choice_correct_${questionId}_${choiceCount}" id="mcq_choice_correct_${questionId}_${choiceCount}"
-                           class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
-                    <label for="mcq_choice_correct_${questionId}_${choiceCount}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Réponse Correcte
-                    </label>
-                </div>
-            `;
-
-            const mcqChoicesContainer = document.getElementById(`mcq_choices_${questionId}`);
-            mcqChoicesContainer.appendChild(choiceContainer);
-        }
+    // Add event listeners for existing add MCQ choice buttons
+    document.querySelectorAll('.add-mcq-choice-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const questionId = this.getAttribute('data-question-id');
+            addMCQChoice(questionId);
+        });
     });
 
-    // Handle removing MCQ choices
-    document.addEventListener('click', function(event) {
-        if (event.target.classList.contains('remove-mcq-choice-btn')) {
-            const questionId = event.target.getAttribute('data-question-id');
-            const choiceId = event.target.getAttribute('data-choice-id');
-            const choiceElement = document.getElementById(`mcq_choice_${questionId}_${choiceId}`);
-            choiceElement.remove();
-        }
+    // Add event listeners for existing remove MCQ choice buttons
+    document.querySelectorAll('.remove-mcq-choice-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const questionId = this.getAttribute('data-question-id');
+            const choiceId = this.getAttribute('data-choice-id');
+            document.getElementById(`mcq_choice_${questionId}_${choiceId}`).remove();
+        });
     });
 });
 </script>
