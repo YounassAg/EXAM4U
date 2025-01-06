@@ -134,16 +134,67 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
     let lastUpdate = new Date().toISOString();
     const examId = '{{ exam.id }}';
-    
+    let pollingInterval = 3000; // Start with 3 seconds
+    let isPolling = true;
+    let failedAttempts = 0;
+    const MAX_FAILED_ATTEMPTS = 5;
+    const MAX_POLLING_INTERVAL = 30000; // Max 30 seconds
+
+    // Add loading indicator
+    const tableContainer = document.querySelector('table').parentElement;
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.className = 'hidden fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg';
+    loadingIndicator.innerHTML = `
+        <div class="flex items-center space-x-2">
+            <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Mise à jour en cours...</span>
+        </div>
+    `;
+    document.body.appendChild(loadingIndicator);
+
+    // Add error toast
+    const errorToast = document.createElement('div');
+    errorToast.className = 'hidden fixed bottom-4 left-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg';
+    errorToast.innerHTML = `
+        <div class="flex items-center space-x-2">
+            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Erreur de connexion. Tentative de reconnexion...</span>
+        </div>
+    `;
+    document.body.appendChild(errorToast);
+
+    function showLoadingIndicator() {
+        loadingIndicator.classList.remove('hidden');
+    }
+
+    function hideLoadingIndicator() {
+        loadingIndicator.classList.add('hidden');
+    }
+
+    function showErrorToast() {
+        errorToast.classList.remove('hidden');
+        setTimeout(() => {
+            errorToast.classList.add('hidden');
+        }, 3000);
+    }
+
     function updateAttemptsTable(attempts) {
         attempts.forEach(attempt => {
             let existingRow = document.querySelector(`tr[data-attempt-id="${attempt.id}"]`);
             
+            // Add animation class for new/updated rows
+            const animationClass = existingRow ? 'animate-pulse bg-yellow-50 dark:bg-yellow-900/20' : 'animate-fadeIn';
+            
             const newRow = `
-                <tr data-attempt-id="${attempt.id}" class="transition-colors duration-200 hover:bg-opacity-50" style="background-color: var(--card-bg)">
+                <tr data-attempt-id="${attempt.id}" class="transition-colors duration-200 hover:bg-opacity-50 ${animationClass}" style="background-color: var(--card-bg)">
                     <td class="px-6 py-4">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 h-10 w-10">
@@ -188,7 +239,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         <a href="/grade-attempt/${attempt.id}/" 
                            class="inline-flex items-center space-x-2 text-green-600 dark:text-green-400 hover:shadow-[0_0_15px_rgba(34,197,94,0.25)] rounded-lg p-2 transition-all duration-300">
                             <div class="p-2 bg-green-50 dark:bg-green-800/50 rounded-lg">
-                                {% include 'components/icons.html' with icon="clipboard-check" class="w-4 h-4" %}
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                </svg>
                             </div>
                             <span class="font-medium">
                                 ${attempt.grade !== null ? 'Modifier la correction' : 'Corriger'}
@@ -200,26 +253,93 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (existingRow) {
                 existingRow.outerHTML = newRow;
+                // Remove animation class after update
+                setTimeout(() => {
+                    const updatedRow = document.querySelector(`tr[data-attempt-id="${attempt.id}"]`);
+                    updatedRow.classList.remove('animate-pulse', 'bg-yellow-50', 'dark:bg-yellow-900/20');
+                }, 2000);
             } else {
                 const tbody = document.getElementById('attempts-table-body');
                 tbody.insertAdjacentHTML('beforeend', newRow);
+                // Remove animation class after insertion
+                setTimeout(() => {
+                    const newRow = document.querySelector(`tr[data-attempt-id="${attempt.id}"]`);
+                    newRow.classList.remove('animate-fadeIn');
+                }, 1000);
             }
         });
     }
 
-    function pollUpdates() {
-        fetch(`/teacher/exam/${examId}/attempts/update/?last_update=${encodeURIComponent(lastUpdate)}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.attempts.length > 0) {
-                    updateAttemptsTable(data.attempts);
-                }
-                lastUpdate = data.current_time;
-            })
-            .catch(error => console.error('Error polling updates:', error));
+    async function pollUpdates() {
+        if (!isPolling) return;
+        
+        showLoadingIndicator();
+        
+        try {
+            const response = await fetch(`/teacher/exam/${examId}/attempts/update/?last_update=${encodeURIComponent(lastUpdate)}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.attempts.length > 0) {
+                updateAttemptsTable(data.attempts);
+            }
+            
+            lastUpdate = data.current_time;
+            failedAttempts = 0;
+            pollingInterval = 2000; // Reset to initial interval on success
+            
+        } catch (error) {
+            console.error('Error polling updates:', error);
+            failedAttempts++;
+            showErrorToast();
+            
+            // Exponential backoff
+            if (failedAttempts <= MAX_FAILED_ATTEMPTS) {
+                pollingInterval = Math.min(pollingInterval * 2, MAX_POLLING_INTERVAL);
+            } else {
+                isPolling = false;
+                errorToast.innerHTML = `
+                    <div class="flex items-center justify-between w-full">
+                        <div class="flex items-center space-x-2">
+                            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Erreur de connexion. Actualisez la page.</span>
+                        </div>
+                        <button onclick="window.location.reload()" class="ml-4 px-2 py-1 bg-white/20 rounded hover:bg-white/30">
+                            Actualiser
+                        </button>
+                    </div>
+                `;
+                errorToast.classList.remove('hidden');
+                return;
+            }
+        } finally {
+            hideLoadingIndicator();
+        }
+        
+        if (isPolling) {
+            setTimeout(pollUpdates, pollingInterval);
+        }
     }
 
-    setInterval(pollUpdates, 3000);
+    // Add visibility change handling
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            isPolling = false;
+        } else {
+            isPolling = true;
+            lastUpdate = new Date().toISOString(); // Reset timestamp when becoming visible
+            pollUpdates();
+        }
+    });
+
+    // Start polling
+    pollUpdates();
 });
 </script>
 {% endblock %}
