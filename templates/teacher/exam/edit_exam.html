@@ -133,9 +133,34 @@
                     </div>
 
                     <!-- MCQ Choices Section -->
-                    <div class="mcq-choices-section hidden" id="mcq_section_{{ forloop.counter }}">
+                    <div class="mcq-choices-section {% if question.question_type != 'MCQ' %}hidden{% endif %}" id="mcq_section_{{ forloop.counter }}">
                         <div class="mcq-choices-container space-y-4" id="mcq_choices_{{ forloop.counter }}">
                             <input type="hidden" name="mcq_choice_count_{{ forloop.counter }}" id="mcq_choice_count_{{ forloop.counter }}" value="{{ question.mcqchoice_set.all|length }}">
+                            {% for choice in question.mcqchoice_set.all %}
+                            <div class="flex items-center gap-4">
+                                <div class="flex-1">
+                                    <input type="text" 
+                                           name="mcq_choice_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
+                                           value="{{ choice.choice_label }}"
+                                           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                           placeholder="Option {{ forloop.counter }}" required>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" 
+                                           name="mcq_choice_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}"
+                                           {% if choice.is_correct %}checked{% endif %}
+                                           class="h-5 w-5 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
+                                    <label class="text-sm text-gray-600 dark:text-gray-400">Correct</label>
+                                    <button type="button" 
+                                            onclick="removeChoice(this)" 
+                                            class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300">
+                                        <div class="p-1.5 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
+                                            {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
                         <button type="button" class="add-mcq-choice-btn mt-4 sm:w-40 group inline-flex items-center justify-center px-3 py-1.5 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="{{ forloop.counter }}">
                             <div class="p-1 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
@@ -305,6 +330,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const questionId = this.getAttribute('data-question-id');
             const choiceId = this.getAttribute('data-choice-id');
             document.getElementById(`mcq_choice_${questionId}_${choiceId}`).remove();
+            
+            // Update choice count
+            const choiceCountElem = document.getElementById(`mcq_choice_count_${questionId}`);
+            choiceCountElem.value = parseInt(choiceCountElem.value) - 1;
         });
     }
 
@@ -324,14 +353,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Add event listeners for existing remove MCQ choice buttons
-    document.querySelectorAll('.remove-mcq-choice-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const questionId = this.getAttribute('data-question-id');
-            const choiceId = this.getAttribute('data-choice-id');
-            document.getElementById(`mcq_choice_${questionId}_${choiceId}`).remove();
-        });
-    });
+    // Initialize question types on load
+    for (let i = 1; i <= questionCount; i++) {
+        handleQuestionTypeChange(i);
+    }
 });
 </script>
 {% endblock %}
