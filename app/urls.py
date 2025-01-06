@@ -21,7 +21,6 @@ urlpatterns = [
     path('student/exam/<int:exam_id>/take/', views.take_exam, name='take_exam'),
     path('update_attempt_status/', views.update_attempt_status, name='update_attempt_status'),
     path('get_exam_status/', views.get_exam_status, name='get_exam_status'),
-    path('teacher/exam/<int:exam_id>/attempts/update/', views.get_updated_attempts, name='get_updated_attempts'),
     path('teacher/exam/delete_exam/<int:exam_id>/', views.delete_exam, name='delete_exam'),
     path('teacher/exam/edit_exam/<int:exam_id>/', views.edit_exam, name='edit_exam'),
     path('teacher/exam/<int:exam_id>/attempts/', views.exam_attempts, name='exam_attempts'),
@@ -29,4 +28,5 @@ urlpatterns = [
     path('student/exam/exam_completed.html', views.exam_completed, name='exam_completed'),
     path('teacher/exam/<int:exam_id>/download_results/', views.download_exam_results, name='download_exam_results'),
     path('teacher/exam/download_student_result/<int:attempt_id>/', views.download_student_result, name='download_student_result'),
+
 ]

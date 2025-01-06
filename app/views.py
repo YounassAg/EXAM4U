@@ -16,6 +16,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, Preformatted
 from reportlab.lib.units import inch
+import zipfile
 from reportlab.pdfgen import canvas
 from io import BytesIO
 import csv
@@ -488,37 +489,6 @@ def exam_attempts(request, exam_id):
 
 @login_required
 @role_required('teacher')
-def get_updated_attempts(request, exam_id):
-    exam = get_object_or_404(Exam, id=exam_id)
-    attempts = ExamAttempt.objects.filter(exam=exam)
-    
-    # If AJAX request includes last_update parameter, filter attempts
-    last_update = request.GET.get('last_update')
-    if last_update:
-        attempts = attempts.filter(modified_at__gt=last_update)
-
-    attempts_data = []
-    for attempt in attempts:
-        attempts_data.append({
-            'id': attempt.id,
-            'student_name': attempt.student.user.get_full_name(),
-            'username': attempt.student.user.username,
-            'start_date': attempt.start_date.strftime("%d/%m/%Y"),
-            'status': attempt.status,
-            'status_display': attempt.get_status_display(),
-            'type': attempt.type,
-            'type_display': attempt.get_type_display(),
-            'grade': attempt.grade,
-            'modified_at': attempt.modified_at.isoformat(),
-        })
-    
-    return JsonResponse({
-        'attempts': attempts_data,
-        'current_time': timezone.now().isoformat()
-    })
-
-@login_required
-@role_required('teacher')
 def grade_attempt(request, attempt_id):
     attempt = get_object_or_404(ExamAttempt.objects.select_related(
         'exam', 'student', 'student__user', 'exam__course'
@@ -653,8 +623,111 @@ def download_exam_results(request, exam_id):
     file_format = request.GET.get('format', 'full')
     students_in_group = UserProfile.objects.filter(group=group, role='student')
     questions = exam.question_set.all()
-    
-    if file_format == 'full':
+    if file_format == 'zip':
+        # Create ZIP archive
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            for student in students_in_group:
+                best_attempt = ExamAttempt.objects.filter(exam=exam, student=student).order_by('-grade').first()
+                if not best_attempt:
+                    continue
+
+                # Generate PDF for this attempt
+                pdf_buffer = BytesIO()
+                doc = SimpleDocTemplate(
+                    pdf_buffer,
+                    pagesize=letter,
+                    rightMargin=72,
+                    leftMargin=72,
+                    topMargin=72,
+                    bottomMargin=72
+                )
+                styles = getSampleStyleSheet()
+                elements = []
+
+                # Add OFPPT Header Image
+                logo = Image("templates/components/images/ofppt-header.png")
+                logo.drawWidth = 6 * inch
+                logo.drawHeight = logo.drawWidth * (325 / 1419)
+                elements.append(logo)
+                elements.append(Spacer(1, 20))
+
+                # Add Student and Exam Info
+                student_info = [
+                    ['Nom et prénom:', f"{student.first_name} {student.last_name}"],
+                    ['CIN:', student.user.username],
+                    ['Contrôle:', exam.title],
+                    ['Date:', ""],
+                    ['Note finale:', f"{best_attempt.grade}/20" if best_attempt.grade is not None else "Non noté"]
+                ]
+                info_table = Table(student_info, colWidths=[2 * inch, 4 * inch])
+                info_table.setStyle(TableStyle([
+                    ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+                    ('FONTSIZE', (0, 0), (-1, -1), 11),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+                    ('TOPPADDING', (0, 0), (-1, -1), 12),
+                    ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+                    ('BACKGROUND', (0, 0), (-1, -1), HexColor('#f8f9fa')),
+                    ('TEXTCOLOR', (0, 0), (0, -1), HexColor('#2c3e50')),
+                    ('GRID', (0, 0), (-1, -1), 1, HexColor('#e9ecef')),
+                    ('BORDERCOLOR', (0, 0), (-1, -1), HexColor('#e9ecef')),
+                    ('ALIGN', (1, 0), (1, -1), 'LEFT'),
+                ]))
+                elements.append(info_table)
+                elements.append(Spacer(1, 30))
+
+                # Add Question Responses
+                responses = Response.objects.filter(attempt=best_attempt)
+                for i, response in enumerate(responses, 1):
+                    question_text = f"Question {i}: {response.question.wording}"
+                    elements.append(Paragraph(question_text, styles['Heading4']))
+
+                    if response.question.question_type == 'MCQ':
+                        # Add choices and indicate correctness
+                        correct_choices = MCQChoice.objects.filter(
+                            question=response.question, is_correct=True
+                        ).values_list('choice_label', flat=True)
+                        selected_answers = (response.response_text or "").split(' ~±ſ~ƟƢ~ ')
+
+                        elements.append(Paragraph("Réponses choisies:", styles['Normal']))
+                        for answer in selected_answers:
+                            if not answer.strip():
+                                continue
+                            is_correct = answer.strip() in correct_choices
+                            style = ParagraphStyle(
+                                name="Correct" if is_correct else "Incorrect",
+                                parent=styles['Normal'],
+                                textColor=HexColor('#2e7d32') if is_correct else HexColor('#c62828')
+                            )
+                            elements.append(Paragraph(answer, style))
+
+                    elif response.question.question_type == 'open':
+                        elements.append(Paragraph("Réponse:", styles['Normal']))
+                        cleaned_text = clean_text(response.response_text)
+                        elements.append(Preformatted(cleaned_text, styles['Code']))
+
+                    else:  # short_answer
+                        elements.append(Paragraph(f"Réponse: {clean_text(response.response_text)}", styles['Normal']))
+
+                    # Add Question Grade
+                    grade_text = f"★ Note: {response.response_grade}/{response.question.points}" if response.response_grade is not None else "☐ Non noté"
+                    elements.append(Paragraph(grade_text, styles['Normal']))
+                    elements.append(Spacer(1, 15))
+
+                # Build PDF and add to ZIP archive
+                doc.build(elements, canvasmaker=NumberedCanvas)
+                pdf_buffer.seek(0)
+                pdf_filename = f"{student.last_name}_{student.first_name}_{exam.title}.pdf"
+                zip_file.writestr(pdf_filename, pdf_buffer.getvalue())
+                pdf_buffer.close()
+
+        # Prepare ZIP response
+        zip_buffer.seek(0)
+        response = HttpResponse(zip_buffer, content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename="{exam.title}_results.zip"'
+        return response
+
+    elif file_format == 'full':
         response = HttpResponse(content_type='text/csv')
         response.charset = 'utf-8'
         response.write('\ufeff')
@@ -702,7 +775,11 @@ def download_exam_results(request, exam_id):
                 writer.writerow(row)
         return response
 
-    return HttpResponse(status=400, content="Invalid format.")
+    # Return error for unsupported formats
+    return HttpResponse(
+        status=400, 
+        content=f"Invalid format '{file_format}'. Supported formats are 'full', 'generic', and 'zip'."
+    )
 
 
 class NumberedCanvas(canvas.Canvas):
@@ -901,6 +978,7 @@ def download_student_result(request, attempt_id):
     filename = f"resultat_{attempt.student.last_name}_{attempt.exam.title}.pdf"
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
+
 
 
 def custom_403(request, exception):
