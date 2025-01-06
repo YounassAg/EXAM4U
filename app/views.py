@@ -8,9 +8,10 @@ from django.contrib.auth.decorators import login_required
 from .forms import UserRegistrationForm, LoginForm, ExamForm
 from .models import Course, Group, Exam, Question, MCQChoice, UserProfile, Specialty, ExamAttempt, Response
 from django.http import JsonResponse, HttpResponse
-from datetime import datetime
+from django.views.decorators.csrf import csrf_exempt
 from reportlab.lib.colors import HexColor
-from reportlab.lib import colors
+from django.db.models import F, Value, CharField
+from django.db.models.functions import Concat
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, Preformatted
@@ -351,14 +352,30 @@ def teacher_exam_list(request):
 
 
 @login_required
+@csrf_exempt
+def update_attempt_status(request):
+    if request.method == 'POST':
+        try:
+            attempt_id = request.POST.get('attempt_id')
+            status = request.POST.get('status')  # e.g., "abandoned"
+            attempt = ExamAttempt.objects.get(id=attempt_id, student=request.user.userprofile)
+            attempt.status = status
+            attempt.save()
+            return JsonResponse({'success': True, 'message': 'Attempt status updated successfully.'})
+        except ExamAttempt.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Attempt not found.'}, status=404)
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'}, status=400)
+
+
+@login_required
 @role_required('student')
 def take_exam(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     student = request.user.userprofile
-    attempt = ExamAttempt.objects.filter(exam=exam, student=student, status='in_progress').first()
+    attempt = ExamAttempt.objects.filter(exam=exam, student=student, status__in=['in_progress', 'abandoned']).first()
     if not attempt:
         completed_or_abandoned_attempts = ExamAttempt.objects.filter(
-            exam=exam, student=student, status__in=['completed', 'abandoned']
+            exam=exam, student=student, status__in=['completed']
         ).count()
         if completed_or_abandoned_attempts >= exam.max_attempts:
             messages.error(request, f"Vous avez déjà atteint le nombre maximum de tentatives {exam.max_attempts} pour l'examen '{exam.title}'.")
@@ -401,6 +418,7 @@ def take_exam(request, exam_id):
         'attempt': attempt,
     })
 
+
 @login_required
 @role_required('teacher')
 def rattrapage_exam(request, exam_id):
@@ -434,12 +452,29 @@ def delete_exam(request, exam_id):
 
     return render(request, 'teacher/exam/delete_exam.html', {'exam': exam})
 
+@login_required
+@role_required('teacher')
+def get_exam_status(request, exam_id):
+    exam = Exam.objects.get(id=exam_id)
+    attempts = ExamAttempt.objects.filter(exam=exam).values(
+        'id',
+        'start_date',
+        'status',
+        'grade',
+        full_name=Concat(
+            F('student__user__first_name'),
+            Value(' '),
+            F('student__user__last_name'),
+            output_field=CharField()
+        )
+    )
+    return JsonResponse({'attempts': list(attempts)})
 
 @login_required
 @role_required('teacher')
 def exam_attempts(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
-    attempts = ExamAttempt.objects.filter(exam=exam, status='completed')
+    attempts = ExamAttempt.objects.filter(exam=exam)
     for attempt in attempts:
         if attempt.end_date and attempt.start_date:
             attempt.time_taken = (attempt.end_date - attempt.start_date).total_seconds() / 60
@@ -450,6 +485,37 @@ def exam_attempts(request, exam_id):
         'attempts': attempts,
     }
     return render(request, 'teacher/exam/exam_attempts.html', context)
+
+@login_required
+@role_required('teacher')
+def get_updated_attempts(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    attempts = ExamAttempt.objects.filter(exam=exam)
+    
+    # If AJAX request includes last_update parameter, filter attempts
+    last_update = request.GET.get('last_update')
+    if last_update:
+        attempts = attempts.filter(modified_at__gt=last_update)
+
+    attempts_data = []
+    for attempt in attempts:
+        attempts_data.append({
+            'id': attempt.id,
+            'student_name': attempt.student.user.get_full_name(),
+            'username': attempt.student.user.username,
+            'start_date': attempt.start_date.strftime("%d/%m/%Y"),
+            'status': attempt.status,
+            'status_display': attempt.get_status_display(),
+            'type': attempt.type,
+            'type_display': attempt.get_type_display(),
+            'grade': attempt.grade,
+            'modified_at': attempt.modified_at.isoformat(),
+        })
+    
+    return JsonResponse({
+        'attempts': attempts_data,
+        'current_time': timezone.now().isoformat()
+    })
 
 @login_required
 @role_required('teacher')

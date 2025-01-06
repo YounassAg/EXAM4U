@@ -123,13 +123,73 @@
                 </button>
             </div>
         </form>
-        
-        <script>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
         function confirmSubmit() {
             if (confirm("Etes-vous sûr de vouloir soumettre vos réponses?")) {
                 document.getElementById("examForm").submit();
             }
         }
-        </script>
+
+    // Get attempt ID
+    const attemptId = "{{ attempt.id }}";
+
+    // Function to update attempt status via AJAX
+    function updateAttemptStatus(status) {
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch("{% url 'update_attempt_status' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": csrftoken,
+            },
+            body: new URLSearchParams({
+                attempt_id: attemptId,
+                status: status
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                console.error(data.message);
+            }
+        })
+        .catch(error => console.error("Error updating attempt status:", error));
+    }
+
+    window.addEventListener("offline", () => {
+            updateAttemptStatus("abandoned");
+    
+            Swal.fire({
+                icon: 'error',
+                title: 'Déconnexion détectée',
+                text: "Vous êtes déconnecté du réseau. Votre tentative d'examen sera marquée comme abandonnée si vous ne vous reconnectez pas rapidement.",
+                confirmButtonText: 'Ok'
+            });
+        });
+    
+        window.addEventListener("online", () => {
+            updateAttemptStatus("in_progress");
+    
+            Swal.fire({
+                icon: 'success',
+                title: 'Reconnecté',
+                text: "Vous êtes reconnecté au réseau. Continuez l'examen rapidement pour éviter tout problème.",
+                confirmButtonText: 'Ok'
+            });
+        });
+
+    setInterval(() => {
+        if (navigator.onLine) {
+            updateAttemptStatus("in_progress");
+        }
+    }, 30000);
+    
+    </script>
+    
         
 {% endblock %}

@@ -27,9 +27,10 @@ Exam4U is a Django-based web application designed to facilitate the creation and
 3. **Install dependencies:**
 
    ```bash
-   - django
-   - mysqlclient
-   - reportlab
+   - pip install django
+   - pip install mysqlclient
+   - pip install reportlab
+   - pip install channels channels-redis
    ```
 
 4. **Set up the database:**

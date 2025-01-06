@@ -108,9 +108,10 @@ class ExamAttempt(models.Model):
         choices=EXAM_TYPE_CHOICES,
         default='normal'
     )
+    modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.exam.title} - {self.student.user.first_name} {self.student.user.last_name} ({self.type})"
+        return f"{self.exam.title} - {self.student.user.first_name} {self.student.user.last_name} ({self.type}) - {self.status}"
 
 
 
