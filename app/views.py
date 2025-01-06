@@ -4,6 +4,8 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.utils import timezone
+from django.db.models import Count, Avg
+from datetime import timedelta
 from django.contrib.auth.decorators import login_required
 from .forms import UserRegistrationForm, LoginForm, ExamForm
 from .models import Course, Group, Exam, Question, MCQChoice, UserProfile, Specialty, ExamAttempt, Response
@@ -95,8 +97,48 @@ def user_logout(request):
 @login_required
 @role_required('teacher')
 def teacher_dashboard(request):
-    return render(request, 'teacher/dashboard.html')
+    teacher_profile = request.user.userprofile
+    now = timezone.now()
+    last_30_days = now - timedelta(days=30)
+    
+    upcoming_exams = Exam.objects.filter(
+        course__teacher=teacher_profile,
+        start_date__gt=now
+    ).order_by('start_date')[:5]
+    
+    recent_activities = []
+    
+    # Add recent exam completions
+    recent_completions = ExamAttempt.objects.filter(
+        exam__course__teacher=teacher_profile,
+        status='completed',
+        modified_at__gte=last_30_days
+    ).select_related('student', 'exam')[:5]
+    
+    for completion in recent_completions:
+        recent_activities.append({
+            'type': 'exam_completed',
+            'description': f"{completion.student} - {completion.exam.title}",
+            'timestamp': completion.modified_at,
+            'grade': completion.grade
+        })
 
+    for exam in upcoming_exams:
+        recent_activities.append({
+            'type': 'exam_upcoming',
+            'description': f"Examen à venir: {exam.title} pour {exam.group}",
+            'timestamp': exam.start_date,
+            'days_until': (exam.start_date.date() - now.date()).days
+        })
+    
+    recent_activities.sort(key=lambda x: x['timestamp'], reverse=True)
+    
+    context = {
+        'upcoming_exams': upcoming_exams,
+        'recent_activities': recent_activities[:5]
+    }
+    
+    return render(request, 'teacher/dashboard.html', context)
 
 @login_required
 @role_required('teacher')
@@ -624,15 +666,12 @@ def download_exam_results(request, exam_id):
     students_in_group = UserProfile.objects.filter(group=group, role='student')
     questions = exam.question_set.all()
     if file_format == 'zip':
-        # Create ZIP archive
         zip_buffer = BytesIO()
         with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
             for student in students_in_group:
                 best_attempt = ExamAttempt.objects.filter(exam=exam, student=student).order_by('-grade').first()
                 if not best_attempt:
                     continue
-
-                # Generate PDF for this attempt
                 pdf_buffer = BytesIO()
                 doc = SimpleDocTemplate(
                     pdf_buffer,
@@ -645,7 +684,6 @@ def download_exam_results(request, exam_id):
                 styles = getSampleStyleSheet()
                 elements = []
 
-                # Add OFPPT Header Image
                 logo = Image("templates/components/images/ofppt-header.png")
                 logo.drawWidth = 6 * inch
                 logo.drawHeight = logo.drawWidth * (325 / 1419)
@@ -678,7 +716,7 @@ def download_exam_results(request, exam_id):
                     parent=styles['Normal'],
                     fontSize=11,
                     leftIndent=20,
-                    textColor=HexColor('#2e7d32'),  # Green color
+                    textColor=HexColor('#2e7d32'),
                     spaceAfter=6
                 )
                 incorrect_answer_style = ParagraphStyle(
@@ -686,10 +724,9 @@ def download_exam_results(request, exam_id):
                     parent=styles['Normal'],
                     fontSize=11,
                     leftIndent=20,
-                    textColor=HexColor('#c62828'),  # Red color
+                    textColor=HexColor('#c62828'), 
                     spaceAfter=6
                 )
-                # Add Student and Exam Info
                 student_info = [
                     ['Nom et prénom:', f"{student.first_name} {student.last_name}"],
                     ['CIN:', student.user.username],
@@ -713,14 +750,12 @@ def download_exam_results(request, exam_id):
                 elements.append(info_table)
                 elements.append(Spacer(1, 30))
 
-                # Add Question Responses
                 responses = Response.objects.filter(attempt=best_attempt)
                 for i, response in enumerate(responses, 1):
                     question_text = f"Question {i}: {response.question.wording}"
                     elements.append(Paragraph(question_text, styles['Heading4']))
 
                     if response.question.question_type == 'MCQ':
-                        # Add choices and indicate correctness
                         correct_choices = MCQChoice.objects.filter(
                             question=response.question, is_correct=True
                         ).values_list('choice_label', flat=True)
@@ -732,14 +767,11 @@ def download_exam_results(request, exam_id):
                             if not answer:
                                 continue
                             
-                            # Check if this specific answer matches any correct choice
                             is_correct = any(correct_choice.strip() == answer.strip() 
                                         for correct_choice in correct_choices)
                             
-                            # Use the appropriate style based on correctness
                             style = correct_answer_style if is_correct else incorrect_answer_style
                             
-                            # Add the answer with its color
                             elements.append(Paragraph(answer, style))
 
                     elif response.question.question_type == 'open':
@@ -747,22 +779,19 @@ def download_exam_results(request, exam_id):
                         cleaned_text = clean_text(response.response_text)
                         elements.append(Preformatted(cleaned_text, code_style))
 
-                    else:  # short_answer
+                    else:
                         elements.append(Paragraph(f"Réponse: {clean_text(response.response_text)}", styles['Normal']))
 
-                    # Add Question Grade
                     grade_text = f"★ Note: {response.response_grade}/{response.question.points}" if response.response_grade is not None else "☐ Non noté"
                     elements.append(Paragraph(grade_text, grade_style))
                     elements.append(Spacer(1, 15))
 
-                # Build PDF and add to ZIP archive
                 doc.build(elements, canvasmaker=NumberedCanvas)
                 pdf_buffer.seek(0)
                 pdf_filename = f"{student.last_name}_{student.first_name}_{exam.title}.pdf"
                 zip_file.writestr(pdf_filename, pdf_buffer.getvalue())
                 pdf_buffer.close()
 
-        # Prepare ZIP response
         zip_buffer.seek(0)
         response = HttpResponse(zip_buffer, content_type='application/zip')
         response['Content-Disposition'] = f'attachment; filename="{exam.title}_results.zip"'
@@ -816,7 +845,6 @@ def download_exam_results(request, exam_id):
                 writer.writerow(row)
         return response
 
-    # Return error for unsupported formats
     return HttpResponse(
         status=400, 
         content=f"Invalid format '{file_format}'. Supported formats are 'full', 'generic', and 'zip'."
@@ -847,7 +875,6 @@ class NumberedCanvas(canvas.Canvas):
             72/2,
             f"Page {self._pageNumber} sur {page_count}"
         )
-        # Draw footer line
         self.setStrokeColor(HexColor('#CCCCCC'))
         self.line(72, 72/2 + 15, letter[0] - 72, 72/2 + 15)
 
@@ -906,7 +933,7 @@ def download_student_result(request, attempt_id):
         parent=styles['Normal'],
         fontSize=11,
         leftIndent=20,
-        textColor=HexColor('#2e7d32'),  # Green color
+        textColor=HexColor('#2e7d32'),
         spaceAfter=6
     )
     incorrect_answer_style = ParagraphStyle(
@@ -914,7 +941,7 @@ def download_student_result(request, attempt_id):
         parent=styles['Normal'],
         fontSize=11,
         leftIndent=20,
-        textColor=HexColor('#c62828'),  # Red color
+        textColor=HexColor('#c62828'),
         spaceAfter=6
     )
     code_style = ParagraphStyle(
@@ -973,7 +1000,6 @@ def download_student_result(request, attempt_id):
         elements.append(Paragraph(question_text, question_style))
         
         if response.question.question_type == 'MCQ':
-            # Get all correct choices for this question
             correct_choices = MCQChoice.objects.filter(
                 question=response.question,
                 is_correct=True
@@ -981,25 +1007,16 @@ def download_student_result(request, attempt_id):
             
             elements.append(Paragraph("Réponses choisies:", answer_style))
             
-            # Split student answers using the exact separator
             if response.response_text:
-                # Clean up the response text first
                 cleaned_response = response.response_text.replace('~±■~■■~', ' ~±ſ~ƟƢ~ ')
                 student_answers = [ans.strip() for ans in cleaned_response.split(' ~±ſ~ƟƢ~ ')]
                 
-                # Process each answer
                 for answer in student_answers:
                     if not answer:
                         continue
-                    
-                    # Check if this specific answer matches any correct choice
                     is_correct = any(correct_choice.strip() == answer.strip() 
                                    for correct_choice in correct_choices)
-                    
-                    # Use the appropriate style based on correctness
                     style = correct_answer_style if is_correct else incorrect_answer_style
-                    
-                    # Add the answer with its color
                     elements.append(Paragraph(answer, style))
             
         elif response.question.question_type == 'open':
