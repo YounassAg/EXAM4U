@@ -120,7 +120,7 @@ def teacher_dashboard(request):
             'type': 'exam_completed',
             'description': f"{completion.student} - {completion.exam.title}",
             'timestamp': completion.modified_at,
-            'grade': completion.grade
+            'grade': completion.grade if completion.grade is not None else 'Pas encore corrigé'
         })
 
     for exam in upcoming_exams:

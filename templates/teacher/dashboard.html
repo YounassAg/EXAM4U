@@ -82,7 +82,11 @@
                                 <p class="text-sm font-medium text-gray-900 dark:text-white">{{ activity.description }}</p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">
                                     {% if activity.type == 'exam_completed' %}
-                                        Note: {{ activity.grade }}
+                                        {% if activity.grade == 'Pas encore corrigé' %}
+                                            <p class="text-xs text-red-600 dark:text-red-400">{{ activity.grade }}</p>
+                                        {% else %}
+                                            Note: {{ activity.grade }}
+                                        {% endif %}
                                     {% else %}
                                         Dans {{ activity.days_until }} jour{{ activity.days_until|pluralize }}
                                     {% endif %}
