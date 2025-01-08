@@ -1,31 +1,32 @@
 <!-- templates/student/exams/exam_completed.html -->
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Examen Terminé - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen bg-white dark:bg-gray-900">
+<div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
     {% include 'components/student_sidebar.html' %}
 
     <div class="flex-1 p-4 md:p-8">
         <div class="max-w-3xl mx-auto space-y-6 md:space-y-8">
             <!-- Success Card -->
             <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300">
-                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-green-500/20 to-emerald-500/20 dark:from-green-400/10 dark:to-emerald-400/10 rounded-full blur-3xl animate-pulse"></div>
-                <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-emerald-500/20 to-green-500/20 dark:from-emerald-400/10 dark:to-green-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+                <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
                 
                 <div class="relative z-10 flex flex-col items-center text-center p-6 md:p-8 space-y-6">
                     <!-- Success Icon with Animation -->
                     <div class="relative">
-                        <div class="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-500/20 dark:from-green-400/10 dark:to-emerald-400/10 rounded-full blur-lg animate-pulse"></div>
-                        <div class="relative w-16 md:w-20 h-16 md:h-20 rounded-full bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-400/5 dark:to-emerald-400/5 flex items-center justify-center">
-                            {% include 'components/icons.html' with icon="check" class="w-10 md:w-12 h-10 md:h-12 text-green-600 dark:text-green-400" %}
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-lg animate-pulse"></div>
+                        <div class="relative w-16 md:w-20 h-16 md:h-20 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 flex items-center justify-center">
+                            {% include 'components/icons.html' with icon="shield" class="w-10 md:w-12 h-10 md:h-12 text-blue-600 dark:text-blue-400" %}
                         </div>
                     </div>
 
                     <!-- Success Message -->
                     <div class="space-y-4">
-                        <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent">
+                        <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
                             Examen Terminé avec Succès !
                         </h1>
                     </div>
@@ -33,18 +34,18 @@
                     <!-- Action Buttons -->
                     <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mt-4 w-full sm:w-auto">
                         <a href="{% url 'student_exam_list' %}" 
-                           class="group w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(34,197,94,0.25)] hover:-translate-y-0.5">
-                            <div class="p-2 rounded-lg bg-white/10">
-                                {% include 'components/icons.html' with icon="list" class="w-5 h-5" %}
+                           class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-2">
+                            <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                                {% include 'components/icons.html' with icon="document" class="w-5 h-5" %}
                             </div>
-                            <span>Retour aux Examens</span>
+                            <span class="font-medium">Retour aux Examens</span>
                         </a>
                         <a href="{% url 'student_dashboard' %}" 
-                           class="group w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5">
-                            <div class="p-2 rounded-lg bg-white/10">
+                           class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-gray-600 dark:text-gray-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 dark:hover:from-gray-500 dark:hover:to-gray-600 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(75,85,99,0.25)] hover:-translate-y-0.5 space-x-2">
+                            <div class="p-2 rounded-lg bg-gradient-to-br from-gray-500/10 to-gray-600/10 dark:from-gray-400/5 dark:to-gray-500/5">
                                 {% include 'components/icons.html' with icon="home" class="w-5 h-5" %}
                             </div>
-                            <span>Tableau de Bord</span>
+                            <span class="font-medium">Tableau de Bord</span>
                         </a>
                     </div>
 
@@ -59,26 +60,26 @@
             <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-xl hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300">
                 <div class="flex items-center space-x-3 mb-4">
                     <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
-                        {% include 'components/icons.html' with icon="light-bulb" class="w-6 h-6 text-blue-600 dark:text-blue-400" %}
+                        {% include 'components/icons.html' with icon="academic" class="w-6 h-6 text-blue-600 dark:text-blue-400" %}
                     </div>
                     <h2 class="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Conseils pour la suite</h2>
                 </div>
                 <ul class="space-y-3 text-gray-600 dark:text-gray-400">
                     <li class="group flex items-start space-x-3 p-2 rounded-lg bg-gray-50/80 dark:bg-gray-700/80 backdrop-blur-sm hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
                         <div class="p-1.5 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
-                            {% include 'components/icons.html' with icon="check" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
+                            {% include 'components/icons.html' with icon="book" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
                         </div>
                         <span class="flex-1">Révisez régulièrement le contenu du cours pour maintenir vos connaissances</span>
                     </li>
                     <li class="group flex items-start space-x-3 p-2 rounded-lg bg-gray-50/80 dark:bg-gray-700/80 backdrop-blur-sm hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
                         <div class="p-1.5 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
-                            {% include 'components/icons.html' with icon="check" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
+                            {% include 'components/icons.html' with icon="users" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
                         </div>
                         <span class="flex-1">Participez aux discussions de groupe pour partager vos expériences</span>
                     </li>
                     <li class="group flex items-start space-x-3 p-2 rounded-lg bg-gray-50/80 dark:bg-gray-700/80 backdrop-blur-sm hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
                         <div class="p-1.5 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
-                            {% include 'components/icons.html' with icon="check" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
+                            {% include 'components/icons.html' with icon="academic" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
                         </div>
                         <span class="flex-1">N'hésitez pas à contacter votre enseignant pour des éclaircissements</span>
                     </li>
