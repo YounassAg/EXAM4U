@@ -133,36 +133,198 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    let questionCount = 0;
+    // State management
+    const state = {
+        questionCounter: 0,
+        deletedQuestions: new Set(),
+        questionsContainer: document.getElementById('questions-container'),
+        questionCountInput: document.getElementById('question_count'),
+        addQuestionBtn: document.getElementById('add-question-btn')
+    };
 
-    // Make handleQuestionTypeChange globally accessible
-    window.handleQuestionTypeChange = function(questionId) {
+    // Initialize event listeners
+    initializeEventListeners();
+
+    // Core functions
+    function initializeEventListeners() {
+        // Add question button
+        state.addQuestionBtn.addEventListener('click', handleAddQuestion);
+
+        // Global event delegation for dynamic elements
+        document.addEventListener('click', handleGlobalClick);
+        document.addEventListener('change', handleGlobalChange);
+    }
+
+    function handleGlobalClick(event) {
+        // Handle remove question button
+        if (event.target.closest('.remove-question-btn')) {
+            handleRemoveQuestion(event);
+        }
+        // Handle add MCQ choice button
+        else if (event.target.closest('.add-mcq-choice-btn')) {
+            handleAddMCQChoice(event);
+        }
+        // Handle remove MCQ choice button
+        else if (event.target.closest('.remove-mcq-choice-btn')) {
+            handleRemoveMCQChoice(event);
+        }
+    }
+
+    function handleGlobalChange(event) {
+        // Handle question type change
+        if (event.target.matches('[id^="question_type_"]')) {
+            const questionId = event.target.id.split('_')[2];
+            handleQuestionTypeChange(questionId);
+        }
+    }
+
+    function handleAddQuestion() {
+        state.questionCounter++;
+        updateQuestionCount(state.questionCounter);
+
+        const questionContainer = createQuestionElement(state.questionCounter);
+        state.questionsContainer.appendChild(questionContainer);
+        handleQuestionTypeChange(state.questionCounter);
+    }
+
+    function handleRemoveQuestion(event) {
+        const button = event.target.closest('.remove-question-btn');
+        const questionId = button.getAttribute('data-question-id');
+        const questionElement = document.getElementById(`question_${questionId}`);
+
+        if (questionElement) {
+            questionElement.remove();
+            state.deletedQuestions.add(questionId);
+            reindexQuestions();
+        }
+    }
+
+    function handleAddMCQChoice(event) {
+        const button = event.target.closest('.add-mcq-choice-btn');
+        const questionId = button.getAttribute('data-question-id');
+        const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
+        const choiceCountInput = document.getElementById(`mcq_choice_count_${questionId}`);
+        
+        let choiceCount = parseInt(choiceCountInput.value) + 1;
+        choiceCountInput.value = choiceCount;
+
+        const choiceElement = createMCQChoiceElement(questionId, choiceCount);
+        choicesContainer.appendChild(choiceElement);
+    }
+
+    function handleRemoveMCQChoice(event) {
+        const button = event.target.closest('.remove-mcq-choice-btn');
+        const questionId = button.getAttribute('data-question-id');
+        const choiceId = button.getAttribute('data-choice-id');
+        const choiceElement = document.getElementById(`mcq_choice_${questionId}_${choiceId}`);
+
+        if (choiceElement) {
+            choiceElement.remove();
+            reindexMCQChoices(questionId);
+        }
+    }
+
+    function handleQuestionTypeChange(questionId) {
         const questionType = document.getElementById(`question_type_${questionId}`).value;
         const mcqSection = document.getElementById(`mcq_section_${questionId}`);
         
-        if (questionType === 'MCQ') {
-            mcqSection.classList.remove('hidden');
-        } else {
-            mcqSection.classList.add('hidden');
-            // Clear MCQ choices when switching to other types
-            const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
-            const choiceCountElem = document.getElementById(`mcq_choice_count_${questionId}`);
-            choicesContainer.innerHTML = `<input type="hidden" name="mcq_choice_count_${questionId}" id="mcq_choice_count_${questionId}" value="0">`;
+        if (mcqSection) {
+            if (questionType === 'MCQ') {
+                mcqSection.classList.remove('hidden');
+            } else {
+                mcqSection.classList.add('hidden');
+                const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
+                const choiceCountInput = document.getElementById(`mcq_choice_count_${questionId}`);
+                if (choicesContainer && choiceCountInput) {
+                    choicesContainer.innerHTML = '';
+                    choiceCountInput.value = '0';
+                }
+            }
         }
-    };
+    }
 
-    document.getElementById('add-question-btn').addEventListener('click', function () {
-        questionCount++;
-        document.getElementById('question_count').value = questionCount;
+    // Helper functions
+    function updateQuestionCount(count) {
+        if (state.questionCountInput) {
+            state.questionCountInput.value = count;
+        }
+    }
 
-        const questionContainer = document.createElement('div');
-        questionContainer.classList.add('bg-white/80', 'dark:bg-gray-800/80', 'backdrop-blur-lg', 'rounded-2xl', 'shadow-lg', 'border', 'border-gray-200', 'dark:border-gray-700', 'p-6', 'space-y-6');
-        questionContainer.setAttribute('id', `question_${questionCount}`);
+    function reindexQuestions() {
+        const questions = state.questionsContainer.querySelectorAll('[id^="question_"]');
+        const newCount = questions.length;
+        
+        questions.forEach((question, index) => {
+            const newIndex = index + 1;
+            updateQuestionElement(question, newIndex);
+        });
 
-        questionContainer.innerHTML = `
+        state.questionCounter = newCount;
+        updateQuestionCount(newCount);
+    }
+
+    function reindexMCQChoices(questionId) {
+        const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
+        const choices = choicesContainer.querySelectorAll('[id^="mcq_choice_"]');
+        const choiceCountInput = document.getElementById(`mcq_choice_count_${questionId}`);
+        
+        choices.forEach((choice, index) => {
+            const newIndex = index + 1;
+            updateMCQChoiceElement(choice, questionId, newIndex);
+        });
+
+        choiceCountInput.value = choices.length;
+    }
+
+    function updateQuestionElement(question, newIndex) {
+        const oldIndex = question.id.split('_')[1];
+        
+        // Update IDs and attributes
+        question.id = `question_${newIndex}`;
+        
+        // Update heading
+        const heading = question.querySelector('h2');
+        if (heading) {
+            heading.textContent = `Question ${newIndex}`;
+        }
+
+        // Update remove button
+        const removeBtn = question.querySelector('.remove-question-btn');
+        if (removeBtn) {
+            removeBtn.setAttribute('data-question-id', newIndex);
+        }
+
+        // Update all form elements
+        updateFormElements(question, oldIndex, newIndex);
+    }
+
+    function updateFormElements(container, oldIndex, newIndex) {
+        const elements = container.querySelectorAll('[id], [name], [for]');
+        
+        elements.forEach(element => {
+            ['id', 'name', 'for'].forEach(attr => {
+                if (element.hasAttribute(attr)) {
+                    const oldValue = element.getAttribute(attr);
+                    const newValue = oldValue.replace(
+                        new RegExp(`_${oldIndex}($|_)`),
+                        `_${newIndex}$1`
+                    );
+                    element.setAttribute(attr, newValue);
+                }
+            });
+        });
+    }
+
+    function createQuestionElement(index) {
+        const div = document.createElement('div');
+        div.classList.add('bg-white/80', 'dark:bg-gray-800/80', 'backdrop-blur-lg', 'rounded-2xl', 
+                         'shadow-lg', 'border', 'border-gray-200', 'dark:border-gray-700', 'p-6', 'space-y-6');
+        div.id = `question_${index}`;
+        
+        div.innerHTML = `
             <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
-                <h2 class="text-lg font-bold text-gray-900 dark:text-white">Question ${questionCount}</h2>
-                <button type="button" class="remove-question-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${questionCount}">
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white">Question ${index}</h2>
+                <button type="button" class="remove-question-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${index}">
                     <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
                         {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
                     </div>
@@ -171,9 +333,8 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
 
             <div>
-                <label for="question_type_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type de Question</label>
-                <select name="question_type_${questionCount}" id="question_type_${questionCount}" required 
-                        onchange="handleQuestionTypeChange(${questionCount})"
+                <label for="question_type_${index}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type de Question</label>
+                <select name="question_type_${index}" id="question_type_${index}" required 
                         class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
                     <option value="MCQ">QCM</option>
                     <option value="short_answer">Réponse Courte</option>
@@ -182,23 +343,22 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
 
             <div>
-                <label for="question_wording_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Énoncé</label>
-                <textarea name="question_wording_${questionCount}" id="question_wording_${questionCount}" rows="3" required
+                <label for="question_wording_${index}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Énoncé</label>
+                <textarea name="question_wording_${index}" id="question_wording_${index}" rows="3" required
                           class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300"></textarea>
             </div>
 
             <div>
-                <label for="question_points_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Points</label>
-                <input type="number" name="question_points_${questionCount}" step="0.5" id="question_points_${questionCount}" required 
+                <label for="question_points_${index}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Points</label>
+                <input type="number" name="question_points_${index}" id="question_points_${index}" required step="0.5"
                        class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
             </div>
 
-            <!-- MCQ Choices Section -->
-            <div class="mcq-choices-section hidden" id="mcq_section_${questionCount}">
-                <div class="mcq-choices-container space-y-4" id="mcq_choices_${questionCount}">
-                    <input type="hidden" name="mcq_choice_count_${questionCount}" id="mcq_choice_count_${questionCount}" value="0">
+            <div class="mcq-choices-section hidden" id="mcq_section_${index}">
+                <div class="mcq-choices-container space-y-4" id="mcq_choices_${index}">
+                    <input type="hidden" name="mcq_choice_count_${index}" id="mcq_choice_count_${index}" value="0">
                 </div>
-                <button type="button" class="add-mcq-choice-btn mt-4 sm:w-40 group inline-flex items-center justify-center px-3 py-1.5 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${questionCount}">
+                <button type="button" class="add-mcq-choice-btn mt-4 sm:w-40 group inline-flex items-center justify-center px-3 py-1.5 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${index}">
                     <div class="p-1 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
                         {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
                     </div>
@@ -206,74 +366,180 @@ document.addEventListener('DOMContentLoaded', function () {
                 </button>
             </div>
         `;
+        
+        return div;
+    }
 
-        document.getElementById('questions-container').appendChild(questionContainer);
-        handleQuestionTypeChange(questionCount); // Initialize visibility
-    });
+    function createMCQChoiceElement(questionId, choiceIndex) {
+        const div = document.createElement('div');
+        div.classList.add('bg-gray-50/80', 'dark:bg-gray-700/50', 'backdrop-blur-sm', 'rounded-xl', 'p-4', 'space-y-4', 'mb-4');
+        div.id = `mcq_choice_${questionId}_${choiceIndex}`;
+        
+        div.innerHTML = `
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix ${choiceIndex}</h3>
+                <button type="button" class="remove-mcq-choice-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${questionId}" data-choice-id="${choiceIndex}">
+                    <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
+                        {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                    </div>
+                    <span class="font-medium">Supprimer</span>
+                </button>
+            </div>
+            <div>
+                <label for="mcq_choice_text_${questionId}_${choiceIndex}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Texte du Choix</label>
+                <input type="text" name="mcq_choice_text_${questionId}_${choiceIndex}" id="mcq_choice_text_${questionId}_${choiceIndex}" required 
+                       class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
+            </div>
+            <div class="flex items-center space-x-2">
+                <input type="checkbox" name="mcq_choice_correct_${questionId}_${choiceIndex}" id="mcq_choice_correct_${questionId}_${choiceIndex}"
+                       class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
+<label for="mcq_choice_correct_${questionId}_${choiceIndex}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Réponse Correcte
+                </label>
+            </div>
+        `;
+        
+        return div;
+    }
 
-    // Handle removing questions
-    document.addEventListener('click', function(event) {
-        if (event.target.classList.contains('remove-question-btn') || event.target.closest('.remove-question-btn')) {
-            const button = event.target.classList.contains('remove-question-btn') ? event.target : event.target.closest('.remove-question-btn');
-            const questionId = button.getAttribute('data-question-id');
-            const questionElement = document.getElementById(`question_${questionId}`);
-            questionElement.remove();
+    function updateMCQChoiceElement(choice, questionId, newIndex) {
+        // Update choice ID
+        choice.id = `mcq_choice_${questionId}_${newIndex}`;
+        
+        // Update heading
+        const heading = choice.querySelector('h3');
+        if (heading) {
+            heading.textContent = `Choix ${newIndex}`;
         }
-    });
 
-    // Handle adding MCQ choices
-    document.addEventListener('click', function(event) {
-        if (event.target.classList.contains('add-mcq-choice-btn') || event.target.closest('.add-mcq-choice-btn')) {
-            const button = event.target.classList.contains('add-mcq-choice-btn') ? event.target : event.target.closest('.add-mcq-choice-btn');
-            const questionId = button.getAttribute('data-question-id');
-            const choiceCountElem = document.getElementById(`mcq_choice_count_${questionId}`);
-            let choiceCount = parseInt(choiceCountElem.value) + 1;
-            choiceCountElem.value = choiceCount;
-
-            const choiceContainer = document.createElement('div');
-            choiceContainer.classList.add('bg-gray-50/80', 'dark:bg-gray-700/50', 'backdrop-blur-sm', 'rounded-xl', 'p-4', 'space-y-4', 'mb-4');
-            choiceContainer.setAttribute('id', `mcq_choice_${questionId}_${choiceCount}`);
-
-            choiceContainer.innerHTML = `
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
-                    <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix ${choiceCount}</h3>
-                    <button type="button" class="remove-mcq-choice-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" 
-                            data-question-id="${questionId}" data-choice-id="${choiceCount}">
-                        <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
-                            {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
-                        </div>
-                        <span class="font-medium">Supprimer</span>
-                    </button>
-                </div>
-                <div>
-                    <label for="mcq_choice_text_${questionId}_${choiceCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Texte du Choix</label>
-                    <input type="text" name="mcq_choice_text_${questionId}_${choiceCount}" id="mcq_choice_text_${questionId}_${choiceCount}" required 
-                           class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
-                </div>
-                <div class="flex items-center space-x-2">
-                    <input type="checkbox" name="mcq_choice_correct_${questionId}_${choiceCount}" id="mcq_choice_correct_${questionId}_${choiceCount}"
-                           class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
-                    <label for="mcq_choice_correct_${questionId}_${choiceCount}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Réponse Correcte
-                    </label>
-                </div>
-            `;
-
-            const mcqChoicesContainer = document.getElementById(`mcq_choices_${questionId}`);
-            mcqChoicesContainer.appendChild(choiceContainer);
+        // Update remove button
+        const removeBtn = choice.querySelector('.remove-mcq-choice-btn');
+        if (removeBtn) {
+            removeBtn.setAttribute('data-choice-id', newIndex);
         }
+
+        // Update input elements
+        const textInput = choice.querySelector(`[id^="mcq_choice_text_"]`);
+        if (textInput) {
+            textInput.id = `mcq_choice_text_${questionId}_${newIndex}`;
+            textInput.name = `mcq_choice_text_${questionId}_${newIndex}`;
+        }
+
+        // Update checkbox
+        const checkbox = choice.querySelector(`[id^="mcq_choice_correct_"]`);
+        if (checkbox) {
+            checkbox.id = `mcq_choice_correct_${questionId}_${newIndex}`;
+            checkbox.name = `mcq_choice_correct_${questionId}_${newIndex}`;
+        }
+
+        // Update checkbox label
+        const checkboxLabel = choice.querySelector(`label[for^="mcq_choice_correct_"]`);
+        if (checkboxLabel) {
+            checkboxLabel.setAttribute('for', `mcq_choice_correct_${questionId}_${newIndex}`);
+        }
+    }
+
+    // Form submission handling
+    document.querySelector('form').addEventListener('submit', function(event) {
+        // Prevent form submission if validation fails
+        if (!validateForm()) {
+            event.preventDefault();
+            return;
+        }
+
+        // Add hidden inputs for tracking deleted items
+        state.deletedQuestions.forEach(questionId => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'deleted_question_ids';
+            input.value = questionId;
+            this.appendChild(input);
+        });
+
+        // Update final question count
+        const finalCount = state.questionsContainer.querySelectorAll('[id^="question_"]').length;
+        updateQuestionCount(finalCount);
     });
 
-    // Handle removing MCQ choices
-    document.addEventListener('click', function(event) {
-        if (event.target.classList.contains('remove-mcq-choice-btn') || event.target.closest('.remove-mcq-choice-btn')) {
-            const button = event.target.classList.contains('remove-mcq-choice-btn') ? event.target : event.target.closest('.remove-mcq-choice-btn');
-            const questionId = button.getAttribute('data-question-id');
-            const choiceId = button.getAttribute('data-choice-id');
-            const choiceElement = document.getElementById(`mcq_choice_${questionId}_${choiceId}`);
-            choiceElement.remove();
+    function validateForm() {
+        let isValid = true;
+        const questions = state.questionsContainer.querySelectorAll('[id^="question_"]');
+
+        // Validate each question
+        questions.forEach(question => {
+            const questionId = question.id.split('_')[1];
+            const questionType = document.getElementById(`question_type_${questionId}`).value;
+            const wording = document.getElementById(`question_wording_${questionId}`).value.trim();
+            const points = document.getElementById(`question_points_${questionId}`).value;
+
+            if (!wording || !points) {
+                isValid = false;
+                markInvalid(question);
+            }
+
+            // Validate MCQ choices if question type is MCQ
+            if (questionType === 'MCQ') {
+                const choices = question.querySelectorAll('[id^="mcq_choice_"]');
+                const hasCorrectAnswer = Array.from(choices).some(choice => {
+                    const choiceId = choice.id.split('_')[3];
+                    return document.getElementById(`mcq_choice_correct_${questionId}_${choiceId}`).checked;
+                });
+
+                if (choices.length < 2 || !hasCorrectAnswer) {
+                    isValid = false;
+                    markInvalid(question);
+                }
+
+                // Validate each choice has text
+                choices.forEach(choice => {
+                    const choiceId = choice.id.split('_')[3];
+                    const choiceText = document.getElementById(`mcq_choice_text_${questionId}_${choiceId}`).value.trim();
+                    if (!choiceText) {
+                        isValid = false;
+                        markInvalid(choice);
+                    }
+                });
+            }
+        });
+
+        if (!isValid) {
+            showErrorMessage('Please fill in all required fields and ensure MCQ questions have at least two choices with one correct answer.');
         }
-    });
+
+        return isValid;
+    }
+
+    function markInvalid(element) {
+        element.classList.add('border-red-500', 'dark:border-red-400');
+        setTimeout(() => {
+            element.classList.remove('border-red-500', 'dark:border-red-400');
+        }, 3000);
+    }
+
+    function showErrorMessage(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.classList.add('bg-red-100', 'border', 'border-red-400', 'text-red-700', 'px-4', 'py-3', 'rounded', 'relative', 'mb-4');
+        errorDiv.innerHTML = `
+            <span class="block sm:inline">${message}</span>
+            <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                    <title>Close</title>
+                    <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+                </svg>
+            </span>
+        `;
+        
+        const form = document.querySelector('form');
+        form.insertBefore(errorDiv, form.firstChild);
+
+        // Remove error message after 5 seconds
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 5000);
+
+        // Allow manual close
+        errorDiv.querySelector('svg').addEventListener('click', () => errorDiv.remove());
+    }
 });
 </script>
 {% endblock %}

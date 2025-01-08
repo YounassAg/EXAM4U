@@ -189,28 +189,37 @@ def create_exam(request):
                     start_date=start_date,
                     end_date=end_date,
                 )
+                active_questions = []
                 question_count = int(request.POST.get('question_count', 0))
+                
                 for i in range(1, question_count + 1):
-                    question_type = request.POST.get(f'question_type_{i}')
-                    question_wording = request.POST.get(f'question_wording_{i}')
-                    question_points = request.POST.get(f'question_points_{i}')
-                    question = Question.objects.create(
-                        exam=exam,
-                        question_type=question_type,
-                        wording=question_wording,
-                        points=question_points,
-                        allow_multiple_answers=(question_type == 'MCQ')
-                    )
+                    # Check if this question slot is actually being used
+                    if request.POST.get(f'question_wording_{i}'):
+                        question_type = request.POST.get(f'question_type_{i}')
+                        question_wording = request.POST.get(f'question_wording_{i}')
+                        question_points = request.POST.get(f'question_points_{i}')
+                        
+                        question = Question.objects.create(
+                            exam=exam,
+                            question_type=question_type,
+                            wording=question_wording,
+                            points=question_points,
+                            allow_multiple_answers=(question_type == 'MCQ')
+                        )
+                        active_questions.append(question.id)
                     if question_type == 'MCQ':
+                        active_choices = []
                         choice_count = int(request.POST.get(f'mcq_choice_count_{i}', 0))
                         for j in range(1, choice_count + 1):
-                            choice_label = request.POST.get(f'mcq_choice_text_{i}_{j}')
-                            is_correct = request.POST.get(f'mcq_choice_correct_{i}_{j}') == 'on'
-                            MCQChoice.objects.create(
-                                question=question,
-                                choice_label=choice_label,
-                                is_correct=is_correct
-                            )
+                            if request.POST.get(f'mcq_choice_text_{i}_{j}'):
+                                choice_label = request.POST.get(f'mcq_choice_text_{i}_{j}')
+                                is_correct = request.POST.get(f'mcq_choice_correct_{i}_{j}') == 'on'
+                                choice = MCQChoice.objects.create(
+                                    question=question,
+                                    choice_label=choice_label,
+                                    is_correct=is_correct
+                                )
+                                active_choices.append(choice.id)
                 messages.success(request, 'Exam created successfully!')
                 return redirect('teacher_exam_list')
         except IntegrityError:
