@@ -4,7 +4,6 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.utils import timezone
-from django.db.models import Count, Avg
 from datetime import timedelta
 from django.contrib.auth.decorators import login_required
 from .forms import UserRegistrationForm, LoginForm, ExamForm
@@ -23,6 +22,7 @@ from reportlab.pdfgen import canvas
 from io import BytesIO
 import csv
 import re
+
 
 
 def role_required(role):
