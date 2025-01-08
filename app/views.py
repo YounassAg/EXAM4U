@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction, IntegrityError
 from django.core.exceptions import PermissionDenied
+from django.utils.timezone import now
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.utils import timezone
@@ -436,8 +437,19 @@ def update_attempt_status(request):
 @role_required('student')
 def take_exam(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
+    current_time = now()
+
+    # Check if the current time is outside the allowed exam window
+    if current_time < exam.start_date:
+        messages.error(request, "Cet examen n'a pas encore commencé.")
+        return redirect('student_exam_list')
+    elif current_time > exam.end_date:
+        messages.error(request, "Cet examen est déjà terminé.")
+        return redirect('student_exam_list')
+
     student = request.user.userprofile
     attempt = ExamAttempt.objects.filter(exam=exam, student=student, status__in=['in_progress', 'abandoned']).first()
+
     if not attempt:
         completed_or_abandoned_attempts = ExamAttempt.objects.filter(
             exam=exam, student=student, status__in=['completed']
@@ -446,7 +458,9 @@ def take_exam(request, exam_id):
             messages.error(request, f"Vous avez déjà atteint le nombre maximum de tentatives {exam.max_attempts} pour l'examen '{exam.title}'.")
             return redirect('student_exam_list')
         attempt = ExamAttempt.objects.create(exam=exam, student=student, status='in_progress', start_date=timezone.now())
+
     questions = Question.objects.filter(exam=exam).prefetch_related('mcqchoice_set')
+
     if request.method == 'POST':
         form = ExamForm(request.POST, questions=questions)
         if form.is_valid():
@@ -476,13 +490,13 @@ def take_exam(request, exam_id):
             for response in attempt.response_set.all()
         }
         form = ExamForm(questions=questions, initial=initial_responses)
+
     return render(request, 'student/exam/take_exam.html', {
         'exam': exam,
         'form': form,
         'questions': questions,
         'attempt': attempt,
     })
-
 
 @login_required
 @role_required('teacher')

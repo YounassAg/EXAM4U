@@ -127,20 +127,21 @@ document.addEventListener('DOMContentLoaded', function () {
             <div>
                 <label for="question_wording_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Énoncé</label>
                 <textarea name="question_wording_${questionCount}" 
-                          id="question_wording_${questionCount}" 
-                          rows="3" 
-                          required
-                          class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                            id="question_wording_${questionCount}" 
+                            rows="3" 
+                            required
+                            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
             </div>
 
             <div>
                 <label for="question_points_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Points</label>
                 <input type="number" 
-                       name="question_points_${questionCount}" 
-                       id="question_points_${questionCount}" 
-                       value="1" 
-                       required 
-                       class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        step="0.5"
+                        name="question_points_${questionCount}" 
+                        id="question_points_${questionCount}" 
+                        value="1" 
+                        required 
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
 
             <!-- MCQ Choices Section -->
@@ -336,4 +337,4 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     });
-}); 
+});
