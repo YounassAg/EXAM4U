@@ -15,6 +15,68 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Function to remove an MCQ choice
+    function removeMCQChoice(questionId, choiceId) {
+        const choiceElement = document.getElementById(`mcq_choice_${questionId}_${choiceId}`);
+        if (choiceElement) {
+            choiceElement.remove();
+            // Update choice count
+            const choiceCountInput = document.getElementById(`mcq_choice_count_${questionId}`);
+            if (choiceCountInput) {
+                const currentCount = parseInt(choiceCountInput.value);
+                choiceCountInput.value = currentCount - 1;
+            }
+            // Reindex remaining choices
+            reindexMCQChoices(questionId);
+        }
+    }
+
+    // Function to reindex MCQ choices
+    function reindexMCQChoices(questionId) {
+        const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
+        if (!choicesContainer) return;
+
+        const choiceDivs = Array.from(choicesContainer.querySelectorAll('div[id^="mcq_choice_"]'));
+        choiceDivs.forEach((choiceDiv, index) => {
+            const newIndex = index + 1;
+            
+            // Update choice div ID
+            choiceDiv.id = `mcq_choice_${questionId}_${newIndex}`;
+            
+            // Update choice title
+            const titleElement = choiceDiv.querySelector('h3');
+            if (titleElement) {
+                titleElement.textContent = `Choix ${newIndex}`;
+            }
+
+            // Update all input fields
+            choiceDiv.querySelectorAll('input').forEach(element => {
+                const oldName = element.getAttribute('name');
+                const oldId = element.getAttribute('id');
+                if (oldName) {
+                    element.setAttribute('name', oldName.replace(/_\d+$/, `_${newIndex}`));
+                }
+                if (oldId) {
+                    element.setAttribute('id', oldId.replace(/_\d+$/, `_${newIndex}`));
+                }
+            });
+
+            // Update labels
+            choiceDiv.querySelectorAll('label').forEach(element => {
+                const forAttr = element.getAttribute('for');
+                if (forAttr && forAttr.includes('mcq_choice_')) {
+                    element.setAttribute('for', forAttr.replace(/_\d+$/, `_${newIndex}`));
+                }
+            });
+
+            // Update remove button data-choice-id
+            const removeButton = choiceDiv.querySelector('.remove-mcq-choice-btn');
+            if (removeButton) {
+                removeButton.setAttribute('data-choice-id', newIndex);
+            }
+        });
+    }
+
     // Function to handle question type changes
     function handleQuestionTypeChange(event) {
         const questionId = event.target.getAttribute('data-question-id');
@@ -24,6 +86,139 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!mcqSection) return;
 
         mcqSection.classList.toggle('hidden', event.target.value !== 'MCQ');
+    }
+
+    // Function to add a new question
+    function addQuestion() {
+        questionCount++;
+        const questionsContainer = document.getElementById('questions-container');
+        if (!questionsContainer) return;
+
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 space-y-6';
+        questionDiv.id = `question_${questionCount}`;
+
+        questionDiv.innerHTML = `
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white">Question ${questionCount}</h2>
+                <button type="button" class="remove-question-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${questionCount}">
+                    <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </div>
+                    <span class="font-medium">Supprimer</span>
+                </button>
+            </div>
+            
+            <div>
+                <label for="question_type_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type de Question</label>
+                <select name="question_type_${questionCount}" 
+                        id="question_type_${questionCount}" 
+                        required 
+                        data-question-id="${questionCount}"
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="MCQ">QCM</option>
+                    <option value="short_answer">Réponse Courte</option>
+                    <option value="open">Question Ouverte</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="question_wording_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Énoncé</label>
+                <textarea name="question_wording_${questionCount}" 
+                          id="question_wording_${questionCount}" 
+                          rows="3" 
+                          required
+                          class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+            </div>
+
+            <div>
+                <label for="question_points_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Points</label>
+                <input type="number" 
+                       name="question_points_${questionCount}" 
+                       id="question_points_${questionCount}" 
+                       value="1" 
+                       required 
+                       class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <!-- MCQ Choices Section -->
+            <div class="mcq-choices-section" id="mcq_section_${questionCount}">
+                <div class="mcq-choices-container space-y-4" id="mcq_choices_${questionCount}">
+                    <input type="hidden" name="mcq_choice_count_${questionCount}" id="mcq_choice_count_${questionCount}" value="0">
+                </div>
+                <button type="button" class="add-mcq-choice-btn mt-4 sm:w-40 group inline-flex items-center justify-center px-3 py-1.5 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${questionCount}">
+                    <div class="p-1 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                    </div>
+                    <span class="font-medium">Ajouter un Choix</span>
+                </button>
+            </div>
+        `;
+
+        questionsContainer.appendChild(questionDiv);
+        
+        // Update question count input
+        const questionCountInput = document.getElementById('question_count');
+        if (questionCountInput) {
+            questionCountInput.value = questionCount;
+        }
+
+        // Attach event listeners to the new question
+        attachEventListeners();
+    }
+
+    // Function to add a new MCQ choice
+    function addMCQChoice(questionId) {
+        const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
+        if (!choicesContainer) return;
+
+        const choiceCountInput = document.getElementById(`mcq_choice_count_${questionId}`);
+        if (!choiceCountInput) return;
+
+        const choiceCount = parseInt(choiceCountInput.value) + 1;
+        choiceCountInput.value = choiceCount;
+
+        const choiceDiv = document.createElement('div');
+        choiceDiv.className = 'bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-4 mb-4';
+        choiceDiv.id = `mcq_choice_${questionId}_${choiceCount}`;
+
+        choiceDiv.innerHTML = `
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix ${choiceCount}</h3>
+                <button type="button" class="remove-mcq-choice-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" 
+                        data-question-id="${questionId}" data-choice-id="${choiceCount}">
+                    <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </div>
+                    <span class="font-medium">Supprimer</span>
+                </button>
+            </div>
+            <div>
+                <label for="mcq_choice_text_${questionId}_${choiceCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Texte du Choix</label>
+                <input type="text" 
+                    name="mcq_choice_text_${questionId}_${choiceCount}" 
+                    id="mcq_choice_text_${questionId}_${choiceCount}" 
+                    required 
+                    class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div class="flex items-center space-x-2">
+                <input type="checkbox" 
+                    name="mcq_choice_correct_${questionId}_${choiceCount}" 
+                    id="mcq_choice_correct_${questionId}_${choiceCount}"
+                    class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
+                <label for="mcq_choice_correct_${questionId}_${choiceCount}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Réponse Correcte
+                </label>
+            </div>
+        `;
+
+        choicesContainer.appendChild(choiceDiv);
     }
 
     // Function to reindex questions
@@ -81,40 +276,51 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Function to attach event listeners
+    // Event delegation for dynamic elements
+    document.addEventListener('click', function(e) {
+        // Handle remove MCQ choice button clicks
+        if (e.target.closest('.remove-mcq-choice-btn')) {
+            const button = e.target.closest('.remove-mcq-choice-btn');
+            const questionId = button.getAttribute('data-question-id');
+            const choiceId = button.getAttribute('data-choice-id');
+            if (questionId && choiceId) {
+                removeMCQChoice(questionId, choiceId);
+            }
+        }
+        
+        // Handle remove question button clicks
+        if (e.target.closest('.remove-question-btn')) {
+            const button = e.target.closest('.remove-question-btn');
+            const questionId = button.getAttribute('data-question-id');
+            if (questionId) {
+                removeQuestion(questionId);
+            }
+        }
+        
+        // Handle add MCQ choice button clicks
+        if (e.target.closest('.add-mcq-choice-btn')) {
+            const button = e.target.closest('.add-mcq-choice-btn');
+            const questionId = button.getAttribute('data-question-id');
+            if (questionId) {
+                addMCQChoice(questionId);
+            }
+        }
+    });
+
+    // Handle question type changes through event delegation
+    document.addEventListener('change', function(e) {
+        if (e.target.matches('select[id^="question_type_"]')) {
+            handleQuestionTypeChange(e);
+        }
+    });
+
+    // Modify attachEventListeners to only handle non-dynamic elements
     function attachEventListeners() {
-        // Remove question button listeners
-        document.querySelectorAll('.remove-question-btn').forEach(button => {
-            // Remove existing listeners first
-            const newButton = button.cloneNode(true);
-            button.parentNode.replaceChild(newButton, button);
-            
-            // Add new listener
-            newButton.addEventListener('click', function() {
-                const questionId = this.getAttribute('data-question-id');
-                if (questionId) {
-                    removeQuestion(questionId);
-                }
-            });
-        });
-
-        // Add MCQ choice button listeners
-        document.querySelectorAll('.add-mcq-choice-btn').forEach(button => {
-            const newButton = button.cloneNode(true);
-            button.parentNode.replaceChild(newButton, button);
-            
-            newButton.addEventListener('click', function() {
-                const questionId = this.getAttribute('data-question-id');
-                if (questionId) {
-                    addMCQChoice(questionId);
-                }
-            });
-        });
-
-        // Add question type change listeners
-        document.querySelectorAll('select[id^="question_type_"]').forEach(select => {
-            select.addEventListener('change', handleQuestionTypeChange);
-        });
+        // Add question button listener (this is a static element)
+        const addQuestionBtn = document.getElementById('add-question-btn');
+        if (addQuestionBtn) {
+            addQuestionBtn.addEventListener('click', addQuestion);
+        }
     }
 
     // Initial setup
