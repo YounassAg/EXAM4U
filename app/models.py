@@ -124,3 +124,23 @@ class Response(models.Model):
     def __str__(self):
         return f"Response to {self.question.wording[:30]}..."
     
+class StudentActionLog(models.Model):
+    ACTION_CHOICES = [
+        ('page_load', 'Page Loaded'),
+        ('page_unload', 'Page Unloaded'),
+        ('tab_switch', 'Tab Switched'),
+        ('navigation_attempt', 'Navigation Attempt'),
+        ('question_answered', 'Question Answered'),
+        ('inactivity_detected', 'Inactivity Detected'),
+        ('copy_attempt', 'Copy Attempt'),
+        ('screen_resize', 'Screen Resized'),
+        ('suspicious_shortcut', 'Suspicious Shortcut Used'),
+    ]
+
+    attempt = models.ForeignKey(ExamAttempt, on_delete=models.CASCADE)
+    action = models.CharField(max_length=50, choices=ACTION_CHOICES)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    details = models.TextField(blank=True, null=True)  # Store additional context, e.g., the shortcut used
+
+    def __str__(self):
+        return f"{self.action} - {self.attempt.student} - {self.timestamp}"

@@ -8,7 +8,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth.decorators import login_required
 from .forms import UserRegistrationForm, LoginForm, ExamForm
-from .models import Course, Group, Exam, Question, MCQChoice, UserProfile, Specialty, ExamAttempt, Response
+from .models import Course, Group, Exam, Question, MCQChoice, UserProfile, Specialty, ExamAttempt, Response, StudentActionLog
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from reportlab.lib.colors import HexColor
@@ -19,6 +19,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, Preformatted
 from reportlab.lib.units import inch
 import zipfile
+import json
 from reportlab.pdfgen import canvas
 from io import BytesIO
 import csv
@@ -497,6 +498,47 @@ def take_exam(request, exam_id):
         'questions': questions,
         'attempt': attempt,
     })
+
+@csrf_exempt
+def log_student_action(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        attempt_id = data.get('attempt_id')
+        action = data.get('action')
+        details = data.get('details', '')
+
+        attempt = ExamAttempt.objects.filter(id=attempt_id).first()
+        if attempt:
+            StudentActionLog.objects.create(
+                attempt=attempt,
+                action=action,
+                details=details
+            )
+            return JsonResponse({'status': 'success'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+@login_required
+@role_required('teacher')
+def view_exam_logs(request, attempt_id):
+    attempt = get_object_or_404(ExamAttempt, id=attempt_id)
+    logs = StudentActionLog.objects.filter(attempt=attempt).order_by('timestamp')
+
+    # Add logic to flag suspicious actions
+    suspicious_logs = logs.filter(action__in=[
+        'tab_switch',
+        'inactivity_detected',
+        'copy_attempt',
+        'screen_resize',
+        'suspicious_shortcut',
+    ])
+
+    return render(request, 'teacher/exam/exam_logs.html', {
+        'attempt': attempt,
+        'logs': logs,
+        'suspicious_logs': suspicious_logs,
+    })
+
 
 @login_required
 @role_required('teacher')

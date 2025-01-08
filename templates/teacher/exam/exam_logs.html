@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Exam Logs for {{ attempt.exam.title }} - {{ attempt.student.first_name }} {{ attempt.student.last_name }}</h1>
+
+<h2>Suspicious Activities</h2>
+{% if suspicious_logs %}
+<table>
+    <thead>
+        <tr>
+            <th>Action</th>
+            <th>Details</th>
+            <th>Timestamp</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.get_action_display }}</td>
+            <td>{{ log.details }}</td>
+            <td>{{ log.timestamp }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No suspicious activities detected.</p>
+{% endif %}
+{% endblock %}

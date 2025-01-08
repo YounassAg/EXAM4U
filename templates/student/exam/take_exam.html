@@ -385,6 +385,126 @@
         }
     }, 30000);
 
+    const logFraudAction = (action, details = "") => {
+        fetch("{% url 'log_action' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+            body: JSON.stringify({
+                attempt_id: "{{ attempt.id }}",
+                action: action,
+                details: details,
+            }),
+        });
+    };
+
+    // Log tab switches
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+            logFraudAction("tab_switch", "User switched tab.");
+        }
+    });
+
+    // Detect inactivity
+    let lastActivityTime = Date.now();
+    const INACTIVITY_THRESHOLD = 300000; // 5 minutes
+
+    const resetActivityTimer = () => {
+        lastActivityTime = Date.now();
+    };
+
+    const checkInactivity = () => {
+        if (Date.now() - lastActivityTime > INACTIVITY_THRESHOLD) {
+            logFraudAction("inactivity_detected", "User inactive for more than 5 minutes.");
+        }
+    };
+
+    document.addEventListener("mousemove", resetActivityTimer);
+    document.addEventListener("keydown", resetActivityTimer);
+    setInterval(checkInactivity, 60000); // Check inactivity every minute
+
+    // Monitor text copying
+    document.addEventListener("copy", (event) => {
+        logFraudAction("copy_attempt", "Text copied.");
+        Swal.fire({
+            icon: "warning",
+            title: "Copying Detected",
+            text: "Copying text from the exam is not allowed.",
+            confirmButtonText: "Understood",
+        });
+        event.preventDefault();
+    });
+
+    // Detect screen resizing
+    let initialWidth = window.innerWidth;
+    let initialHeight = window.innerHeight;
+
+    window.addEventListener("resize", () => {
+        const widthDiff = Math.abs(window.innerWidth - initialWidth);
+        const heightDiff = Math.abs(window.innerHeight - initialHeight);
+
+        if (widthDiff > 100 || heightDiff > 100) {
+            logFraudAction("screen_resize", `Screen resized: ${window.innerWidth}x${window.innerHeight}`);
+            Swal.fire({
+                icon: "warning",
+                title: "Suspicious Behavior Detected",
+                text: "Screen resizing during the exam is not allowed.",
+                confirmButtonText: "Ok",
+            });
+        }
+
+        initialWidth = window.innerWidth;
+        initialHeight = window.innerHeight;
+    });
+
+    // Detect suspicious shortcuts
+    document.addEventListener("keydown", (event) => {
+        const forbiddenShortcuts = ["c", "v", "a", "s", "p", "u"];
+        const isCtrlPressed = event.ctrlKey || event.metaKey;
+
+        if (isCtrlPressed && forbiddenShortcuts.includes(event.key.toLowerCase())) {
+            logFraudAction("suspicious_shortcut", `Shortcut used: Ctrl+${event.key.toUpperCase()}`);
+            Swal.fire({
+                icon: "error",
+                title: "Unauthorized Action Detected",
+                text: `The shortcut Ctrl+${event.key.toUpperCase()} is not allowed during the exam.`,
+                confirmButtonText: "Ok",
+            });
+            event.preventDefault();
+        }
+    });
+
+    window.addEventListener("offline", () => {
+        updateAttemptStatus("abandoned");
+        logFraudAction("network_disconnect", "User disconnected from the network.");
+    
+        Swal.fire({
+            icon: 'error',
+            title: 'Déconnexion détectée',
+            text: "Vous êtes déconnecté du réseau. Votre tentative d'examen sera marquée comme abandonnée si vous ne vous reconnectez pas rapidement.",
+            confirmButtonText: 'Ok',
+            background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+            color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+        });
+    });
+
+
+    window.addEventListener("online", () => {
+        updateAttemptStatus("in_progress");
+        logFraudAction("network_reconnect", "User reconnected to the network.");
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Reconnecté',
+            text: "Vous êtes reconnecté au réseau. Continuez l'examen rapidement pour éviter tout problème.",
+            confirmButtonText: 'Ok',
+            background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+            color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+        });
+    });
+
     // Initialize progress
     updateProgress();
 </script>
