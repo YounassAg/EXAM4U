@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction, IntegrityError
 from django.core.exceptions import PermissionDenied
 from django.utils.timezone import now
+from django.db.models import Avg, Count, F, DurationField, ExpressionWrapper, DecimalField
+from django.db.models.functions import Cast
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.utils import timezone
@@ -1115,6 +1117,9 @@ def download_student_result(request, attempt_id):
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
 
+
+def exam_statistics(request):
+    return render(request, 'teacher/analysis/statistics.html')
 
 
 def custom_403(request, exception):
