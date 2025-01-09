@@ -526,21 +526,9 @@ def view_exam_logs(request, attempt_id):
     attempt = get_object_or_404(ExamAttempt, id=attempt_id)
     logs = StudentActionLog.objects.filter(attempt=attempt).order_by('timestamp')
 
-    # Add logic to flag suspicious actions
-    suspicious_logs = logs.filter(action__in=[
-        'tab_switch',
-        'inactivity_detected',
-        'copy_attempt',
-        'screen_resize',
-        'suspicious_shortcut',
-        'network_disconnect',
-        'network_reconnect',
-    ])
-
     return render(request, 'teacher/exam/exam_logs.html', {
         'attempt': attempt,
         'logs': logs,
-        'suspicious_logs': suspicious_logs,
     })
 
 

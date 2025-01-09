@@ -28,40 +28,8 @@
                 <div class="mt-8 p-6 rounded-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
                     <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Summary</h2>
                     <ul class="mt-4 space-y-3 text-gray-600 dark:text-gray-400">
-                        <li><strong class="text-gray-900 dark:text-white">Total Suspicious Activities:</strong> {{ suspicious_logs|length }}</li>
                         <li><strong class="text-gray-900 dark:text-white">Total Logs:</strong> {{ logs|length }}</li>
                     </ul>
-                </div>
-
-                <!-- Suspicious Activities Section -->
-                <div class="mt-8">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Suspicious Activities</h2>
-                    {% if suspicious_logs %}
-                    <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-xl">
-                        <table class="w-full">
-                            <thead>
-                                <tr>
-                                    <th class="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-left text-gray-900 dark:text-white font-semibold">Action</th>
-                                    <th class="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-left text-gray-900 dark:text-white font-semibold">Details</th>
-                                    <th class="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-left text-gray-900 dark:text-white font-semibold">Timestamp</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                {% for log in suspicious_logs %}
-                                <tr class="hover:bg-gradient-to-br hover:from-blue-500/5 hover:to-purple-500/5 dark:hover:from-blue-400/5 dark:hover:to-purple-400/5 transition-colors duration-150">
-                                    <td class="p-4 text-gray-600 dark:text-gray-400" title="{{ log.get_action_display }}">{{ log.get_action_display }}</td>
-                                    <td class="p-4 text-gray-600 dark:text-gray-400" title="{{ log.details }}">{{ log.details|truncatechars:50 }}</td>
-                                    <td class="p-4 text-gray-600 dark:text-gray-400">{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="text-center p-8 rounded-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-gray-600 dark:text-gray-400">
-                        No suspicious activities detected.
-                    </div>
-                    {% endif %}
                 </div>
 
                 <!-- All Logs Section -->

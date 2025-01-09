@@ -232,6 +232,7 @@
         sessionStorage.removeItem(TIMER_KEY);
     });
 
+    // Form submission handling
     function confirmSubmit() {
         const form = document.getElementById('examForm');
         const unansweredQuestions = [];
@@ -296,10 +297,9 @@
         }
     }
 
-    // Get attempt ID
+    // Attempt status management
     const attemptId = "{{ attempt.id }}";
 
-    // Function to update attempt status via AJAX
     function updateAttemptStatus(status) {
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
@@ -323,40 +323,7 @@
         .catch(error => console.error("Error updating attempt status:", error));
     }
 
-    // Network status handling
-    window.addEventListener("offline", () => {
-        updateAttemptStatus("abandoned");
-
-        Swal.fire({
-            icon: 'error',
-            title: 'Déconnexion détectée',
-            text: "Vous êtes déconnecté du réseau. Votre tentative d'examen sera marquée comme abandonnée si vous ne vous reconnectez pas rapidement.",
-            confirmButtonText: 'Ok',
-            background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-            color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-        });
-    });
-
-    window.addEventListener("online", () => {
-        updateAttemptStatus("in_progress");
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Reconnecté',
-            text: "Vous êtes reconnecté au réseau. Continuez l'examen rapidement pour éviter tout problème.",
-            confirmButtonText: 'Ok',
-            background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-            color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-        });
-    });
-
-    // Keep-alive ping
-    setInterval(() => {
-        if (navigator.onLine) {
-            updateAttemptStatus("in_progress");
-        }
-    }, 30000);
-
+    // Fraud detection logging
     const logFraudAction = (action, details = "") => {
         fetch("{% url 'log_action' %}", {
             method: "POST",
@@ -372,109 +339,209 @@
         });
     };
 
-    // Log tab switches
-    document.addEventListener("visibilitychange", () => {
-        if (document.hidden) {
-            logFraudAction("tab_switch", "User switched tab.");
+    // Enhanced network status monitoring
+    class NetworkMonitor {
+        constructor() {
+            this.disconnectionTime = null;
+            this.MAX_OFFLINE_TIME = 40000;
+            this.setupListeners();
         }
-    });
 
-    // Detect inactivity
-    let lastActivityTime = Date.now();
-    const INACTIVITY_THRESHOLD = 300000; // 5 minutes
-
-    const resetActivityTimer = () => {
-        lastActivityTime = Date.now();
-    };
-
-    const checkInactivity = () => {
-        if (Date.now() - lastActivityTime > INACTIVITY_THRESHOLD) {
-            logFraudAction("inactivity_detected", "User inactive for more than 5 minutes.");
+        setupListeners() {
+            window.addEventListener('offline', () => this.handleOffline());
+            window.addEventListener('online', () => this.handleOnline());
         }
-    };
 
-    document.addEventListener("mousemove", resetActivityTimer);
-    document.addEventListener("keydown", resetActivityTimer);
-    setInterval(checkInactivity, 60000); // Check inactivity every minute
-
-    // Monitor text copying
-    document.addEventListener("copy", (event) => {
-        logFraudAction("copy_attempt", "Text copied.");
-        Swal.fire({
-            icon: "warning",
-            title: "Copying Detected",
-            text: "Copying text from the exam is not allowed.",
-            confirmButtonText: "Understood",
-        });
-        event.preventDefault();
-    });
-
-    // Detect screen resizing
-    let initialWidth = window.innerWidth;
-    let initialHeight = window.innerHeight;
-
-    window.addEventListener("resize", () => {
-        const widthDiff = Math.abs(window.innerWidth - initialWidth);
-        const heightDiff = Math.abs(window.innerHeight - initialHeight);
-
-        if (widthDiff > 100 || heightDiff > 100) {
-            logFraudAction("screen_resize", `Screen resized: ${window.innerWidth}x${window.innerHeight}`);
+        handleOffline() {
+            this.disconnectionTime = Date.now();
+            updateAttemptStatus("abandoned");
+            logFraudAction("Network disconnect", "Network connection lost");
+            
             Swal.fire({
-                icon: "warning",
-                title: "Suspicious Behavior Detected",
-                text: "Screen resizing during the exam is not allowed.",
-                confirmButtonText: "Ok",
+                icon: 'warning',
+                title: 'Connection Lost',
+                text: 'Please reconnect within 30 seconds to avoid exam termination',
+                timer: this.MAX_OFFLINE_TIME,
+                timerProgressBar: true,
+                background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+                color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
             });
         }
 
-        initialWidth = window.innerWidth;
-        initialHeight = window.innerHeight;
-    });
-
-    // Detect suspicious shortcuts
-    document.addEventListener("keydown", (event) => {
-        const forbiddenShortcuts = ["c", "v", "a", "s", "p", "u"];
-        const isCtrlPressed = event.ctrlKey || event.metaKey;
-
-        if (isCtrlPressed && forbiddenShortcuts.includes(event.key.toLowerCase())) {
-            logFraudAction("suspicious_shortcut", `Shortcut used: Ctrl+${event.key.toUpperCase()}`);
-            Swal.fire({
-                icon: "error",
-                title: "Unauthorized Action Detected",
-                text: `The shortcut Ctrl+${event.key.toUpperCase()} is not allowed during the exam.`,
-                confirmButtonText: "Ok",
-            });
-            event.preventDefault();
+        handleOnline() {
+            if (this.disconnectionTime) {
+                const offlineTime = Date.now() - this.disconnectionTime;
+                
+                if (offlineTime > this.MAX_OFFLINE_TIME) {
+                    logFraudAction("Extended disconnect", `Offline for ${offlineTime}ms`);
+                    updateAttemptStatus("in_progress");
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Exam Terminated',
+                        text: 'Extended network disconnection detected',
+                        allowOutsideClick: false,
+                        confirmButtonText: 'Exit Exam',
+                        background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+                        color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+                    })
+                } else {
+                    updateAttemptStatus("in_progress");
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Reconnecté',
+                        text: "Vous êtes reconnecté au réseau. Continuez l'examen rapidement pour éviter tout problème.",
+                        confirmButtonText: 'Ok',
+                        background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+                        color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+                    });
+                }
+            }
         }
-    });
+    }
 
-    window.addEventListener("offline", () => {
-        updateAttemptStatus("abandoned");
-        logFraudAction("network_disconnect", "User disconnected from the network.");
-    
-        Swal.fire({
-            icon: 'error',
-            title: 'Déconnexion détectée',
-            text: "Vous êtes déconnecté du réseau. Votre tentative d'examen sera marquée comme abandonnée si vous ne vous reconnectez pas rapidement.",
-            confirmButtonText: 'Ok',
-            background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-            color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-        });
-    });
+    // Exam Security Management
+    const ExamSecurity = {
+        // Track mouse position leaving viewport
+        setupMouseTracking() {
+            document.addEventListener('mouseleave', (e) => {
+                if (e.clientY <= 0 || e.clientX <= 0 || 
+                    e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
+                    logFraudAction("Mouse leave", "Mouse cursor left viewport");
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Warning",
+                        text: "Please keep your mouse cursor within the exam window",
+                        timer: 3000
+                    });
+                }
+            });
+        },
 
+        // Detect browser developer tools
+        detectDevTools() {
+            const devToolsCheck = () => {
+                const widthThreshold = window.outerWidth - window.innerWidth > 160;
+                const heightThreshold = window.outerHeight - window.innerHeight > 160;
+                
+                if (widthThreshold || heightThreshold) {
+                    logFraudAction("Dev tools", "Developer tools potentially opened");
+                    return true;
+                }
+                return false;
+            };
 
-    window.addEventListener("online", () => {
-        updateAttemptStatus("in_progress");
-        logFraudAction("network_reconnect", "User reconnected to the network.");
+            setInterval(devToolsCheck, 1000);
+            
+            window.addEventListener('devtoolschange', function(e) {
+                if(e.detail.open) {
+                    logFraudAction("Dev tools", "Developer tools opened");
+                }
+            });
+        },
 
-        Swal.fire({
-            icon: 'success',
-            title: 'Reconnecté',
-            text: "Vous êtes reconnecté au réseau. Continuez l'examen rapidement pour éviter tout problème.",
-            confirmButtonText: 'Ok',
-            background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-            color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-        });
+        // Prevent right-click context menu
+        disableContextMenu() {
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                logFraudAction("Context menu", "Right-click attempted");
+                Swal.fire({
+                    icon: "warning",
+                    title: "Action Not Allowed",
+                    text: "Right-clicking is disabled during the exam",
+                    timer: 2000
+                });
+            });
+        },
+
+        // Track window focus
+        trackWindowFocus() {
+            window.addEventListener('blur', () => {
+                logFraudAction("Focus lost", `Window focus lost ${focusLostCount}`);
+            });
+        },
+
+        // Monitor text selection and copying
+        setupTextProtection() {
+            document.addEventListener('copy', (event) => {
+                logFraudAction("copy_attempt", "Text copied.");
+                Swal.fire({
+                    icon: "warning",
+                    title: "Copying Detected",
+                    text: "Copying text from the exam is not allowed.",
+                    confirmButtonText: "Understood",
+                });
+                event.preventDefault();
+            });
+
+            document.addEventListener('selectstart', (e) => {
+                e.preventDefault();
+                logFraudAction("Text selection", "Text selection attempted");
+            });
+        },
+
+        // Monitor suspicious shortcuts and screen resizing
+        setupKeyboardAndScreenMonitoring() {
+            let initialWidth = window.innerWidth;
+            let initialHeight = window.innerHeight;
+
+            window.addEventListener("resize", () => {
+                const widthDiff = Math.abs(window.innerWidth - initialWidth);
+                const heightDiff = Math.abs(window.innerHeight - initialHeight);
+
+                if (widthDiff > 100 || heightDiff > 100) {
+                    logFraudAction("Screen resize", `Screen resized: ${window.innerWidth}x${window.innerHeight}`);
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Suspicious Behavior Detected",
+                        text: "Screen resizing during the exam is not allowed.",
+                        confirmButtonText: "Ok",
+                    });
+                }
+
+                initialWidth = window.innerWidth;
+                initialHeight = window.innerHeight;
+            });
+
+            document.addEventListener("keydown", (event) => {
+                const forbiddenShortcuts = ["c", "v", "a", "s", "p", "u"];
+                const isCtrlPressed = event.ctrlKey || event.metaKey;
+
+                if (isCtrlPressed && forbiddenShortcuts.includes(event.key.toLowerCase())) {
+                    logFraudAction("Suspicious shortcut", `Shortcut used: Ctrl+${event.key.toUpperCase()}`);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Unauthorized Action Detected",
+                        text: `The shortcut Ctrl+${event.key.toUpperCase()} is not allowed during the exam.`,
+                        confirmButtonText: "Ok",
+                    });
+                    event.preventDefault();
+                }
+            });
+        },
+
+        // Initialize all security measures
+        init() {
+            this.setupMouseTracking();
+            this.detectDevTools();
+            this.disableContextMenu();
+            this.trackWindowFocus();
+            this.setupTextProtection();
+            this.setupKeyboardAndScreenMonitoring();
+        }
+    };
+
+    // Keep-alive ping
+    setInterval(() => {
+        if (navigator.onLine) {
+            updateAttemptStatus("in_progress");
+        }
+    }, 30000);
+
+    // Initialize monitoring systems
+    document.addEventListener('DOMContentLoaded', () => {
+        ExamSecurity.init();
+        new NetworkMonitor();
     });
 </script>
 {% endblock %}
