@@ -30,5 +30,4 @@ urlpatterns = [
     path('teacher/exam/download_student_result/<int:attempt_id>/', views.download_student_result, name='download_student_result'),
     path('student/exam/log_action/', views.log_student_action, name='log_action'),
     path('teacher/exam/exam_logs/<int:attempt_id>/', views.view_exam_logs, name='exam_logs'),
-    path('teacher/exam/analysis/', views.exam_statistics, name='exam_statistics'),
 ]

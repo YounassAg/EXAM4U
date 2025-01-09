@@ -1117,11 +1117,6 @@ def download_student_result(request, attempt_id):
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
 
-
-def exam_statistics(request):
-    return render(request, 'teacher/analysis/statistics.html')
-
-
 def custom_403(request, exception):
     return render(request, 'errors/403.html', status=403)
 
