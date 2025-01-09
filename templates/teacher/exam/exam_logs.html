@@ -1,120 +1,116 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="exam-logs-container">
-    <h1>Exam Logs for {{ attempt.exam.title }}</h1>
-    <p><strong>Student:</strong> {{ attempt.student.first_name }} {{ attempt.student.last_name }}</p>
-    <p><strong>Attempt Date:</strong> {{ attempt.timestamp|date:"Y-m-d H:i:s" }}</p>
-    <p><strong>Duration:</strong> {{ attempt.exam.duration }} minutes</p>
+<div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+    {% include 'components/teacher_sidebar.html' %}
 
-    <hr>
+    <div class="flex-1 p-4 md:p-8">
+        <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            
+            <div class="relative z-10 p-6 md:p-8">
+                <!-- Header Section -->
+                <div class="flex flex-col space-y-4">
+                    <div class="flex items-center justify-between flex-wrap gap-4">
+                        <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                            Exam Logs for {{ attempt.exam.title }}
+                        </h1>
+                    </div>
+                    <div class="space-y-2 text-gray-600 dark:text-gray-400">
+                        <p><strong class="text-gray-900 dark:text-white">Student:</strong> {{ attempt.student.first_name }} {{ attempt.student.last_name }}</p>
+                        <p><strong class="text-gray-900 dark:text-white">Attempt Date:</strong> {{ attempt.timestamp|date:"Y-m-d H:i:s" }}</p>
+                        <p><strong class="text-gray-900 dark:text-white">Duration:</strong> {{ attempt.exam.duration }} minutes</p>
+                    </div>
+                </div>
 
-    <h2>Summary</h2>
-    <ul>
-        <li><strong>Total Suspicious Activities:</strong> {{ suspicious_logs|length }}</li>
-        <li><strong>Total Logs:</strong> {{ logs|length }}</li>
-    </ul>
-    
-    <hr>
+                <!-- Summary Section -->
+                <div class="mt-8 p-6 rounded-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Summary</h2>
+                    <ul class="mt-4 space-y-3 text-gray-600 dark:text-gray-400">
+                        <li><strong class="text-gray-900 dark:text-white">Total Suspicious Activities:</strong> {{ suspicious_logs|length }}</li>
+                        <li><strong class="text-gray-900 dark:text-white">Total Logs:</strong> {{ logs|length }}</li>
+                    </ul>
+                </div>
 
-    <h2>Suspicious Activities</h2>
-    {% if suspicious_logs %}
-    <table class="logs-table">
-        <thead>
-            <tr>
-                <th>Action</th>
-                <th>Details</th>
-                <th>Timestamp</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for log in suspicious_logs %}
-            <tr>
-                <td title="{{ log.get_action_display }}">{{ log.get_action_display }}</td>
-                <td title="{{ log.details }}">{{ log.details|truncatechars:50 }}</td>
-                <td>{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p>No suspicious activities detected.</p>
-    {% endif %}
+                <!-- Suspicious Activities Section -->
+                <div class="mt-8">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Suspicious Activities</h2>
+                    {% if suspicious_logs %}
+                    <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-xl">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th class="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-left text-gray-900 dark:text-white font-semibold">Action</th>
+                                    <th class="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-left text-gray-900 dark:text-white font-semibold">Details</th>
+                                    <th class="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-left text-gray-900 dark:text-white font-semibold">Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                {% for log in suspicious_logs %}
+                                <tr class="hover:bg-gradient-to-br hover:from-blue-500/5 hover:to-purple-500/5 dark:hover:from-blue-400/5 dark:hover:to-purple-400/5 transition-colors duration-150">
+                                    <td class="p-4 text-gray-600 dark:text-gray-400" title="{{ log.get_action_display }}">{{ log.get_action_display }}</td>
+                                    <td class="p-4 text-gray-600 dark:text-gray-400" title="{{ log.details }}">{{ log.details|truncatechars:50 }}</td>
+                                    <td class="p-4 text-gray-600 dark:text-gray-400">{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center p-8 rounded-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-gray-600 dark:text-gray-400">
+                        No suspicious activities detected.
+                    </div>
+                    {% endif %}
+                </div>
 
-    <hr>
-
-    <h2>All Logs</h2>
-    {% if logs %}
-    <table class="logs-table">
-        <thead>
-            <tr>
-                <th>Action</th>
-                <th>Details</th>
-                <th>Timestamp</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for log in logs %}
-            <tr>
-                <td title="{{ log.get_action_display }}">{{ log.get_action_display }}</td>
-                <td title="{{ log.details }}">{{ log.details|truncatechars:50 }}</td>
-                <td>{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p>No logs available.</p>
-    {% endif %}
+                <!-- All Logs Section -->
+                <div class="mt-8">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">All Logs</h2>
+                    {% if logs %}
+                    <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-xl">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th class="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-left text-gray-900 dark:text-white font-semibold">Action</th>
+                                    <th class="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-left text-gray-900 dark:text-white font-semibold">Details</th>
+                                    <th class="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-left text-gray-900 dark:text-white font-semibold">Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                {% for log in logs %}
+                                <tr class="hover:bg-gradient-to-br hover:from-blue-500/5 hover:to-purple-500/5 dark:hover:from-blue-400/5 dark:hover:to-purple-400/5 transition-colors duration-150">
+                                    <td class="p-4 text-gray-600 dark:text-gray-400" title="{{ log.get_action_display }}">{{ log.get_action_display }}</td>
+                                    <td class="p-4 text-gray-600 dark:text-gray-400" title="{{ log.details }}">{{ log.details|truncatechars:50 }}</td>
+                                    <td class="p-4 text-gray-600 dark:text-gray-400">{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center p-8 rounded-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-gray-600 dark:text-gray-400">
+                        No logs available.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
-    .exam-logs-container {
-        font-family: Arial, sans-serif;
-        padding: 20px;
-        background-color: #f9f9f9;
-        border-radius: 8px;
-    }
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
 
-    h1, h2 {
-        color: #333;
-    }
+.animate-pulse {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
 
-    .filter-form {
-        margin-bottom: 20px;
-    }
-
-    .filter-form label {
-        margin-right: 10px;
-    }
-
-    .logs-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-    }
-
-    .logs-table th, .logs-table td {
-        padding: 10px;
-        border: 1px solid #ddd;
-        text-align: left;
-    }
-
-    .logs-table th {
-        background-color: #f4f4f4;
-        cursor: pointer;
-    }
-
-    .logs-table tbody tr:nth-child(odd) {
-        background-color: #f9f9f9;
-    }
-
-    .logs-table tbody tr:nth-child(even) {
-        background-color: #ffffff;
-    }
-
-    .logs-table tbody tr:hover {
-        background-color: #f1f1f1;
-    }
+.delay-1000 {
+    animation-delay: 1s;
+}
 </style>
 {% endblock %}
