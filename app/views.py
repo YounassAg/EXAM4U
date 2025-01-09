@@ -322,14 +322,22 @@ def edit_exam(request, exam_id):
                 exam.start_date = request.POST.get('start_date')
                 exam.end_date = request.POST.get('end_date')
                 exam.save()
+
+                # Track existing and processed questions
                 existing_questions = set(exam.question_set.values_list('id', flat=True))
                 processed_questions = set()
+
+                # Get the updated question count
                 question_count = int(request.POST.get('question_count', 0))
+
                 for i in range(1, question_count + 1):
-                    question_id = request.POST.get(f'question_id_{i}')
-                    question_type = request.POST.get(f'question_type_{i}')
-                    question_wording = request.POST.get(f'question_wording_{i}')
-                    question_points = request.POST.get(f'question_points_{i}')
+                    if all(request.POST.get(f'question_{field}_{i}') is not None 
+                        for field in ['type', 'wording', 'points']):
+                        question_id = request.POST.get(f'question_id_{i}')
+                        question_type = request.POST.get(f'question_type_{i}')
+                        question_wording = request.POST.get(f'question_wording_{i}')
+                        question_points = request.POST.get(f'question_points_{i}')
+
                     if question_id:
                         question = Question.objects.get(id=question_id)
                         processed_questions.add(int(question_id))
@@ -339,14 +347,18 @@ def edit_exam(request, exam_id):
                         question.allow_multiple_answers = (question_type == 'MCQ')
                         question.save()
                     else:
-                        question = Question.objects.create(
-                            exam=exam,
-                            question_type=question_type,
-                            wording=question_wording,
-                            points=question_points,
-                            allow_multiple_answers=(question_type == 'MCQ')
-                        )
-                        processed_questions.add(question.id)
+                        question = Question(exam=exam)
+
+                    # Update question fields
+                    question.question_type = question_type
+                    question.wording = question_wording
+                    question.points = question_points
+                    question.allow_multiple_answers = (question_type == 'MCQ')
+                    question.save()
+
+                    if question_id:
+                        processed_questions.add(int(question_id))
+
                     if question_type == 'MCQ':
                         MCQChoice.objects.filter(question=question).delete()
                         choice_count = int(request.POST.get(f'mcq_choice_count_{i}', 0))
@@ -359,6 +371,7 @@ def edit_exam(request, exam_id):
                                     choice_label=choice_text,
                                     is_correct=is_correct
                                 )
+                                
                 questions_to_delete = existing_questions - processed_questions
                 Question.objects.filter(id__in=questions_to_delete).delete()
                 messages.success(request, 'Exam updated successfully!')
