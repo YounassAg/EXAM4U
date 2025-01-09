@@ -31,19 +31,6 @@
                                     </div>
                                     <span class="text-gray-600 dark:text-gray-400">Tentative: {{ attempt_number }}/{{ exam.max_attempts }}</span>
                                 </div>
-                                <!-- Added Progress Indicator -->
-                                <div class="flex items-center space-x-2">
-                                    <div class="p-2 rounded-lg bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-400/5 dark:to-emerald-400/5">
-                                        {% include 'components/icons.html' with icon="check-circle" class="w-5 h-5 text-green-600 dark:text-green-400" %}
-                                    </div>
-                                    <div class="flex flex-col">
-                                        <span class="text-sm text-gray-600 dark:text-gray-400">Progress</span>
-                                        <div class="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mb-1">
-                                            <div id="progressBar" class="bg-green-600 dark:bg-green-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
-                                        </div>
-                                        <span id="progress" class="text-xs text-gray-500 dark:text-gray-400">0/{{ questions|length }}</span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         <p class="text-gray-600 dark:text-gray-400">{{ exam.description }}</p>
@@ -76,8 +63,7 @@
                                                 <input type="checkbox" 
                                                        name="question_{{ question.id }}" 
                                                        value="{{ choice.id }}"
-                                                       class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-                                                       onchange="updateProgress()">
+                                                       class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
                                             </div>
                                             <div class="ml-3 flex-1 min-w-0">
                                                 <span class="text-gray-900 dark:text-white">{{ choice.choice_label }}</span>
@@ -90,8 +76,7 @@
                                                        name="question_{{ question.id }}" 
                                                        value="{{ choice.id }}"
                                                        class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-                                                       required
-                                                       onchange="updateProgress()">
+                                                       required>
                                             </div>
                                             <div class="ml-3 flex-1 min-w-0">
                                                 <span class="text-gray-900 dark:text-white">{{ choice.choice_label }}</span>
@@ -104,16 +89,14 @@
                                     <input type="text" 
                                            name="question_{{ question.id }}" 
                                            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                           required
-                                           onchange="updateProgress()">
+                                           required>
                                 </div>
                             {% elif question.question_type == 'open' %}
                                 <div>
                                     <textarea name="question_{{ question.id }}" 
                                               rows="4" 
                                               class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                              required
-                                              onchange="updateProgress()"></textarea>
+                                              required></textarea>
                                 </div>
                             {% endif %}
                         </div>
@@ -248,31 +231,6 @@
     document.getElementById("examForm").addEventListener("submit", function() {
         sessionStorage.removeItem(TIMER_KEY);
     });
-
-    // Progress tracking
-    function updateProgress() {
-        const form = document.getElementById('examForm');
-        const questions = {{ questions|length }};
-        let answered = 0;
-
-        // Count answered questions
-        for (let i = 0; i < form.elements.length; i++) {
-            const element = form.elements[i];
-            if (element.name.startsWith('question_')) {
-                if (element.type === 'radio' && element.checked) {
-                    answered++;
-                } else if (element.type === 'checkbox' && element.checked) {
-                    answered++;
-                } else if ((element.type === 'text' || element.type === 'textarea') && element.value.trim() !== '') {
-                    answered++;
-                }
-            }
-        }
-
-        // Update progress display
-        document.getElementById('progress').textContent = `${answered}/${questions}`;
-        document.getElementById('progressBar').style.width = `${(answered / questions) * 100}%`;
-    }
 
     function confirmSubmit() {
         const form = document.getElementById('examForm');
@@ -518,8 +476,5 @@
             color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
         });
     });
-
-    // Initialize progress
-    updateProgress();
 </script>
 {% endblock %}
