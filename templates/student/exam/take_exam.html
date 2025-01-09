@@ -355,12 +355,12 @@
         handleOffline() {
             this.disconnectionTime = Date.now();
             updateAttemptStatus("abandoned");
-            logFraudAction("Network disconnect", "Network connection lost");
+            logFraudAction("Network disconnect", "Connexion réseau perdue");
             
             Swal.fire({
                 icon: 'warning',
-                title: 'Connection Lost',
-                text: 'Please reconnect within 30 seconds to avoid exam termination',
+                title: 'Connexion Perdue',
+                text: 'Veuillez vous reconnecter dans les 30 secondes pour éviter l\'arrêt de l\'examen',
                 timer: this.MAX_OFFLINE_TIME,
                 timerProgressBar: true,
                 background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
@@ -373,18 +373,18 @@
                 const offlineTime = Date.now() - this.disconnectionTime;
                 
                 if (offlineTime > this.MAX_OFFLINE_TIME) {
-                    logFraudAction("Extended disconnect", `Offline for ${offlineTime}ms`);
+                    logFraudAction("Extended disconnect", `Hors ligne pendant ${offlineTime}ms`);
                     updateAttemptStatus("in_progress");
                     
                     Swal.fire({
                         icon: 'error',
-                        title: 'Exam Terminated',
-                        text: 'Extended network disconnection detected',
+                        title: 'Examen Terminé',
+                        text: 'Déconnexion réseau prolongée détectée',
                         allowOutsideClick: false,
-                        confirmButtonText: 'Exit Exam',
+                        confirmButtonText: 'Quitter l\'examen',
                         background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
                         color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-                    })
+                    });
                 } else {
                     updateAttemptStatus("in_progress");
                     Swal.fire({
@@ -407,11 +407,11 @@
             document.addEventListener('mouseleave', (e) => {
                 if (e.clientY <= 0 || e.clientX <= 0 || 
                     e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
-                    logFraudAction("Mouse leave", "Mouse cursor left viewport");
+                    logFraudAction("Mouse leave", "Le curseur de la souris a quitté la fenêtre");
                     Swal.fire({
                         icon: "warning",
-                        title: "Warning",
-                        text: "Please keep your mouse cursor within the exam window",
+                        title: "Avertissement",
+                        text: "Veuillez garder votre curseur dans la fenêtre d'examen",
                         timer: 3000
                     });
                 }
@@ -425,7 +425,7 @@
                 const heightThreshold = window.outerHeight - window.innerHeight > 160;
                 
                 if (widthThreshold || heightThreshold) {
-                    logFraudAction("Dev tools", "Developer tools potentially opened");
+                    logFraudAction("Dev tools", "Outils développeur potentiellement ouverts");
                     return true;
                 }
                 return false;
@@ -435,7 +435,7 @@
             
             window.addEventListener('devtoolschange', function(e) {
                 if(e.detail.open) {
-                    logFraudAction("Dev tools", "Developer tools opened");
+                    logFraudAction("Dev tools", "Outils développeur ouverts");
                 }
             });
         },
@@ -444,11 +444,11 @@
         disableContextMenu() {
             document.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
-                logFraudAction("Context menu", "Right-click attempted");
+                logFraudAction("Context menu", "Clic droit tenté");
                 Swal.fire({
                     icon: "warning",
-                    title: "Action Not Allowed",
-                    text: "Right-clicking is disabled during the exam",
+                    title: "Action Non Autorisée",
+                    text: "Le clic droit est désactivé pendant l'examen",
                     timer: 2000
                 });
             });
@@ -457,26 +457,26 @@
         // Track window focus
         trackWindowFocus() {
             window.addEventListener('blur', () => {
-                logFraudAction("Focus lost", `Window focus lost ${focusLostCount}`);
+                logFraudAction("Focus lost", `Fenêtre perdue de vue ${focusLostCount}`);
             });
         },
 
         // Monitor text selection and copying
         setupTextProtection() {
             document.addEventListener('copy', (event) => {
-                logFraudAction("copy_attempt", "Text copied.");
+                logFraudAction("Copy attempt", "Texte copié.");
                 Swal.fire({
                     icon: "warning",
-                    title: "Copying Detected",
-                    text: "Copying text from the exam is not allowed.",
-                    confirmButtonText: "Understood",
+                    title: "Copie Détectée",
+                    text: "La copie de texte n'est pas autorisée pendant l'examen.",
+                    confirmButtonText: "Compris",
                 });
                 event.preventDefault();
             });
 
             document.addEventListener('selectstart', (e) => {
                 e.preventDefault();
-                logFraudAction("Text selection", "Text selection attempted");
+                logFraudAction("Text selection", "Tentative de sélection de texte");
             });
         },
 
@@ -490,11 +490,11 @@
                 const heightDiff = Math.abs(window.innerHeight - initialHeight);
 
                 if (widthDiff > 100 || heightDiff > 100) {
-                    logFraudAction("Screen resize", `Screen resized: ${window.innerWidth}x${window.innerHeight}`);
+                    logFraudAction("Screen resize", `Écran redimensionné: ${window.innerWidth}x${window.innerHeight}`);
                     Swal.fire({
                         icon: "warning",
-                        title: "Suspicious Behavior Detected",
-                        text: "Screen resizing during the exam is not allowed.",
+                        title: "Comportement Suspect Détecté",
+                        text: "Le redimensionnement de l'écran n'est pas autorisé pendant l'examen.",
                         confirmButtonText: "Ok",
                     });
                 }
@@ -508,11 +508,11 @@
                 const isCtrlPressed = event.ctrlKey || event.metaKey;
 
                 if (isCtrlPressed && forbiddenShortcuts.includes(event.key.toLowerCase())) {
-                    logFraudAction("Suspicious shortcut", `Shortcut used: Ctrl+${event.key.toUpperCase()}`);
+                    logFraudAction("Suspicious shortcut", `Raccourci utilisé: Ctrl+${event.key.toUpperCase()}`);
                     Swal.fire({
                         icon: "error",
-                        title: "Unauthorized Action Detected",
-                        text: `The shortcut Ctrl+${event.key.toUpperCase()} is not allowed during the exam.`,
+                        title: "Action Non Autorisée Détectée",
+                        text: `Le raccourci Ctrl+${event.key.toUpperCase()} n'est pas autorisé pendant l'examen.`,
                         confirmButtonText: "Ok",
                     });
                     event.preventDefault();
@@ -544,4 +544,5 @@
         new NetworkMonitor();
     });
 </script>
+
 {% endblock %}
