@@ -533,6 +533,8 @@ def view_exam_logs(request, attempt_id):
         'copy_attempt',
         'screen_resize',
         'suspicious_shortcut',
+        'network_disconnect',
+        'network_reconnect',
     ])
 
     return render(request, 'teacher/exam/exam_logs.html', {

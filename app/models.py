@@ -134,6 +134,8 @@ class StudentActionLog(models.Model):
         ('inactivity_detected', 'Inactivity Detected'),
         ('copy_attempt', 'Copy Attempt'),
         ('screen_resize', 'Screen Resized'),
+        ('network_disconnect', 'Network disconnect'),
+        ('network_reconnect', 'Network reconnect'),
         ('suspicious_shortcut', 'Suspicious Shortcut Used'),
     ]
 
