@@ -14,35 +14,35 @@
                 <div class="flex flex-col space-y-4">
                     <div class="flex items-center justify-between flex-wrap gap-4">
                         <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-                            Exam Logs for {{ attempt.exam.title }}
+                            Journal d'activités pour {{ attempt.exam.title }}
                         </h1>
                     </div>
                     <div class="space-y-2 text-gray-600 dark:text-gray-400">
-                        <p><strong class="text-gray-900 dark:text-white">Student:</strong> {{ attempt.student.first_name }} {{ attempt.student.last_name }}</p>
-                        <p><strong class="text-gray-900 dark:text-white">Attempt Date:</strong> {{ attempt.timestamp|date:"Y-m-d H:i:s" }}</p>
-                        <p><strong class="text-gray-900 dark:text-white">Duration:</strong> {{ attempt.exam.duration }} minutes</p>
+                        <p><strong class="text-gray-900 dark:text-white">Étudiant :</strong> {{ attempt.student.first_name }} {{ attempt.student.last_name }}</p>
+                        <p><strong class="text-gray-900 dark:text-white">Date de tentative :</strong> {{ attempt.timestamp|date:"Y-m-d H:i:s" }}</p>
+                        <p><strong class="text-gray-900 dark:text-white">Durée :</strong> {{ attempt.exam.duration }} minutes</p>
                     </div>
                 </div>
 
                 <!-- Summary Section -->
                 <div class="mt-8 p-6 rounded-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Summary</h2>
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Résumé</h2>
                     <ul class="mt-4 space-y-3 text-gray-600 dark:text-gray-400">
-                        <li><strong class="text-gray-900 dark:text-white">Total Logs:</strong> {{ logs|length }}</li>
+                        <li><strong class="text-gray-900 dark:text-white">Total des activités :</strong> {{ logs|length }}</li>
                     </ul>
                 </div>
 
                 <!-- All Logs Section -->
                 <div class="mt-8">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">All Logs</h2>
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Toutes les activités</h2>
                     {% if logs %}
                     <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-xl">
                         <table class="w-full">
                             <thead>
                                 <tr>
                                     <th class="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-left text-gray-900 dark:text-white font-semibold">Action</th>
-                                    <th class="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-left text-gray-900 dark:text-white font-semibold">Details</th>
-                                    <th class="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-left text-gray-900 dark:text-white font-semibold">Timestamp</th>
+                                    <th class="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-left text-gray-900 dark:text-white font-semibold">Détails</th>
+                                    <th class="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-left text-gray-900 dark:text-white font-semibold">Horodatage</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -58,7 +58,7 @@
                     </div>
                     {% else %}
                     <div class="text-center p-8 rounded-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 text-gray-600 dark:text-gray-400">
-                        No logs available.
+                        Aucune activité disponible.
                     </div>
                     {% endif %}
                 </div>
