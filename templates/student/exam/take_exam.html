@@ -205,7 +205,18 @@
 
         timerElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-        if (timeLeft <= 300) { // 5 minutes remaining
+        if (timeLeft === 300) { // Exactly 5 minutes remaining
+            Swal.fire({
+                icon: 'warning',
+                title: 'Plus que 5 minutes!',
+                text: 'Il ne reste que 5 minutes. Veuillez soumettre votre examen rapidement.',
+                confirmButtonText: 'Compris',
+                background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+                color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+            });
+        }
+
+        if (timeLeft <= 300) { // 5 minutes or less remaining
             timerElement.classList.add('text-red-600', 'dark:text-red-400');
             if (!timerElement.classList.contains('shake')) {
                 timerElement.classList.add('shake');
@@ -216,11 +227,79 @@
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
             sessionStorage.removeItem(TIMER_KEY);
-            document.getElementById("examForm").submit();
+            autoSubmitExam();
         } else {
             timeLeft--;
             sessionStorage.setItem(TIMER_KEY, timeLeft.toString());
         }
+    }
+
+    function autoSubmitExam() {
+        const form = document.getElementById('examForm');
+        
+        // Fill empty required fields
+        const radioGroups = {};
+        const inputs = form.querySelectorAll('input[required], textarea[required]');
+        
+        inputs.forEach(input => {
+            if (input.type === 'radio') {
+                const name = input.name;
+                if (!radioGroups[name]) {
+                    radioGroups[name] = true;
+                    const group = form.querySelectorAll(`input[name="${name}"]`);
+                    let checked = false;
+                    group.forEach(radio => {
+                        if (radio.checked) checked = true;
+                    });
+                    if (!checked) {
+                        group[0].checked = true;
+                    }
+                }
+            } else if (input.type === 'text' || input.tagName.toLowerCase() === 'textarea') {
+                if (!input.value.trim()) {
+                    input.value = "Not Answered";
+                }
+            }
+        });
+
+        // Handle checkboxes (not required by default)
+        const checkboxGroups = {};
+        form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            const name = checkbox.name;
+            if (!checkboxGroups[name]) {
+                checkboxGroups[name] = true;
+                const group = form.querySelectorAll(`input[name="${name}"]`);
+                let checked = false;
+                group.forEach(cb => {
+                    if (cb.checked) checked = true;
+                });
+                if (!checked) {
+                    group[0].checked = true;
+                }
+            }
+        });
+
+        // Show alert and submit
+        Swal.fire({
+            icon: 'warning',
+            title: 'Temps écoulé!',
+            text: 'Votre examen va être soumis automatiquement. Les questions sans réponse seront marquées comme "Non répondu".',
+            showConfirmButton: false,
+            timer: 3000,
+            allowOutsideClick: false,
+            background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+            color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+        }).then(() => {
+            // Remove timer from session storage
+            sessionStorage.removeItem(TIMER_KEY);
+            
+            // Create a hidden submit button and click it
+            const submitButton = document.createElement('button');
+            submitButton.type = 'submit';
+            submitButton.style.display = 'none';
+            form.appendChild(submitButton);
+            submitButton.click();
+        });
     }
 
     // Update timer every second
@@ -235,67 +314,82 @@
     // Form submission handling
     function confirmSubmit() {
         const form = document.getElementById('examForm');
-        const unansweredQuestions = [];
-
-        // Check for unanswered required questions
-        for (let i = 0; i < form.elements.length; i++) {
-            const element = form.elements[i];
-            if (element.hasAttribute('required')) {
-                if (element.type === 'radio') {
-                    const name = element.name;
-                    const radioGroup = form.elements[name];
-                    let answered = false;
-                    for (let j = 0; j < radioGroup.length; j++) {
-                        if (radioGroup[j].checked) {
-                            answered = true;
-                            break;
-                        }
+        
+        // Fill empty required fields
+        const radioGroups = {};
+        const inputs = form.querySelectorAll('input[required], textarea[required]');
+        
+        inputs.forEach(input => {
+            if (input.type === 'radio') {
+                const name = input.name;
+                if (!radioGroups[name]) {
+                    radioGroups[name] = true;
+                    const group = form.querySelectorAll(`input[name="${name}"]`);
+                    let checked = false;
+                    group.forEach(radio => {
+                        if (radio.checked) checked = true;
+                    });
+                    if (!checked) {
+                        group[0].checked = true;
                     }
-                    if (!answered && !unansweredQuestions.includes(name)) {
-                        unansweredQuestions.push(name);
-                    }
-                } else if (element.value.trim() === '') {
-                    unansweredQuestions.push(element.name);
+                }
+            } else if (input.type === 'text' || input.tagName.toLowerCase() === 'textarea') {
+                if (!input.value.trim()) {
+                    input.value = "Not Answered";
                 }
             }
-        }
+        });
 
-        if (unansweredQuestions.length > 0) {
-            Swal.fire({
-                title: 'Questions non répondues',
-                text: `Il y a ${unansweredQuestions.length} question(s) obligatoire(s) sans réponse. Voulez-vous quand même soumettre ?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3B82F6',
-                cancelButtonColor: '#6B7280',
-                confirmButtonText: 'Oui, soumettre',
-                cancelButtonText: 'Non, continuer',
-                background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-                color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
+        // Handle checkboxes (not required by default)
+        const checkboxGroups = {};
+        form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            const name = checkbox.name;
+            if (!checkboxGroups[name]) {
+                checkboxGroups[name] = true;
+                const group = form.querySelectorAll(`input[name="${name}"]`);
+                let checked = false;
+                group.forEach(cb => {
+                    if (cb.checked) checked = true;
+                });
+                if (!checked) {
+                    group[0].checked = true;
                 }
-            });
-        } else {
-            Swal.fire({
-                title: 'Confirmer la soumission',
-                text: "Êtes-vous sûr de vouloir soumettre vos réponses ?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#3B82F6',
-                cancelButtonColor: '#6B7280',
-                confirmButtonText: 'Oui, soumettre',
-                cancelButtonText: 'Annuler',
-                background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-                color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
-        }
+            }
+        });
+
+        // Show confirmation dialog
+        Swal.fire({
+            title: 'Confirmer la soumission',
+            text: "Êtes-vous sûr de vouloir soumettre vos réponses ?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3B82F6',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Oui, soumettre',
+            cancelButtonText: 'Annuler',
+            allowOutsideClick: false,
+            background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+            color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Remove timer from session storage
+                sessionStorage.removeItem(TIMER_KEY);
+                
+                // Create a hidden submit button and click it
+                const submitButton = document.createElement('button');
+                submitButton.type = 'submit';
+                submitButton.style.display = 'none';
+                form.appendChild(submitButton);
+                submitButton.click();
+            }
+        });
     }
+
+    // Handle form submission event
+    document.getElementById('examForm').addEventListener('submit', function(e) {
+        // Remove timer from session storage
+        sessionStorage.removeItem(TIMER_KEY);
+    });
 
     // Attempt status management
     const attemptId = "{{ attempt.id }}";
@@ -402,6 +496,8 @@
 
     // Exam Security Management
     const ExamSecurity = {
+        focusLostCount: 0,  // Add counter for focus loss
+
         // Track mouse position leaving viewport
         setupMouseTracking() {
             document.addEventListener('mouseleave', (e) => {
@@ -457,7 +553,8 @@
         // Track window focus
         trackWindowFocus() {
             window.addEventListener('blur', () => {
-                logFraudAction("Focus lost", `Fenêtre perdue de vue ${focusLostCount}`);
+                this.focusLostCount++;
+                logFraudAction("Focus lost", `Fenêtre perdue de vue ${this.focusLostCount} fois`);
             });
         },
 
