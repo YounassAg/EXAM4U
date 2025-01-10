@@ -119,12 +119,12 @@
                                 </td>
                                 <td class="px-6 py-4 text-right whitespace-nowrap">
                                     <a href="{% url 'exam_logs' attempt.id %}" 
-                                    class="inline-flex items-center justify-center space-x-2 text-gray-600 dark:text-gray-400 hover:shadow-[0_0_15px_rgba(75,85,99,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5 w-full sm:w-auto">
-                                     <div class="p-2 bg-gradient-to-br from-gray-500/10 to-gray-600/10 dark:from-gray-400/5 dark:to-gray-500/5 rounded-lg">
-                                         {% include 'components/icons.html' with icon="pencil" class="w-4 h-4" %}
-                                     </div>
-                                     <span class="font-medium">Exam Logs</span>
-                                 </a>
+                                       class="inline-flex items-center justify-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5 w-full sm:w-auto">
+                                        <div class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg">
+                                            {% include 'components/icons.html' with icon="document-text" class="w-4 h-4" %}
+                                        </div>
+                                        <span class="font-medium">Logs</span>
+                                    </a>
                                 </td>
                                 <td class="px-6 py-4 text-right whitespace-nowrap">
                                     <a href="{% url 'grade_attempt' attempt.id %}" 
