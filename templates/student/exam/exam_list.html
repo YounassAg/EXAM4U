@@ -76,10 +76,10 @@
 
                             <!-- Take Exam Button -->
                             <div class="pt-4 mt-2 border-t border-gray-200 dark:border-gray-700">
-                                <a href="{% url 'take_exam' exam.id %}" 
-                                   class="group/btn w-full inline-flex items-center justify-center space-x-2 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg p-2 transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5">
-                                    <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
-                                        {% include 'components/icons.html' with icon="play" class="w-4 h-4" %}
+                                <a href="{% url 'exam_rules' exam.id %}"
+                                   class="group inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 space-x-2">
+                                    <div class="p-2 rounded-lg bg-white/10 transform group-hover:scale-110 transition-transform">
+                                        {% include 'components/icons.html' with icon="play" class="w-5 h-5" %}
                                     </div>
                                     <span class="font-medium">Commencer l'examen</span>
                                 </a>

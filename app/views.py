@@ -1113,3 +1113,9 @@ def custom_403(request, exception):
 
 def custom_404(request, exception):
     return render(request, 'errors/404.html', status=404)
+
+@login_required
+@role_required('student')
+def exam_rules(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    return render(request, 'student/exam/exam_rules.html', {'exam': exam})

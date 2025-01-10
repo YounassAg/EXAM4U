@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+    {% include 'components/student_sidebar.html' %}
+
+    <div class="flex-1 p-4 md:p-8">
+        <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            
+            <div class="relative z-10 p-6 md:p-8">
+                <!-- Header -->
+                <div class="flex flex-col space-y-4">
+                    <div class="flex items-center justify-between flex-wrap gap-4">
+                        <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                            Règles de l'examen
+                        </h1>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Avant de commencer l'examen <strong class="text-gray-900 dark:text-white">{{ exam.title }}</strong>, veuillez lire attentivement les règles suivantes.
+                    </p>
+                </div>
+
+                <!-- Rules Section -->
+                <div class="mt-8 p-6 rounded-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Actions surveillées pendant l'examen</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <div class="p-2 rounded-lg bg-red-500/10 dark:bg-red-400/5">
+                                {% include 'components/icons.html' with icon="alert-triangle" class="w-5 h-5 text-red-500 dark:text-red-400" %}
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Navigation</h3>
+                                <p class="text-gray-600 dark:text-gray-400">Quitter la page d'examen ou changer d'onglet sera enregistré comme une tentative de fraude.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3">
+                            <div class="p-2 rounded-lg bg-red-500/10 dark:bg-red-400/5">
+                                {% include 'components/icons.html' with icon="copy" class="w-5 h-5 text-red-500 dark:text-red-400" %}
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Copier-Coller</h3>
+                                <p class="text-gray-600 dark:text-gray-400">Toute tentative de copier du texte sera détectée et enregistrée.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3">
+                            <div class="p-2 rounded-lg bg-red-500/10 dark:bg-red-400/5">
+                                {% include 'components/icons.html' with icon="keyboard" class="w-5 h-5 text-red-500 dark:text-red-400" %}
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Raccourcis clavier</h3>
+                                <p class="text-gray-600 dark:text-gray-400">L'utilisation de raccourcis suspects (Ctrl+C, Ctrl+V, etc.) sera enregistrée.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3">
+                            <div class="p-2 rounded-lg bg-red-500/10 dark:bg-red-400/5">
+                                {% include 'components/icons.html' with icon="monitor" class="w-5 h-5 text-red-500 dark:text-red-400" %}
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Redimensionnement de l'écran</h3>
+                                <p class="text-gray-600 dark:text-gray-400">Le redimensionnement de la fenêtre sera détecté et enregistré.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-3">
+                            <div class="p-2 rounded-lg bg-red-500/10 dark:bg-red-400/5">
+                                {% include 'components/icons.html' with icon="wifi-off" class="w-5 h-5 text-red-500 dark:text-red-400" %}
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-900 dark:text-white">Connexion Internet</h3>
+                                <p class="text-gray-600 dark:text-gray-400">Les déconnexions suspectes seront enregistrées. Une déconnexion prolongée peut entraîner l'arrêt de l'examen.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Warning Section -->
+                <div class="mt-8 p-6 rounded-xl bg-red-50 dark:bg-red-900/50 border border-red-200 dark:border-red-800">
+                    <div class="flex items-center space-x-3">
+                        <div class="p-2 rounded-lg bg-red-500/10 dark:bg-red-400/5">
+                            {% include 'components/icons.html' with icon="alert-circle" class="w-5 h-5 text-red-500 dark:text-red-400" %}
+                        </div>
+                        <p class="text-red-600 dark:text-red-400 font-medium">
+                            Toutes ces actions sont enregistrées et peuvent être consultées par votre enseignant.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-8 flex flex-col sm:flex-row justify-end gap-4">
+                    <a href="{% url 'student_exam_list' %}" 
+                       class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-gray-600 dark:text-gray-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 dark:hover:from-gray-500 dark:hover:to-gray-600 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(75,85,99,0.25)] hover:-translate-y-0.5 space-x-2">
+                        <div class="p-2 rounded-lg bg-gradient-to-br from-gray-500/10 to-gray-600/10 dark:from-gray-400/5 dark:to-gray-500/5">
+                            {% include 'components/icons.html' with icon="x" class="w-5 h-5" %}
+                        </div>
+                        <span class="font-medium">Annuler</span>
+                    </a>
+                    <a href="{% url 'take_exam' exam.id %}" 
+                       class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-2">
+                        <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                            {% include 'components/icons.html' with icon="check" class="w-5 h-5" %}
+                        </div>
+                        <span class="font-medium">J'accepte et je commence l'examen</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+.animate-pulse {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.delay-1000 {
+    animation-delay: 1s;
+}
+</style>
+{% endblock %} 
