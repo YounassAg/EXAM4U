@@ -236,8 +236,13 @@ document.addEventListener('DOMContentLoaded', function() {
     specialtySelect.addEventListener('change', function() {
         const specialtyId = this.value;
 
-        fetch(`/get-groups/${specialtyId}/`)
-            .then(response => response.json())
+        fetch(`/groups/${specialtyId}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
                 groupSelect.innerHTML = '<option value="" disabled selected>Sélectionnez un groupe</option>';
                 
@@ -250,6 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error fetching groups:', error);
+                groupSelect.innerHTML = '<option value="" disabled selected>Erreur lors du chargement des groupes</option>';
             });
     });
 });
