@@ -156,13 +156,6 @@
                         </div>
                         <span class="font-medium">Soumettre les Notes</span>
                     </button>
-                    <a href="{% url 'download_student_result' attempt.id %}" 
-                        class="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
-                        <div class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg">
-                            {% include 'components/icons.html' with icon="download" class="w-4 h-4" %}
-                        </div>
-                        <span class="font-medium">Télécharger Résultat</span>
-                    </a>
                 </div>
             </div>
         </form>

@@ -118,28 +118,32 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-right whitespace-nowrap">
-                                    <a href="{% url 'exam_logs' attempt.id %}" 
-                                       class="inline-flex items-center justify-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5 w-full sm:w-auto">
-                                        <div class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg">
-                                            {% include 'components/icons.html' with icon="document-text" class="w-4 h-4" %}
-                                        </div>
-                                        <span class="font-medium">Logs</span>
-                                    </a>
-                                </td>
-                                <td class="px-6 py-4 text-right whitespace-nowrap">
-                                    <a href="{% url 'grade_attempt' attempt.id %}" 
-                                       class="inline-flex items-center space-x-2 text-green-600 dark:text-green-400 hover:shadow-[0_0_15px_rgba(34,197,94,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
-                                        <div class="p-2 bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-400/5 dark:to-emerald-400/5 rounded-lg">
-                                            {% include 'components/icons.html' with icon="clipboard-check" class="w-4 h-4" %}
-                                        </div>
-                                        <span class="font-medium">
-                                            {% if attempt.grade is not None %}
-                                                Modifier
-                                            {% else %}
-                                                Corriger
-                                            {% endif %}
-                                        </span>
-                                    </a>
+                                    <div class="flex justify-end items-center space-x-2">
+                                        <a href="{% url 'exam_logs' attempt.id %}" class="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:shadow-[0_0_15px_rgba(107,114,128,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
+                                            <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                                                {% include 'components/icons.html' with icon="document" class="w-4 h-4" %}
+                                            </div>
+                                            <span class="font-medium">Logs</span>
+                                        </a>
+                                        <a href="{% url 'download_student_result' attempt.id %}" class="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
+                                            <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                                                {% include 'components/icons.html' with icon="download" class="w-4 h-4" %}
+                                            </div>
+                                            <span class="font-medium">Télécharger</span>
+                                        </a>
+                                        <a href="{% url 'grade_attempt' attempt.id %}" class="inline-flex items-center space-x-2 text-green-600 dark:text-green-400 hover:shadow-[0_0_15px_rgba(34,197,94,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
+                                            <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                                {% include 'components/icons.html' with icon="clipboard-check" class="w-4 h-4" %}
+                                            </div>
+                                            <span class="font-medium">
+                                                {% if attempt.grade is not None %}
+                                                    Modifier
+                                                {% else %}
+                                                    Corriger
+                                                {% endif %}
+                                            </span>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         {% empty %}
