@@ -2,6 +2,8 @@
 
 Exam4U is a Django-based web application designed to facilitate the creation and management of exams. It provides a user-friendly interface for teachers to create exams, add questions, and manage exam settings.
 
+![Home Photo](static/images/home.png)
+
 ## Features
 
 - Create and manage exams with various settings.
