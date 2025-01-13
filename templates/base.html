@@ -54,9 +54,19 @@
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
-                <a href="{% url 'index' %}" class="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300">
-                    Exam4U
-                </a>
+                {% if user.is_authenticated and user.userprofile.role == 'teacher' %}
+                    <a href="{% url 'teacher_dashboard' %}" class="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300">
+                        Exam4U
+                    </a>
+                {% elif user.is_authenticated and user.userprofile.role == 'student'%}
+                    <a href="{% url 'student_dashboard' %}" class="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300">
+                        Exam4U
+                    </a>
+                {% else %}
+                    <a href="{% url 'index' %}" class="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300">
+                        Exam4U
+                    </a>
+                {% endif %}
 
                 <!-- Navigation Links (Desktop) -->
                 <div class="desktop-nav items-center space-x-8">
