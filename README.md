@@ -32,6 +32,7 @@ Exam4U is a Django-based web application designed to facilitate the creation and
    - pip install django
    - pip install mysqlclient
    - pip install reportlab
+   - pip install django-chartjs
    - pip install channels channels-redis
    - pip install pytz
    ```
