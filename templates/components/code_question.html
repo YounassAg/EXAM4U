@@ -11,21 +11,32 @@
     
     <!-- Code editor -->
     <textarea name="question_{{ question_name }}" 
+              id="code_editor_{{ question_name }}"
               class="code-editor hidden"
               required></textarea>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize code editor if not already initialized
-        if (typeof window.codeEditorManager === 'undefined') {
-            window.codeEditorManager = new CodeEditorManager();
+    (function() {
+        function initializeThisEditor() {
+            // Initialize code editor manager if not already initialized
+            if (typeof window.codeEditorManager === 'undefined') {
+                window.codeEditorManager = new CodeEditorManager();
+            }
+            
+            // Initialize this specific editor
+            const textarea = document.getElementById('code_editor_{{ question_name }}');
+            if (textarea && !window.codeEditorManager.editors.has(textarea.id)) {
+                window.codeEditorManager.initializeEditor(textarea);
+            }
         }
-        
-        // Initialize this specific editor
-        const textarea = document.querySelector('[name="question_{{ question_name }}"]');
-        if (textarea) {
-            window.codeEditorManager.initializeEditor(textarea);
+
+        // Try to initialize immediately if document is already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            initializeThisEditor();
+        } else {
+            // Otherwise wait for DOMContentLoaded
+            document.addEventListener('DOMContentLoaded', initializeThisEditor);
         }
-    });
+    })();
 </script>

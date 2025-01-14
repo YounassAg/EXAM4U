@@ -309,7 +309,19 @@
                 }
             } else if (input.type === 'text' || input.tagName.toLowerCase() === 'textarea') {
                 if (!input.value.trim()) {
-                    input.value = "Not Answered";
+                    // Handle code editor questions
+                    if (input.classList.contains('code-editor')) {
+                        const wrapper = input.closest('.code-question-wrapper');
+                        if (wrapper) {
+                            const editor = wrapper.querySelector('.CodeMirror')?.CodeMirror;
+                            if (editor && !editor.getValue().trim()) {
+                                editor.setValue('Not Answered');
+                                editor.save(); // Update the hidden textarea
+                            }
+                        }
+                    } else {
+                        input.value = "Not Answered";
+                    }
                 }
             }
         });
@@ -545,6 +557,7 @@
                     });
                 } else {
                     updateAttemptStatus("in_progress");
+                    logFraudAction("Network reconnect", `Reconnecté après ${offlineTime}ms`);
                     Swal.fire({
                         icon: 'success',
                         title: 'Reconnecté',
