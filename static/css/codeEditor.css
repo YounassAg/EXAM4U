@@ -1,0 +1,37 @@
+/* Code Editor Styles */
+.code-question-wrapper {
+    margin-bottom: 1.5rem;
+}
+
+.CodeMirror {
+    height: 200px;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    font-size: 14px;
+    margin-top: 0.5rem;
+}
+
+.dark .CodeMirror {
+    border-color: #4b5563;
+}
+
+.CodeMirror-focused {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+.language-selector {
+    width: 100%;
+    max-width: 200px;
+    margin-bottom: 0.5rem;
+}
+
+/* Dark mode specific styles */
+.dark .CodeMirror-gutters {
+    background-color: #1f2937;
+    border-right: 1px solid #374151;
+}
+
+.dark .CodeMirror-linenumber {
+    color: #9ca3af;
+}

@@ -1,35 +1,14 @@
 {% extends 'base.html' %}
 {% load static %}
-
-{% block title %}{{ exam.title }} - Exam4U{% endblock %}
-
 {% block extra_css %}
-<link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/eclipse.min.css" rel="stylesheet">
-<style>
-    .CodeMirror {
-        height: 200px;
-        border: 1px solid #e2e8f0;
-        border-radius: 0.5rem;
-        font-size: 14px;
-    }
-    
-    .dark .CodeMirror {
-        border-color: #4b5563;
-    }
-    
-    .CodeMirror-focused {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-    }
-</style>
+{% include 'components/code_editor_deps.html' %}
 {% endblock %}
+{% block title %}{{ exam.title }} - Exam4U{% endblock %}
 
 {% block content %}
 <div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
     {% include 'components/student_sidebar.html' %}
-    
+
     <div class="flex-1 p-4 md:p-8">
         <!-- Main Content -->
         <div class="space-y-6 md:space-y-8">
@@ -60,6 +39,7 @@
                     </div>
                 </div>
             </div>
+
 
             <!-- Questions Form -->
             <form id="examForm" method="post" class="space-y-6 md:space-y-8">
@@ -113,20 +93,10 @@
                                            class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                            required>
                                 </div>
-                            {% elif question.question_type == 'open' %}
-                                <div class="code-question-wrapper space-y-2">
-                                    <!-- Language selector -->
-                                    <select class="language-selector w-full sm:w-auto rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2">
-                                        <option value="python">Python</option>
-                                        <option value="javascript">JavaScript</option>
-                                        <option value="php">PHP</option>
-                                        <option value="sql">MySQL/SQL</option>
-                                    </select>
-                                    
-                                    <!-- Code editor -->
-                                    <textarea name="question_{{ question.id }}" class="code-editor" required></textarea>
-                                </div>
+                                {% elif question.question_type == 'open' %}
+                                {% include 'components/code_question.html' with question_name=question.id %}
                             {% endif %}
+                            
                         </div>
                     </div>
                 {% endfor %}
@@ -135,185 +105,657 @@
                 <div class="flex flex-col sm:flex-row gap-4">
                     <button type="button" 
                             onclick="history.back()" 
-                            class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-gray-600 dark:text-gray-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 dark:hover:from-gray-500 dark:hover:to-gray-600 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(75,85,99,0.25)] hover:-translate-y-0.5">
-                        <span class="mr-2">{% include 'components/icons.html' with icon="arrow-left" class="w-5 h-5" %}</span>
-                        Retour
+                            class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-gray-600 dark:text-gray-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 dark:hover:from-gray-500 dark:hover:to-gray-600 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(75,85,99,0.25)] hover:-translate-y-0.5 space-x-2">
+                        <div class="p-2 rounded-lg bg-gradient-to-br from-gray-500/10 to-gray-600/10 dark:from-gray-400/5 dark:to-gray-500/5">
+                            {% include 'components/icons.html' with icon="arrow-left" class="w-5 h-5" %}
+                        </div>
+                        <span class="font-medium">Retour</span>
                     </button>
-                    <button type="button"
+                    <button type="button" 
                             onclick="confirmSubmit()"
-                            class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-white bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 hover:from-blue-700 hover:to-purple-700 dark:hover:from-blue-600 dark:hover:to-purple-600 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:-translate-y-0.5">
-                        <span class="mr-2">{% include 'components/icons.html' with icon="check" class="w-5 h-5" %}</span>
-                        Soumettre
+                            class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-2">
+                        <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                            {% include 'components/icons.html' with icon="check" class="w-5 h-5" %}
+                        </div>
+                        <span class="font-medium">Soumettre</span>
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<!-- CodeMirror -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/clike/clike.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/php/php.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/sql/sql.min.js"></script>
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
 
+.animate-pulse {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.delay-1000 {
+    animation-delay: 1s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+    20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* Input focus styles */
+.focus-within\:ring-2:focus-within {
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+
+/* Smooth transitions */
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+}
+
+/* Choice hover effects */
+.group\/choice:hover {
+    --tw-border-opacity: 1;
+    border-color: rgb(59 130 246 / var(--tw-border-opacity));
+}
+
+/* Dark mode specific styles */
+@media (prefers-color-scheme: dark) {
+    .group\/choice:hover {
+        --tw-border-opacity: 1;
+        border-color: rgb(96 165 250 / var(--tw-border-opacity));
+    }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Store editor instances
-    const editors = new Map();
+    // Timer functionality with session storage persistence
+    const TIMER_KEY = 'exam_{{ exam.id }}_timer';
+    const START_TIME_KEY = 'exam_{{ exam.id }}_start_time';
+    const duration = {{ exam.duration }}; // Add the duration variable
+    let timeLeft;
+
+    // Initialize or restore timer
+    const storedTime = sessionStorage.getItem(TIMER_KEY);
+    const startTime = sessionStorage.getItem(START_TIME_KEY);
     
-    // Language mode mapping with proper configurations
-    const languageModes = {
-        'python': {
-            name: 'python',
-            version: 3
-        },
-        'javascript': {
-            name: 'javascript'
-        },
-        'php': {
-            name: 'php',
-            startOpen: true
-        },
-        'sql': {
-            name: 'text/x-mysql'
+    if (storedTime === null || startTime === null) {
+        // First time starting the exam
+        timeLeft = duration * 60; // Convert to seconds
+        sessionStorage.setItem(TIMER_KEY, timeLeft.toString());
+        sessionStorage.setItem(START_TIME_KEY, Date.now().toString());
+    } else {
+        // Returning to the exam - calculate remaining time
+        const elapsedTime = Math.floor((Date.now() - parseInt(startTime)) / 1000);
+        timeLeft = Math.max(0, duration * 60 - elapsedTime);
+        if (timeLeft <= 0) {
+            // If time has already expired, submit immediately
+            autoSubmitExam();
+        } else {
+            sessionStorage.setItem(TIMER_KEY, timeLeft.toString());
+        }
+    }
+
+    // Disable back button
+    window.history.pushState(null, null, window.location.href);
+    window.onpopstate = function () {
+        window.history.pushState(null, null, window.location.href);
+    };
+
+    // Prevent leaving the page
+    window.onbeforeunload = function(e) {
+        if (!document.getElementById('examForm').hasAttribute('data-submitted')) {
+            e.preventDefault();
+            e.returnValue = 'Vous avez un examen en cours. Êtes-vous sûr de vouloir quitter ?';
+            return e.returnValue;
         }
     };
-    
-    // Initialize editors
-    document.querySelectorAll('.code-question-wrapper').forEach(wrapper => {
-        const textarea = wrapper.querySelector('.code-editor');
-        const languageSelect = wrapper.querySelector('.language-selector');
+
+    // Handle form submission event
+    document.getElementById('examForm').addEventListener('submit', function(e) {
+        // Mark form as submitted to allow leaving the page
+        this.setAttribute('data-submitted', 'true');
+        // Remove timer from session storage
+        sessionStorage.removeItem(TIMER_KEY);
+        sessionStorage.removeItem(START_TIME_KEY);
+    });
+
+    const timerElement = document.getElementById('timer');
+
+    // Handle back/forward browser buttons
+    window.addEventListener('popstate', function(e) {
+        e.preventDefault();
+        Swal.fire({
+            icon: 'warning',
+            title: 'Navigation Non Autorisée',
+            text: 'Veuillez terminer votre examen avant de naviguer ailleurs.',
+            confirmButtonText: 'Rester sur l\'examen',
+            allowOutsideClick: false,
+            background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+            color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+        });
+        history.pushState(null, '', window.location.href);
+    });
+
+    function updateTimer() {
+        const hours = Math.floor(timeLeft / 3600);
+        const minutes = Math.floor((timeLeft % 3600) / 60);
+        const seconds = timeLeft % 60;
+
+        timerElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        if (timeLeft === 300) { // Exactly 5 minutes remaining
+            Swal.fire({
+                icon: 'warning',
+                title: 'Plus que 5 minutes!',
+                text: 'Il ne reste que 5 minutes. Veuillez soumettre votre examen rapidement.',
+                confirmButtonText: 'Compris',
+                allowOutsideClick: false,
+                background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+                color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+            });
+        }
+
+        if (timeLeft <= 300) { // 5 minutes or less remaining
+            timerElement.classList.add('text-red-600', 'dark:text-red-400');
+            if (!timerElement.classList.contains('shake')) {
+                timerElement.classList.add('shake');
+                setTimeout(() => timerElement.classList.remove('shake'), 500);
+            }
+        }
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            sessionStorage.removeItem(TIMER_KEY);
+            sessionStorage.removeItem(START_TIME_KEY);
+            autoSubmitExam();
+        } else {
+            timeLeft--;
+            sessionStorage.setItem(TIMER_KEY, timeLeft.toString());
+        }
+    }
+
+    function autoSubmitExam() {
+        const form = document.getElementById('examForm');
         
-        // Create editor with proper mode configuration
-        const editor = CodeMirror.fromTextArea(textarea, {
-            lineNumbers: true,
-            mode: languageModes[languageSelect.value],
-            theme: document.documentElement.classList.contains('dark') ? 'monokai' : 'eclipse',
-            indentUnit: 4,
-            smartIndent: true,
-            lineWrapping: true,
-            matchBrackets: true,
-            autoCloseBrackets: true,
-            extraKeys: {
-                'Tab': function(cm) {
-                    cm.replaceSelection('    ');
+        // Fill empty required fields
+        const radioGroups = {};
+        const inputs = form.querySelectorAll('input[required], textarea[required]');
+        
+        inputs.forEach(input => {
+            if (input.type === 'radio') {
+                const name = input.name;
+                if (!radioGroups[name]) {
+                    radioGroups[name] = true;
+                    const group = form.querySelectorAll(`input[name="${name}"]`);
+                    let checked = false;
+                    group.forEach(radio => {
+                        if (radio.checked) checked = true;
+                    });
+                    if (!checked) {
+                        group[0].checked = true;
+                    }
+                }
+            } else if (input.type === 'text' || input.tagName.toLowerCase() === 'textarea') {
+                if (!input.value.trim()) {
+                    input.value = "Not Answered";
                 }
             }
         });
-        
-        // Store editor instance
-        editors.set(textarea.name, editor);
-        
-        // Handle language changes
-        languageSelect.addEventListener('change', function() {
-            editor.setOption('mode', languageModes[this.value]);
-        });
-        
-        // Sync editor content with textarea
-        editor.on('change', function() {
-            editor.save();
-        });
-        
-        // Add PHP opening tag if PHP is selected
-        if (languageSelect.value === 'php') {
-            editor.setValue('<?php\n\n');
-            editor.setCursor(2, 0);
-        }
-        
-        // Handle language change and auto-insert tags
-        languageSelect.addEventListener('change', function() {
-            const newValue = this.value;
-            let currentCode = editor.getValue().trim();
-            
-            // Remove old PHP tags if they exist
-            if (currentCode.startsWith('<?php')) {
-                currentCode = currentCode.replace('<?php', '').trim();
-            }
-            
-            // Add appropriate tags for the new language
-            if (newValue === 'php' && !currentCode.startsWith('<?php')) {
-                editor.setValue('<?php\n\n' + currentCode);
-                editor.setCursor(editor.lineCount(), 0);
-            } else {
-                editor.setValue(currentCode);
-            }
-            
-            editor.setOption('mode', languageModes[newValue]);
-        });
-    });
-    
-    // Handle theme changes
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.attributeName === 'class') {
-                const isDark = document.documentElement.classList.contains('dark');
-                editors.forEach(editor => {
-                    editor.setOption('theme', isDark ? 'monokai' : 'eclipse');
+
+        // Handle checkboxes (not required by default)
+        const checkboxGroups = {};
+        form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            const name = checkbox.name;
+            if (!checkboxGroups[name]) {
+                checkboxGroups[name] = true;
+                const group = form.querySelectorAll(`input[name="${name}"]`);
+                let checked = false;
+                group.forEach(cb => {
+                    if (cb.checked) checked = true;
                 });
+                if (!checked) {
+                    group[0].checked = true;
+                }
             }
         });
-    });
-    
-    observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['class']
-    });
-    
-    // Timer functionality
-    const timerElement = document.getElementById('timer');
-    const endTime = new Date('{{ exam.end_date|date:"c" }}').getTime();
-    
-    function updateTimer() {
-        const now = new Date().getTime();
-        const timeLeft = endTime - now;
-        
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            autoSubmitExam();
-            return;
-        }
-        
-        const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-        
-        timerElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        // Show alert and submit
+        Swal.fire({
+            icon: 'warning',
+            title: 'Temps écoulé!',
+            text: 'Votre examen va être soumis automatiquement. Les questions sans réponse seront marquées comme "Non répondu".',
+            showConfirmButton: false,
+            timer: 3000,
+            allowOutsideClick: false,
+            background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+            color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+        }).then(() => {
+            // Remove timer from session storage
+            sessionStorage.removeItem(TIMER_KEY);
+            
+            // Create a hidden submit button and click it
+            const submitButton = document.createElement('button');
+            submitButton.type = 'submit';
+            submitButton.style.display = 'none';
+            form.appendChild(submitButton);
+            submitButton.click();
+        });
     }
-    
-    const timerInterval = setInterval(updateTimer, 1000);
+
+    // Update timer every second
     updateTimer();
-    
+    const timerInterval = setInterval(updateTimer, 1000);
+
+    // Clear timer on form submission
+    document.getElementById("examForm").addEventListener("submit", function() {
+        sessionStorage.removeItem(TIMER_KEY);
+    });
+
     // Form submission handling
-    window.confirmSubmit = function() {
-        if (confirm('Êtes-vous sûr de vouloir soumettre votre examen ? Cette action est irréversible.')) {
-            // Save all editors before submitting
-            editors.forEach(editor => editor.save());
-            document.getElementById('examForm').submit();
+    function confirmSubmit() {
+        const form = document.getElementById('examForm');
+        
+        // Fill empty required fields
+        const radioGroups = {};
+        const inputs = form.querySelectorAll('input[required], textarea[required]');
+        
+        inputs.forEach(input => {
+            if (input.type === 'radio') {
+                const name = input.name;
+                if (!radioGroups[name]) {
+                    radioGroups[name] = true;
+                    const group = form.querySelectorAll(`input[name="${name}"]`);
+                    let checked = false;
+                    group.forEach(radio => {
+                        if (radio.checked) checked = true;
+                    });
+                    if (!checked) {
+                        group[0].checked = true;
+                    }
+                }
+            } else if (input.type === 'text' || input.tagName.toLowerCase() === 'textarea') {
+                if (!input.value.trim()) {
+                    input.value = "Not Answered";
+                }
+            }
+        });
+
+        // Handle checkboxes (not required by default)
+        const checkboxGroups = {};
+        form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            const name = checkbox.name;
+            if (!checkboxGroups[name]) {
+                checkboxGroups[name] = true;
+                const group = form.querySelectorAll(`input[name="${name}"]`);
+                let checked = false;
+                group.forEach(cb => {
+                    if (cb.checked) checked = true;
+                });
+                if (!checked) {
+                    group[0].checked = true;
+                }
+            }
+        });
+
+        // Show confirmation dialog
+        Swal.fire({
+            title: 'Confirmer la soumission',
+            text: "Êtes-vous sûr de vouloir soumettre vos réponses ?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3B82F6',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Oui, soumettre',
+            cancelButtonText: 'Annuler',
+            allowOutsideClick: false,
+            background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+            color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Remove timer from session storage
+                sessionStorage.removeItem(TIMER_KEY);
+                
+                // Create a hidden submit button and click it
+                const submitButton = document.createElement('button');
+                submitButton.type = 'submit';
+                submitButton.style.display = 'none';
+                form.appendChild(submitButton);
+                submitButton.click();
+            }
+        });
+    }
+
+    // Handle form submission event
+    document.getElementById('examForm').addEventListener('submit', function(e) {
+        // Remove timer from session storage
+        sessionStorage.removeItem(TIMER_KEY);
+    });
+
+    // Attempt status management
+    const attemptId = "{{ attempt.id }}";
+
+    function updateAttemptStatus(status) {
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch("{% url 'update_attempt_status' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": csrftoken,
+            },
+            body: new URLSearchParams({
+                attempt_id: attemptId,
+                status: status
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                console.error(data.message);
+            }
+        })
+        .catch(error => console.error("Error updating attempt status:", error));
+    }
+
+    // Fraud detection logging
+    const logFraudAction = (action, details = "") => {
+        fetch("{% url 'log_action' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+            body: JSON.stringify({
+                attempt_id: "{{ attempt.id }}",
+                action: action,
+                details: details,
+            }),
+        });
+    };
+
+    // Enhanced network status monitoring
+    class NetworkMonitor {
+        constructor() {
+            this.disconnectionTime = null;
+            this.MAX_OFFLINE_TIME = 40000;
+            this.setupListeners();
+        }
+
+        setupListeners() {
+            window.addEventListener('offline', () => this.handleOffline());
+            window.addEventListener('online', () => this.handleOnline());
+        }
+
+        handleOffline() {
+            this.disconnectionTime = Date.now();
+            updateAttemptStatus("abandoned");
+            logFraudAction("Network disconnect", "Connexion réseau perdue");
+            
+            Swal.fire({
+                icon: 'warning',
+                title: 'Connexion Perdue',
+                text: 'Veuillez vous reconnecter dans les 30 secondes pour éviter l\'arrêt de l\'examen',
+                timer: this.MAX_OFFLINE_TIME,
+                timerProgressBar: true,
+                background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+                color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+            });
+        }
+
+        handleOnline() {
+            if (this.disconnectionTime) {
+                const offlineTime = Date.now() - this.disconnectionTime;
+                
+                if (offlineTime > this.MAX_OFFLINE_TIME) {
+                    logFraudAction("Extended disconnect", `Hors ligne pendant ${offlineTime}ms`);
+                    updateAttemptStatus("in_progress");
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Examen Terminé',
+                        text: 'Déconnexion réseau prolongée détectée',
+                        allowOutsideClick: false,
+                        confirmButtonText: 'Quitter l\'examen',
+                        background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+                        color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+                    });
+                } else {
+                    updateAttemptStatus("in_progress");
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Reconnecté',
+                        text: "Vous êtes reconnecté au réseau. Continuez l'examen rapidement pour éviter tout problème.",
+                        confirmButtonText: 'Ok',
+                        background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+                        color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+                    });
+                }
+            }
+        }
+    }
+
+    // Exam Security Management
+    const ExamSecurity = {
+        focusLostCount: 0,  // Add counter for focus loss
+
+        // Track mouse position leaving viewport
+        setupMouseTracking() {
+            document.addEventListener('mouseleave', (e) => {
+                if (e.clientY <= 0 || e.clientX <= 0 || 
+                    e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
+                    logFraudAction("Mouse leave", "Le curseur de la souris a quitté la fenêtre");
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Avertissement",
+                        text: "Veuillez garder votre curseur dans la fenêtre d'examen",
+                        timer: 3000
+                    });
+                }
+            });
+        },
+
+        // Detect browser developer tools
+        detectDevTools() {
+            const devToolsCheck = () => {
+                const widthThreshold = window.outerWidth - window.innerWidth > 160;
+                const heightThreshold = window.outerHeight - window.innerHeight > 160;
+                
+                if (widthThreshold || heightThreshold) {
+                    logFraudAction("Dev tools", "Outils développeur potentiellement ouverts");
+                    return true;
+                }
+                return false;
+            };
+
+            setInterval(devToolsCheck, 1000);
+            
+            window.addEventListener('devtoolschange', function(e) {
+                if(e.detail.open) {
+                    logFraudAction("Dev tools", "Outils développeur ouverts");
+                }
+            });
+        },
+
+        // Prevent right-click context menu
+        disableContextMenu() {
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                logFraudAction("Context menu", "Clic droit tenté");
+                Swal.fire({
+                    icon: "warning",
+                    title: "Action Non Autorisée",
+                    text: "Le clic droit est désactivé pendant l'examen",
+                    timer: 2000
+                });
+            });
+        },
+
+        // Track window focus
+        trackWindowFocus() {
+            window.addEventListener('blur', () => {
+                this.focusLostCount++;
+                logFraudAction("Focus lost", `Fenêtre perdue de vue ${this.focusLostCount} fois`);
+            });
+        },
+
+        // Monitor text selection and copying
+        setupTextProtection() {
+            document.addEventListener('copy', (event) => {
+                logFraudAction("Copy attempt", "Texte copié.");
+                Swal.fire({
+                    icon: "warning",
+                    title: "Copie Détectée",
+                    text: "La copie de texte n'est pas autorisée pendant l'examen.",
+                    confirmButtonText: "Compris",
+                });
+                event.preventDefault();
+            });
+
+            document.addEventListener('selectstart', (e) => {
+                e.preventDefault();
+                logFraudAction("Text selection", "Tentative de sélection de texte");
+            });
+        },
+
+        // Monitor suspicious shortcuts and screen resizing
+        setupKeyboardAndScreenMonitoring() {
+            let initialWidth = window.innerWidth;
+            let initialHeight = window.innerHeight;
+
+            window.addEventListener("resize", () => {
+                const widthDiff = Math.abs(window.innerWidth - initialWidth);
+                const heightDiff = Math.abs(window.innerHeight - initialHeight);
+
+                if (widthDiff > 100 || heightDiff > 100) {
+                    logFraudAction("Screen resize", `Écran redimensionné: ${window.innerWidth}x${window.innerHeight}`);
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Comportement Suspect Détecté",
+                        text: "Le redimensionnement de l'écran n'est pas autorisé pendant l'examen.",
+                        confirmButtonText: "Ok",
+                    });
+                }
+
+                initialWidth = window.innerWidth;
+                initialHeight = window.innerHeight;
+            });
+
+            document.addEventListener("keydown", (event) => {
+                const forbiddenShortcuts = ["c", "v", "a", "s", "p", "u"];
+                const isCtrlPressed = event.ctrlKey || event.metaKey;
+
+                if (isCtrlPressed && forbiddenShortcuts.includes(event.key.toLowerCase())) {
+                    logFraudAction("Suspicious shortcut", `Raccourci utilisé: Ctrl+${event.key.toUpperCase()}`);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Action Non Autorisée Détectée",
+                        text: `Le raccourci Ctrl+${event.key.toUpperCase()} n'est pas autorisé pendant l'examen.`,
+                        confirmButtonText: "Ok",
+                    });
+                    event.preventDefault();
+                }
+            });
+        },
+
+        // Initialize all security measures
+        init() {
+            this.setupMouseTracking();
+            this.detectDevTools();
+            this.disableContextMenu();
+            this.trackWindowFocus();
+            this.setupTextProtection();
+            this.setupKeyboardAndScreenMonitoring();
         }
     };
-    
-    // Auto-submit when time is up
-    window.autoSubmitExam = function() {
-        alert('Le temps est écoulé ! Votre examen va être soumis automatiquement.');
-        // Save all editors before submitting
-        editors.forEach(editor => editor.save());
-        document.getElementById('examForm').submit();
-    };
-    
-    // Prevent accidental navigation
-    window.addEventListener('beforeunload', function(e) {
-        const confirmationMessage = 'Êtes-vous sûr de vouloir quitter la page ? Toutes les réponses non soumises seront perdues.';
-        e.returnValue = confirmationMessage;
-        return confirmationMessage;
+
+    // Keep-alive ping
+    setInterval(() => {
+        if (navigator.onLine) {
+            updateAttemptStatus("in_progress");
+        }
+    }, 30000);
+
+    // Save answers functionality
+    function saveAnswers() {
+        const form = document.getElementById('examForm');
+        const answers = {};
+        
+        // Save all input values
+        form.querySelectorAll('input, textarea').forEach(input => {
+            if (input.type === 'radio' || input.type === 'checkbox') {
+                if (input.checked) {
+                    if (!answers[input.name]) {
+                        answers[input.name] = [];
+                    }
+                    answers[input.name].push(input.value);
+                }
+            } else if (input.type !== 'hidden') { // Skip CSRF token
+                answers[input.name] = input.value;
+            }
+        });
+        
+        // Save to sessionStorage
+        sessionStorage.setItem(`exam_{{ exam.id }}_answers`, JSON.stringify(answers));
+    }
+
+    // Restore answers functionality
+    function restoreAnswers() {
+        const savedAnswers = sessionStorage.getItem(`exam_{{ exam.id }}_answers`);
+        if (savedAnswers) {
+            const answers = JSON.parse(savedAnswers);
+            const form = document.getElementById('examForm');
+            
+            // Restore all input values
+            Object.keys(answers).forEach(name => {
+                const inputs = form.querySelectorAll(`[name="${name}"]`);
+                inputs.forEach(input => {
+                    if (input.type === 'radio' || input.type === 'checkbox') {
+                        if (Array.isArray(answers[name])) {
+                            input.checked = answers[name].includes(input.value);
+                        }
+                    } else if (input.type !== 'hidden') { // Skip CSRF token
+                        input.value = answers[name];
+                    }
+                });
+            });
+        }
+    }
+
+    // Save answers periodically and before leaving page
+    const SAVE_INTERVAL = 5000; // Save every 5 seconds
+    setInterval(saveAnswers, SAVE_INTERVAL);
+
+    // Save answers when input changes
+    document.getElementById('examForm').addEventListener('input', saveAnswers);
+
+    // Save answers before unload
+    window.addEventListener('beforeunload', saveAnswers);
+
+    // Restore answers when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        restoreAnswers();
+        ExamSecurity.init();
+        new NetworkMonitor();
     });
-});
+
+    // Clear answers on successful submission
+    document.getElementById('examForm').addEventListener('submit', function() {
+        sessionStorage.removeItem(`exam_{{ exam.id }}_answers`);
+        sessionStorage.removeItem(TIMER_KEY);
+        sessionStorage.removeItem(START_TIME_KEY);
+    });
 </script>
+
 {% endblock %}
