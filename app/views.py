@@ -478,6 +478,8 @@ def take_exam(request, exam_id):
                         response_text = selected_choice.choice_label
                 else:
                     response_text = form.cleaned_data[f'question_{question.id}']
+                    if not response_text or not response_text.strip():
+                        response_text = "Not Answered"
                 Response.objects.create(
                     attempt=attempt,
                     question=question,

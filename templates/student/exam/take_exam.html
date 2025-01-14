@@ -386,10 +386,22 @@
                     }
                 }
             } else if (input.type === 'text' || input.tagName.toLowerCase() === 'textarea') {
-                if (!input.value.trim()) {
-                    input.value = "Not Answered";
+    if (!input.value.trim()) {
+        // Handle code editor questions
+        if (input.classList.contains('code-editor')) {
+            const wrapper = input.closest('.code-question-wrapper');
+            if (wrapper) {
+                const editor = wrapper.querySelector('.CodeMirror')?.CodeMirror;
+                if (editor && !editor.getValue().trim()) {
+                    editor.setValue('Not Answered');
+                    editor.save(); // Update the hidden textarea
                 }
             }
+        } else {
+            input.value = "Not Answered";
+        }
+    }
+}
         });
 
         // Handle checkboxes (not required by default)
