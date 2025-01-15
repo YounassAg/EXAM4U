@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import timedelta
+from django.utils import timezone
 
 class Specialty(models.Model):
     name = models.CharField(max_length=100)
@@ -179,6 +181,72 @@ class Quiz(models.Model):
     def is_available_for_student(self, student):
         return self.is_published
 
+    def get_statistics(self):
+        attempts = self.attempts.all()
+        total_attempts = attempts.count()
+        
+        if total_attempts == 0:
+            return {
+                'total_attempts': 0,
+                'avg_score': 0,
+                'completion_rate': 0,
+                'pass_rate': 0,
+                'avg_time': None,
+                'question_stats': []
+            }
+
+        completed_attempts = attempts.filter(status='completed')
+        passed_attempts = completed_attempts.filter(score__gte=self.passing_score)
+
+        # Calculate average time spent
+        completed_with_time = completed_attempts.exclude(time_spent=None)
+        avg_time = completed_with_time.aggregate(avg_time=models.Avg('time_spent'))['avg_time'] if completed_with_time.exists() else None
+
+        # Question statistics
+        question_stats = []
+        for question in self.questions.all():
+            responses = QuizResponse.objects.filter(attempt__quiz=self, question=question)
+            total_responses = responses.count()
+            if total_responses > 0:
+                correct_responses = responses.filter(points_earned=question.points).count()
+                question_stats.append({
+                    'question_id': question.id,
+                    'question_text': question.question_text,
+                    'total_responses': total_responses,
+                    'correct_responses': correct_responses,
+                    'success_rate': (correct_responses / total_responses) * 100,
+                    'avg_points': responses.aggregate(avg_points=models.Avg('points_earned'))['avg_points'] or 0
+                })
+
+        return {
+            'total_attempts': total_attempts,
+            'avg_score': attempts.aggregate(avg_score=models.Avg('score'))['avg_score'] or 0,
+            'completion_rate': (completed_attempts.count() / total_attempts) * 100 if total_attempts > 0 else 0,
+            'pass_rate': (passed_attempts.count() / completed_attempts.count()) * 100 if completed_attempts.exists() else 0,
+            'avg_time': avg_time,
+            'question_stats': question_stats
+        }
+
+    def get_student_statistics(self, student):
+        student_attempts = self.attempts.filter(student=student)
+        total_attempts = student_attempts.count()
+        
+        if total_attempts == 0:
+            return None
+
+        best_attempt = student_attempts.filter(score__isnull=False).order_by('-score').first()
+        last_attempt = student_attempts.order_by('-start_time').first()
+        completed_attempts = student_attempts.filter(score__isnull=False)
+        
+        return {
+            'total_attempts': total_attempts,
+            'best_score': best_attempt.score if best_attempt else 0,
+            'last_score': last_attempt.score if last_attempt and last_attempt.score is not None else 0,
+            'average_score': completed_attempts.aggregate(avg_score=models.Avg('score'))['avg_score'] or 0,
+            'has_passed': completed_attempts.filter(score__gte=self.passing_score).exists(),
+            'last_attempt_date': last_attempt.start_time if last_attempt else None
+        }
+
 class QuizQuestion(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
     question_text = models.TextField()
@@ -268,6 +336,40 @@ class QuizAttempt(models.Model):
     def has_passed(self):
         return self.score >= self.quiz.passing_score if self.score is not None else False
 
+    def validate_submission_time(self):
+        if not self.quiz.time_limit:
+            return True
+            
+        if not self.start_time or not self.end_time:
+            return False
+            
+        actual_duration = self.end_time - self.start_time
+        allowed_duration = timedelta(minutes=self.quiz.time_limit)
+        
+        # Add a small buffer (30 seconds) for network latency
+        buffer_time = timedelta(seconds=30)
+        return actual_duration <= (allowed_duration + buffer_time)
+
+    def is_time_expired(self):
+        if not self.quiz.time_limit or not self.start_time:
+            return False
+            
+        time_limit = timedelta(minutes=self.quiz.time_limit)
+        return timezone.now() > (self.start_time + time_limit)
+
+    def get_remaining_time(self):
+        if not self.quiz.time_limit or not self.start_time:
+            return None
+            
+        time_limit = timedelta(minutes=self.quiz.time_limit)
+        remaining = (self.start_time + time_limit) - timezone.now()
+        return max(remaining, timedelta(0))
+
+    def update_time_spent(self):
+        if self.start_time and self.end_time:
+            self.time_spent = self.end_time - self.start_time
+            self.save(update_fields=['time_spent'])
+
 class QuizResponse(models.Model):
     attempt = models.ForeignKey(QuizAttempt, on_delete=models.CASCADE, related_name='responses')
     question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE)
@@ -286,3 +388,33 @@ class QuizResponse(models.Model):
         self.points_earned = self.question.check_answer(self.selected_choices.all())
         self.save()
         return self.points_earned
+
+class QuestionBank(models.Model):
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    teacher = models.ForeignKey(UserProfile, on_delete=models.CASCADE, limit_choices_to={'role': 'teacher'})
+    questions = models.ManyToManyField(QuizQuestion, related_name='banks')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Banque de questions'
+        verbose_name_plural = 'Banques de questions'
+
+    def __str__(self):
+        return f"{self.name} ({self.questions.count()} questions)"
+
+    def add_question(self, question):
+        if question.quiz.teacher == self.teacher:
+            self.questions.add(question)
+            return True
+        return False
+
+    def remove_question(self, question):
+        self.questions.remove(question)
+
+    def get_questions_by_type(self, question_type=None):
+        if question_type:
+            return self.questions.filter(question_type=question_type)
+        return self.questions.all()

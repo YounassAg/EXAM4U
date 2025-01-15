@@ -1,12 +1,10 @@
 {% extends 'base.html' %}
 
-{% block title %}{% if quiz %}Modifier{% else %}Créer{% endif %} un Quiz - Exam4U{% endblock %}
-
 {% block content %}
-<div class="flex min-h-screen bg-white dark:bg-gray-900">
+<div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
     {% include 'components/teacher_sidebar.html' %}
 
-    <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
+    <div class="flex-1 p-8 space-y-8">
         <!-- Title Section -->
         <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
             <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
@@ -14,390 +12,160 @@
             <div class="relative z-10 p-6">
                 <div class="flex items-center space-x-4">
                     <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
-                        {% include 'components/icons.html' with icon="quiz" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                        {% include 'components/icons.html' with icon="document" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
                     </div>
                     <div>
-                        <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-                            {% if quiz %}Modifier le Quiz{% else %}Créer un Quiz{% endif %}
-                        </h1>
+                        <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">{{ title }}</h1>
                         <p class="text-gray-600 dark:text-gray-400 mt-2">
-                            {% if quiz %}Modifiez les détails de votre quiz{% else %}Créez un nouveau quiz pour vos étudiants{% endif %}
+                            {% if quiz %}
+                                Modifiez les détails du quiz et gérez ses questions.
+                            {% else %}
+                                Créez un nouveau quiz pour vos étudiants.
+                            {% endif %}
                         </p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Messages -->
-        {% if messages %}
-            <div class="messages space-y-4">
-                {% for message in messages %}
-                    <div class="message {{ message.tags }} bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 border-l-4 {% if message.tags == 'error' %}border-l-red-500{% else %}border-l-green-500{% endif %} text-gray-900 dark:text-white transform hover:scale-[1.01] transition-all duration-300">
-                        <div class="flex items-center space-x-3">
-                            {% if message.tags == 'error' %}
-                                {% include 'components/icons.html' with icon="exclamation-circle" class="w-5 h-5 text-red-500" %}
-                            {% else %}
-                                {% include 'components/icons.html' with icon="check-circle" class="w-5 h-5 text-green-500" %}
-                            {% endif %}
-                            <p>{{ message }}</p>
+        <!-- Form Section -->
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 space-y-6">
+                {% for field in form %}
+                    <div class="space-y-2">
+                        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {{ field.label }}
+                        </label>
+                        <div class="mt-1">
+                            {{ field }}
                         </div>
+                        {% if field.help_text %}
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% if field.errors %}
+                            {% for error in field.errors %}
+                                <p class="text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
                     </div>
                 {% endfor %}
             </div>
-        {% endif %}
 
-        <!-- Quiz Form -->
-        <form method="post" class="space-y-6" id="quizForm">
-            {% csrf_token %}
-
-            <!-- Quiz Details -->
-            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-                <div class="flex items-center space-x-3 mb-6">
-                    <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
-                        {% include 'components/icons.html' with icon="document-text" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
-                    </div>
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Détails du Quiz</h2>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Title -->
-                    <div class="form-group">
-                        <label for="{{ form.title.id_for_label }}" class="required">
-                            Titre
-                        </label>
-                        <div class="input-with-icon {% if form.title.errors %}input-error{% endif %}">
-                            <div class="icon">
-                                {% include 'components/icons.html' with icon="document-text" class="w-5 h-5" %}
+            {% if quiz %}
+                <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Questions</h3>
+                        <a href="{% url 'add_quiz_question' quiz.id %}" 
+                           class="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
+                            <div class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg">
+                                {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
                             </div>
-                            {{ form.title }}
-                            {% if form.title.errors %}
-                                <div class="error-message">
-                                    {% include 'components/icons.html' with icon="exclamation-circle" class="w-4 h-4" %}
-                                    <span>{{ form.title.errors.0 }}</span>
+                            <span class="font-medium">Ajouter une question</span>
+                        </a>
+                    </div>
+                    
+                    {% if questions %}
+                        <div class="space-y-4">
+                            {% for question in questions %}
+                                <div class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600 p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <span class="text-sm font-medium text-gray-900 dark:text-white">Question {{ forloop.counter }}</span>
+                                            {% if question.is_required %}
+                                                <span class="px-2 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-100/50 dark:bg-blue-900/50 rounded-full">Obligatoire</span>
+                                            {% endif %}
+                                            {% if question.allow_multiple_answers %}
+                                                <span class="px-2 py-1 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-900/50 rounded-full">Réponses multiples</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <a href="{% url 'edit_quiz_question' question.id %}" 
+                                               class="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:shadow-[0_0_15px_rgba(75,85,99,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
+                                                <div class="p-2 bg-gradient-to-br from-gray-500/10 to-gray-600/10 dark:from-gray-400/5 dark:to-gray-500/5 rounded-lg">
+                                                    {% include 'components/icons.html' with icon="pencil" class="w-4 h-4" %}
+                                                </div>
+                                                <span class="font-medium">Modifier</span>
+                                            </a>
+                                            <button type="button" 
+                                                    onclick="confirmDeleteQuestion({{ question.id }})"
+                                                    class="inline-flex items-center space-x-2 text-red-600 dark:text-red-400 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
+                                                <div class="p-2 bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5 rounded-lg">
+                                                    {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                                                </div>
+                                                <span class="font-medium">Supprimer</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <p class="mt-2 text-gray-600 dark:text-gray-400">{{ question.question_text }}</p>
                                 </div>
-                            {% endif %}
+                            {% endfor %}
                         </div>
-                    </div>
-
-                    <!-- Course -->
-                    <div class="form-group">
-                        <label for="{{ form.course.id_for_label }}" class="required">
-                            Cours
-                        </label>
-                        <div class="input-with-icon {% if form.course.errors %}input-error{% endif %}">
-                            <div class="icon">
-                                {% include 'components/icons.html' with icon="academic-cap" class="w-5 h-5" %}
-                            </div>
-                            {{ form.course }}
-                            {% if form.course.errors %}
-                                <div class="error-message">
-                                    {% include 'components/icons.html' with icon="exclamation-circle" class="w-4 h-4" %}
-                                    <span>{{ form.course.errors.0 }}</span>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <!-- Time Limit -->
-                    <div class="form-group">
-                        <label for="{{ form.time_limit.id_for_label }}">
-                            Durée (minutes)
-                        </label>
-                        <div class="input-with-icon {% if form.time_limit.errors %}input-error{% endif %}">
-                            <div class="icon">
-                                {% include 'components/icons.html' with icon="clock" class="w-5 h-5" %}
-                            </div>
-                            {{ form.time_limit }}
-                            {% if form.time_limit.errors %}
-                                <div class="error-message">
-                                    {% include 'components/icons.html' with icon="exclamation-circle" class="w-4 h-4" %}
-                                    <span>{{ form.time_limit.errors.0 }}</span>
-                                </div>
-                            {% endif %}
-                            <p class="help-text">Laissez vide pour un temps illimité</p>
-                        </div>
-                    </div>
-
-                    <!-- Passing Score -->
-                    <div class="form-group">
-                        <label for="{{ form.passing_score.id_for_label }}" class="required">
-                            Score minimum (%)
-                        </label>
-                        <div class="input-with-icon {% if form.passing_score.errors %}input-error{% endif %}">
-                            <div class="icon">
-                                {% include 'components/icons.html' with icon="chart-bar" class="w-5 h-5" %}
-                            </div>
-                            {{ form.passing_score }}
-                            {% if form.passing_score.errors %}
-                                <div class="error-message">
-                                    {% include 'components/icons.html' with icon="exclamation-circle" class="w-4 h-4" %}
-                                    <span>{{ form.passing_score.errors.0 }}</span>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
+                    {% else %}
+                        <p class="text-gray-600 dark:text-gray-400">Aucune question n'a encore été ajoutée.</p>
+                    {% endif %}
                 </div>
-            </div>
+            {% endif %}
 
-            <!-- Quiz Settings -->
-            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-                <div class="flex items-center space-x-3 mb-6">
-                    <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
-                        {% include 'components/icons.html' with icon="cog" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
+            <div class="flex justify-between items-center pt-6">
+                <a href="{% url 'teacher_quiz_list' %}" 
+                   class="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:shadow-[0_0_15px_rgba(75,85,99,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
+                    <div class="p-2 bg-gradient-to-br from-gray-500/10 to-gray-600/10 dark:from-gray-400/5 dark:to-gray-500/5 rounded-lg">
+                        {% include 'components/icons.html' with icon="arrow-left" class="w-4 h-4" %}
                     </div>
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Paramètres</h2>
-                </div>
-                
-                <div class="space-y-4">
-                    <!-- Published -->
-                    <div class="flex items-center p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200">
-                        <div class="flex items-center h-5">
-                            {{ form.is_published }}
-                        </div>
-                        <div class="ml-3">
-                            <label for="{{ form.is_published.id_for_label }}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Publier le quiz
-                            </label>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Le quiz sera visible par les étudiants</p>
-                        </div>
-                        {% if form.is_published.errors %}
-                            <div class="error-message">
-                                {% include 'components/icons.html' with icon="exclamation-circle" class="w-4 h-4" %}
-                                <span>{{ form.is_published.errors.0 }}</span>
+                    <span class="font-medium">Retour</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    {% if quiz %}
+                        <a href="{% url 'preview_quiz' quiz.id %}" 
+                           class="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
+                            <div class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg">
+                                {% include 'components/icons.html' with icon="eye" class="w-4 h-4" %}
                             </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Randomize Questions -->
-                    <div class="flex items-center p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200">
-                        <div class="flex items-center h-5">
-                            {{ form.randomize_questions }}
+                            <span class="font-medium">Aperçu</span>
+                        </a>
+                    {% endif %}
+                    <button type="submit" 
+                            class="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-xl p-2 transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5">
+                        <div class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg">
+                            {% include 'components/icons.html' with icon="check" class="w-4 h-4" %}
                         </div>
-                        <div class="ml-3">
-                            <label for="{{ form.randomize_questions.id_for_label }}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Mélanger les questions
-                            </label>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">L'ordre des questions sera aléatoire pour chaque étudiant</p>
-                        </div>
-                        {% if form.randomize_questions.errors %}
-                            <div class="error-message">
-                                {% include 'components/icons.html' with icon="exclamation-circle" class="w-4 h-4" %}
-                                <span>{{ form.randomize_questions.errors.0 }}</span>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="sticky bottom-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 p-4 -mx-4 md:-mx-8">
-                <div class="flex items-center justify-end space-x-4 max-w-7xl mx-auto">
-                    <a href="{% url 'teacher_quiz_list' %}" 
-                       class="inline-flex items-center justify-center px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium rounded-xl transition-colors duration-300">
-                        <div class="p-2">
-                            {% include 'components/icons.html' with icon="x" class="w-5 h-5" %}
-                        </div>
-                        <span>Annuler</span>
-                    </a>
-                    <button type="submit"
-                            class="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-xl transform hover:-translate-y-0.5 transition-all duration-300">
-                        <div class="p-2">
-                            {% include 'components/icons.html' with icon="save" class="w-5 h-5" %}
-                        </div>
-                        <span>{% if quiz %}Enregistrer{% else %}Créer{% endif %}</span>
+                        <span class="font-medium">{% if quiz %}Enregistrer{% else %}Créer{% endif %}</span>
                     </button>
                 </div>
             </div>
         </form>
-
-        <!-- Questions Section -->
-        {% if quiz %}
-            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Questions</h2>
-                    <a href="{% url 'add_quiz_question' quiz.id %}"
-                       class="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
-                        <div class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg">
-                            {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
-                        </div>
-                        <span class="font-medium">Ajouter une Question</span>
-                    </a>
-                </div>
-
-                {% if quiz.questions.all %}
-                    <div class="space-y-4">
-                        {% for question in quiz.questions.all %}
-                            <div class="group bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600 p-4">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex-1">
-                                        <div class="flex items-center space-x-2 mb-2">
-                                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Question {{ forloop.counter }}</span>
-                                            <span class="text-sm text-gray-500 dark:text-gray-500">•</span>
-                                            <span class="text-sm text-gray-600 dark:text-gray-400">{{ question.points }} points</span>
-                                        </div>
-                                        <p class="text-gray-900 dark:text-white">{{ question.text }}</p>
-                                    </div>
-                                    <div class="flex items-center space-x-2">
-                                        <a href="{% url 'edit_quiz_question' question.id %}"
-                                           class="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg transition-colors duration-300"
-                                           title="Modifier">
-                                            {% include 'components/icons.html' with icon="pencil" class="w-5 h-5" %}
-                                        </a>
-                                        <button type="button"
-                                                onclick="confirmDeleteQuestion('{{ question.id }}')"
-                                                class="p-2 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-colors duration-300"
-                                                title="Supprimer">
-                                            {% include 'components/icons.html' with icon="trash" class="w-5 h-5" %}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="text-center py-8">
-                        <div class="inline-flex items-center justify-center p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 mb-4">
-                            {% include 'components/icons.html' with icon="information" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Aucune question</h3>
-                        <p class="text-gray-600 dark:text-gray-400">Ajoutez des questions à votre quiz.</p>
-                    </div>
-                {% endif %}
-            </div>
-        {% endif %}
     </div>
 </div>
-
-<!-- Delete Question Modal -->
-<div id="deleteQuestionModal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-md w-full p-6">
-            <div class="text-center mb-6">
-                <div class="inline-flex items-center justify-center p-3 rounded-full bg-red-100/50 dark:bg-red-900/50 mb-4">
-                    {% include 'components/icons.html' with icon="exclamation-triangle" class="w-8 h-8 text-red-600 dark:text-red-400" %}
-                </div>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Confirmer la suppression</h3>
-                <p class="text-gray-600 dark:text-gray-400">Êtes-vous sûr de vouloir supprimer cette question ? Cette action est irréversible.</p>
-            </div>
-            <div class="flex items-center justify-end space-x-4">
-                <button type="button" 
-                        onclick="closeDeleteQuestionModal()"
-                        class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium rounded-xl transition-colors duration-300">
-                    Annuler
-                </button>
-                <form id="deleteQuestionForm" method="post" class="inline">
-                    {% csrf_token %}
-                    <button type="submit"
-                            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transform hover:-translate-y-0.5 transition-all duration-300">
-                        Supprimer
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-/* Form Input Styles */
-input[type="text"],
-input[type="number"],
-select,
-textarea {
-    @apply w-full px-4 py-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400;
-    @apply focus:bg-white dark:focus:bg-gray-800 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20;
-    @apply hover:border-gray-300 dark:hover:border-gray-600;
-    @apply disabled:opacity-50 disabled:cursor-not-allowed;
-    @apply transition-all duration-200;
-}
-
-/* Input with Icon */
-.input-with-icon {
-    @apply relative;
-}
-
-.input-with-icon input,
-.input-with-icon select {
-    @apply pl-11;
-}
-
-.input-with-icon .icon {
-    @apply absolute left-0 top-0 bottom-0 w-11 flex items-center justify-center text-gray-400 dark:text-gray-500 pointer-events-none;
-}
-
-/* Input Error State */
-.input-error input,
-.input-error select,
-.input-error textarea {
-    @apply border-red-500 dark:border-red-500 focus:border-red-500 dark:focus:border-red-500 focus:ring-red-500/20 dark:focus:ring-red-500/20;
-}
-
-.input-error .error-message {
-    @apply flex items-center mt-2 text-sm text-red-600 dark:text-red-400 space-x-1;
-}
-
-/* Checkbox and Radio Styles */
-input[type="checkbox"],
-input[type="radio"] {
-    @apply h-5 w-5 border-2 border-gray-300 dark:border-gray-600 rounded text-blue-600 dark:text-blue-400;
-    @apply focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 focus:ring-offset-0;
-    @apply hover:border-blue-500 dark:hover:border-blue-400;
-    @apply transition-all duration-200;
-}
-
-input[type="radio"] {
-    @apply rounded-full;
-}
-
-/* Label Styles */
-label {
-    @apply inline-block text-sm font-medium text-gray-700 dark:text-gray-300;
-}
-
-/* Required Field Indicator */
-.required::after {
-    content: "*";
-    @apply ml-1 text-red-500;
-}
-
-/* Form Section Styles */
-.form-section {
-    @apply space-y-6;
-}
-
-.form-group {
-    @apply space-y-2;
-}
-
-/* Help Text */
-.help-text {
-    @apply mt-2 text-sm text-gray-500 dark:text-gray-400;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
-}
-
-.animate-pulse {
-    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.delay-1000 {
-    animation-delay: 1s;
-}
-</style>
 
 <script>
 function confirmDeleteQuestion(questionId) {
-    const modal = document.getElementById('deleteQuestionModal');
-    const form = document.getElementById('deleteQuestionForm');
-    form.action = `/teacher/quizzes/{{ quiz.id }}/questions/${questionId}/delete/`;
-    modal.classList.remove('hidden');
-}
-
-function closeDeleteQuestionModal() {
-    const modal = document.getElementById('deleteQuestionModal');
-    modal.classList.add('hidden');
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette question ?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/teacher/quiz-questions/${questionId}/delete/`;
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        
+        form.appendChild(csrfInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
 }
 </script>
+
+<style>
+    input[type="text"], input[type="number"], textarea, select {
+        @apply w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-shadow duration-300;
+    }
+
+    input[type="checkbox"] {
+        @apply h-4 w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500 dark:focus:ring-blue-400;
+    }
+</style>
 {% endblock %} 

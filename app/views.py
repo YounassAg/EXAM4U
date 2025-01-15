@@ -1151,24 +1151,29 @@ def create_quiz(request):
 @role_required('teacher')
 def edit_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id, teacher=request.user.userprofile)
+    
     if request.method == 'POST':
         form = QuizForm(request.POST, instance=quiz)
         if form.is_valid():
-            form.save()
+            quiz = form.save(commit=False)
+            quiz.teacher = request.user.userprofile
+            quiz.save()
             messages.success(request, 'Quiz modifié avec succès.')
             return redirect('teacher_quiz_list')
+        else:
+            messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
     else:
         form = QuizForm(instance=quiz)
     
     questions = quiz.questions.all().order_by('order')
-    attempts = quiz.attempts.select_related('student').order_by('-start_time')
     
-    return render(request, 'teacher/quiz/quiz_form.html', {
+    context = {
         'form': form,
         'quiz': quiz,
         'questions': questions,
-        'attempts': attempts
-    })
+        'title': 'Modifier le Quiz'
+    }
+    return render(request, 'teacher/quiz/quiz_form.html', context)
 
 @login_required
 @role_required('teacher')
@@ -1249,22 +1254,28 @@ def delete_quiz_question(request, question_id):
     question = get_object_or_404(QuizQuestion, id=question_id, quiz__teacher=request.user.userprofile)
     quiz_id = question.quiz.id
     
-    # Update order of remaining questions
-    questions_to_update = question.quiz.questions.filter(order__gt=question.order)
-    for q in questions_to_update:
-        q.order -= 1
-        q.save()
+    if request.method == 'POST':
+        # Update order of remaining questions
+        questions_to_update = question.quiz.questions.filter(order__gt=question.order)
+        for q in questions_to_update:
+            q.order -= 1
+            q.save()
+        
+        question.delete()
+        messages.success(request, 'Question supprimée avec succès!')
+    else:
+        messages.error(request, 'Méthode non autorisée.')
     
-    question.delete()
-    messages.success(request, 'Question supprimée avec succès!')
     return redirect('edit_quiz', quiz_id=quiz_id)
 
 @login_required
 @role_required('teacher')
 def delete_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id, teacher=request.user.userprofile)
-    quiz.delete()
-    messages.success(request, 'Quiz supprimé avec succès!')
+    if request.method == 'POST':
+        quiz.delete()
+        messages.success(request, 'Quiz supprimé avec succès!')
+        return redirect('teacher_quiz_list')
     return redirect('teacher_quiz_list')
 
 @login_required
@@ -1287,68 +1298,93 @@ def student_quiz_list(request):
 @role_required('student')
 def take_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id, is_published=True)
-    if not quiz.course in request.user.userprofile.group.specialty.course_set.all():
-        messages.error(request, "Vous n'avez pas accès à ce quiz.")
-        return redirect('student_quiz_list')
     
-    # Create a new attempt
-    attempt = QuizAttempt.objects.create(
+    # Check if student has an incomplete attempt
+    existing_attempt = QuizAttempt.objects.filter(
         quiz=quiz,
         student=request.user.userprofile,
-        start_time=timezone.now()
-    )
+        status='in_progress'
+    ).first()
     
-    questions = list(quiz.questions.all().order_by('order'))
-    if quiz.randomize_questions:
-        random.shuffle(questions)
+    if existing_attempt:
+        # Check if time has expired
+        if existing_attempt.is_time_expired():
+            existing_attempt.status = 'timed_out'
+            existing_attempt.end_time = timezone.now()
+            existing_attempt.update_time_spent()
+            existing_attempt.save()
+            messages.error(request, 'Le temps imparti est dépassé. Votre tentative a été automatiquement soumise.')
+            return redirect('quiz_results', attempt_id=existing_attempt.id)
+        
+        # Continue with existing attempt
+        remaining_time = existing_attempt.get_remaining_time()
+        if remaining_time:
+            remaining_seconds = int(remaining_time.total_seconds())
+        else:
+            remaining_seconds = None
+    else:
+        # Create new attempt
+        existing_attempt = QuizAttempt.objects.create(
+            quiz=quiz,
+            student=request.user.userprofile,
+            start_time=timezone.now()
+        )
+        remaining_seconds = quiz.time_limit * 60 if quiz.time_limit else None
     
-    best_score = quiz.get_student_best_score(request.user.userprofile)
+    # Get student statistics safely
+    stats = quiz.get_student_statistics(request.user.userprofile)
+    best_score = stats['best_score'] if stats is not None else None
     
-    return render(request, 'student/quiz/take_quiz.html', {
+    context = {
         'quiz': quiz,
-        'questions': questions,
-        'attempt': attempt,
+        'attempt': existing_attempt,
+        'remaining_seconds': remaining_seconds,
         'best_score': best_score
-    })
+    }
+    
+    return render(request, 'student/quiz/take_quiz.html', context)
 
 @login_required
 @role_required('student')
 def submit_quiz(request, attempt_id):
     attempt = get_object_or_404(QuizAttempt, id=attempt_id, student=request.user.userprofile)
-    if attempt.end_time:
-        messages.error(request, 'Ce quiz a déjà été soumis.')
-        return redirect('student_quiz_list')
+    
+    if attempt.status == 'completed':
+        messages.error(request, 'Cette tentative a déjà été soumise.')
+        return redirect('quiz_results', attempt_id=attempt.id)
+    
+    attempt.end_time = timezone.now()
+    
+    # Validate submission time
+    if not attempt.validate_submission_time():
+        attempt.status = 'timed_out'
+        attempt.save()
+        messages.error(request, 'Le temps imparti est dépassé. Votre tentative a été automatiquement soumise.')
+        return redirect('quiz_results', attempt_id=attempt.id)
     
     if request.method == 'POST':
-        attempt.end_time = timezone.now()
-        attempt.time_spent = attempt.end_time - attempt.start_time
-        
-        total_points = 0
-        earned_points = 0
-        
+        # Process responses
         for question in attempt.quiz.questions.all():
+            selected_choice_ids = request.POST.getlist(f'question_{question.id}')
+            selected_choices = QuizChoice.objects.filter(id__in=selected_choice_ids)
+            
             response = QuizResponse.objects.create(
                 attempt=attempt,
                 question=question
             )
-            
-            selected_choice_ids = request.POST.getlist(f'question_{question.id}')
-            if selected_choice_ids:
-                selected_choices = QuizChoice.objects.filter(id__in=selected_choice_ids)
-                response.selected_choices.set(selected_choices)
-                points = question.check_answer(selected_choices)
-                earned_points += points
-            
-            total_points += question.points
+            response.selected_choices.set(selected_choices)
+            response.calculate_points()
         
-        attempt.score = (earned_points / total_points * 100) if total_points > 0 else 0
+        # Update attempt status and time
         attempt.status = 'completed'
+        attempt.update_time_spent()
+        attempt.calculate_score()
         attempt.save()
         
-        messages.success(request, f'Quiz terminé! Votre score: {attempt.score:.1f}%')
+        messages.success(request, 'Quiz soumis avec succès!')
         return redirect('quiz_results', attempt_id=attempt.id)
     
-    return redirect('student_quiz_list')
+    return redirect('take_quiz', quiz_id=attempt.quiz.id)
 
 @login_required
 @role_required('student')
@@ -1363,3 +1399,16 @@ def quiz_results(request, attempt_id):
         'attempt': attempt,
         'responses': responses
     })
+
+@login_required
+@role_required('teacher')
+def preview_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id, teacher=request.user.userprofile)
+    questions = quiz.questions.all().order_by('order')
+    
+    context = {
+        'quiz': quiz,
+        'questions': questions,
+        'is_preview': True
+    }
+    return render(request, 'teacher/quiz/preview_quiz.html', context)

@@ -79,12 +79,6 @@
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Question {{ forloop.counter }}</span>
-                            {% if question.is_required %}
-                                <span class="px-2 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-100/50 dark:bg-blue-900/50 rounded-full">Obligatoire</span>
-                            {% endif %}
-                            {% if question.allow_multiple_answers %}
-                                <span class="px-2 py-1 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-900/50 rounded-full">Réponses multiples</span>
-                            {% endif %}
                         </div>
                         <span class="text-sm font-medium text-gray-600 dark:text-gray-400">{{ question.points }} points</span>
                     </div>
@@ -96,11 +90,11 @@
                     <div class="space-y-3">
                         {% for choice in question.choices.all %}
                             <div class="flex items-center p-3 bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-500 transition-colors duration-300">
-                                <input type="{% if question.allow_multiple_answers %}checkbox{% else %}radio{% endif %}" 
+                                <input type="radio" 
                                        name="question_{{ question.id }}" 
                                        value="{{ choice.id }}" 
                                        id="choice_{{ choice.id }}"
-                                       class="{% if question.allow_multiple_answers %}form-checkbox{% else %}form-radio{% endif %} h-4 w-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:focus:ring-blue-400">
+                                       class="w-4 h-4 text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:focus:ring-blue-400">
                                 <label for="choice_{{ choice.id }}" class="ml-3 block text-gray-900 dark:text-white">
                                     {{ choice.choice_text }}
                                 </label>
@@ -141,7 +135,7 @@
 }
 
 /* Custom radio and checkbox styles */
-.form-radio, .form-checkbox {
+input[type="radio"] {
     @apply text-blue-600 dark:text-blue-400 border-gray-300 dark:border-gray-600 focus:ring-blue-500 dark:focus:ring-blue-400;
 }
 </style>
@@ -175,15 +169,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Form validation
 document.getElementById('quizForm').addEventListener('submit', function(e) {
-    const requiredQuestions = document.querySelectorAll('input[type="radio"][name^="question_"]');
-    const unansweredRequired = Array.from(requiredQuestions).some(input => {
+    const questions = document.querySelectorAll('input[type="radio"][name^="question_"]');
+    const unanswered = Array.from(questions).some(input => {
         const name = input.getAttribute('name');
         return !document.querySelector(`input[name="${name}"]:checked`);
     });
 
-    if (unansweredRequired) {
+    if (unanswered) {
         e.preventDefault();
-        alert('Veuillez répondre à toutes les questions obligatoires avant de soumettre.');
+        alert('Veuillez répondre à toutes les questions avant de soumettre.');
     }
 });
 </script>

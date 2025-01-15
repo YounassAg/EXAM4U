@@ -88,13 +88,21 @@ class QuizForm(forms.ModelForm):
             'is_published', 'randomize_questions'
         ]
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 4}),
-            'time_limit': forms.NumberInput(attrs={'min': 1, 'max': 180}),
-            'passing_score': forms.NumberInput(attrs={'min': 0, 'max': 100, 'step': '0.1'}),
+            'title': forms.TextInput(attrs={'class': 'form-input'}),
+            'description': forms.Textarea(attrs={'rows': 4, 'class': 'form-textarea'}),
+            'course': forms.Select(attrs={'class': 'form-select'}),
+            'time_limit': forms.NumberInput(attrs={'min': 1, 'max': 180, 'class': 'form-input'}),
+            'passing_score': forms.NumberInput(attrs={'min': 0, 'max': 100, 'step': '0.1', 'class': 'form-input'}),
+            'is_published': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
+            'randomize_questions': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
         }
         help_texts = {
+            'title': 'Le titre du quiz',
+            'description': 'Une description détaillée du quiz',
+            'course': 'Le cours auquel ce quiz est associé',
             'time_limit': 'Durée en minutes (1-180)',
             'passing_score': 'Score minimum requis pour réussir (0-100)',
+            'is_published': 'Rendre le quiz visible aux étudiants',
             'randomize_questions': 'Mélanger l\'ordre des questions pour chaque tentative',
         }
 
@@ -122,7 +130,7 @@ class QuizChoiceForm(forms.ModelForm):
             'choice_text': forms.TextInput(attrs={'class': 'w-full'}),
             'explanation': forms.Textarea(attrs={'rows': 2}),
         }
-
+        
 QuizChoiceFormSet = forms.inlineformset_factory(
     QuizQuestion,
     QuizChoice,
