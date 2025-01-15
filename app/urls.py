@@ -34,4 +34,19 @@ urlpatterns = [
     path('exams/teacher/download-result/<int:attempt_id>/', views.download_student_result, name='download_student_result'),
     path('exams/student/log-action/', views.log_student_action, name='log_action'),
     path('exams/teacher/logs/<int:attempt_id>/', views.view_exam_logs, name='exam_logs'),
+
+    # Quiz URLs - Teacher
+    path('teacher/quizzes/', views.teacher_quiz_list, name='teacher_quiz_list'),
+    path('teacher/quizzes/create/', views.create_quiz, name='create_quiz'),
+    path('teacher/quizzes/<int:quiz_id>/edit/', views.edit_quiz, name='edit_quiz'),
+    path('teacher/quizzes/<int:quiz_id>/questions/add/', views.add_quiz_question, name='add_quiz_question'),
+    path('teacher/quiz-questions/<int:question_id>/edit/', views.edit_quiz_question, name='edit_quiz_question'),
+    path('teacher/quiz-questions/<int:question_id>/delete/', views.delete_quiz_question, name='delete_quiz_question'),
+    path('teacher/quizzes/<int:quiz_id>/delete/', views.delete_quiz, name='delete_quiz'),
+
+    # Quiz URLs - Student
+    path('student/quizzes/', views.student_quiz_list, name='student_quiz_list'),
+    path('student/quizzes/<int:quiz_id>/take/', views.take_quiz, name='take_quiz'),
+    path('student/quiz-attempts/<int:attempt_id>/submit/', views.submit_quiz, name='submit_quiz'),
+    path('student/quiz-attempts/<int:attempt_id>/results/', views.quiz_results, name='quiz_results'),
 ]

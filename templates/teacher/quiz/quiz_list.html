@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Quiz - Exam4U{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen bg-white dark:bg-gray-900">
+    {% include 'components/teacher_sidebar.html' %}
+
+    <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
+        <!-- Title Section -->
+        <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div class="relative z-10 p-6">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        {% include 'components/icons.html' with icon="quiz" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                    </div>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Mes Quiz</h1>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Créez et gérez des quiz pour vos étudiants</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Quiz Button -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+            <a href="{% url 'create_quiz' %}" 
+               class="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
+                <div class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg">
+                    {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
+                </div>
+                <span class="font-medium">Ajouter un Quiz</span>
+            </a>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+            <div class="messages space-y-4">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }} bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 border-l-4 border-l-blue-500 text-gray-900 dark:text-white transform hover:scale-[1.01] transition-all duration-300">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Quiz List -->
+        <div class="grid grid-cols-1 gap-6">
+            {% if quizzes %}
+                {% for quiz in quizzes %}
+                    <div class="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300 overflow-hidden">
+                        <div class="p-6">
+                            <!-- Header Section -->
+                            <div class="flex items-center space-x-3 mb-4">
+                                <div class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg">
+                                    {% include 'components/icons.html' with icon="quiz" class="w-6 h-6 text-blue-600 dark:text-blue-400" %}
+                                </div>
+                                <h2 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{{ quiz.title }}</h2>
+                                <div class="flex-grow"></div>
+                                {% if quiz.is_published %}
+                                    <span class="px-2 py-1 text-xs font-medium text-green-600 dark:text-green-400 bg-green-100/50 dark:bg-green-900/50 rounded-full">Publié</span>
+                                {% else %}
+                                    <span class="px-2 py-1 text-xs font-medium text-yellow-600 dark:text-yellow-400 bg-yellow-100/50 dark:bg-yellow-900/50 rounded-full">Brouillon</span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Course -->
+                            <p class="text-gray-600 dark:text-gray-400 mb-6">{{ quiz.course.title }}</p>
+
+                            <!-- Details Grid -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                <div class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600 p-4">
+                                    <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400 mb-1">
+                                        {% include 'components/icons.html' with icon="document-text" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
+                                        <span class="font-medium">Questions</span>
+                                    </div>
+                                    <p class="text-gray-900 dark:text-white">{{ quiz.questions.count }}</p>
+                                </div>
+
+                                <div class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600 p-4">
+                                    <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400 mb-1">
+                                        {% include 'components/icons.html' with icon="users" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
+                                        <span class="font-medium">Tentatives</span>
+                                    </div>
+                                    <p class="text-gray-900 dark:text-white">{{ quiz.total_attempts|default:"0" }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Average Score -->
+                            {% if quiz.avg_score %}
+                                <div class="mb-6">
+                                    <div class="flex items-center justify-between text-sm mb-2">
+                                        <span class="text-gray-600 dark:text-gray-400">Score moyen</span>
+                                        <span class="font-medium {% if quiz.avg_score >= quiz.passing_score %}text-green-600 dark:text-green-400{% else %}text-red-600 dark:text-red-400{% endif %}">
+                                            {{ quiz.avg_score|floatformat:1 }}%
+                                        </span>
+                                    </div>
+                                    <div class="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full {% if quiz.avg_score >= quiz.passing_score %}bg-green-500 dark:bg-green-400{% else %}bg-red-500 dark:bg-red-400{% endif %} rounded-full transition-all duration-300"
+                                             style="width: {{ quiz.avg_score }}%">
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <!-- Action Buttons -->
+                            <div class="flex flex-col sm:flex-row items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
+                                    <a href="{% url 'edit_quiz' quiz.id %}" 
+                                       class="inline-flex items-center justify-center space-x-2 text-gray-600 dark:text-gray-400 hover:shadow-[0_0_15px_rgba(75,85,99,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5 w-full sm:w-auto">
+                                        <div class="p-2 bg-gradient-to-br from-gray-500/10 to-gray-600/10 dark:from-gray-400/5 dark:to-gray-500/5 rounded-lg">
+                                            {% include 'components/icons.html' with icon="pencil" class="w-4 h-4" %}
+                                        </div>
+                                        <span class="font-medium">Modifier</span>
+                                    </a>
+
+                                    <button type="button"
+                                            onclick="confirmDelete('{{ quiz.id }}')"
+                                            class="inline-flex items-center justify-center space-x-2 text-red-600 dark:text-red-400 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5 w-full sm:w-auto">
+                                        <div class="p-2 bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5 rounded-lg">
+                                            {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                                        </div>
+                                        <span class="font-medium">Supprimer</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+                    <div class="flex flex-col items-center justify-center text-center space-y-4">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 flex items-center justify-center">
+                            {% include 'components/icons.html' with icon="information" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Aucun quiz trouvé</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Commencez par créer votre premier quiz</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-md w-full p-6">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center p-3 rounded-full bg-red-100/50 dark:bg-red-900/50 mb-4">
+                    {% include 'components/icons.html' with icon="exclamation-triangle" class="w-8 h-8 text-red-600 dark:text-red-400" %}
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Confirmer la suppression</h3>
+                <p class="text-gray-600 dark:text-gray-400">Êtes-vous sûr de vouloir supprimer ce quiz ? Cette action est irréversible.</p>
+            </div>
+            <div class="flex items-center justify-end space-x-4">
+                <button type="button" 
+                        onclick="closeDeleteModal()"
+                        class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium rounded-xl transition-colors duration-300">
+                    Annuler
+                </button>
+                <form id="deleteForm" method="post" class="inline">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transform hover:-translate-y-0.5 transition-all duration-300">
+                        Supprimer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+.animate-pulse {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.delay-1000 {
+    animation-delay: 1s;
+}
+</style>
+
+<script>
+function confirmDelete(quizId) {
+    const modal = document.getElementById('deleteModal');
+    const form = document.getElementById('deleteForm');
+    form.action = `/teacher/quizzes/${quizId}/delete/`;
+    modal.classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    modal.classList.add('hidden');
+}
+</script>
+{% endblock %} 

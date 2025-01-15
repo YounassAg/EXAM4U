@@ -45,6 +45,15 @@
                 <span>Mes Examens</span>
             </a>
 
+            <!-- My Quizzes -->
+            <a href="{% url 'teacher_quiz_list' %}"
+               class="group flex items-center px-3 py-2 text-sm font-medium rounded-xl transition-all duration-300 {% if request.resolver_match.url_name == 'teacher_quiz_list' %}bg-gradient-to-r from-blue-600/10 to-purple-600/10 text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400 hover:bg-gradient-to-r hover:from-blue-600/5 hover:to-purple-600/5 hover:text-blue-600 dark:hover:text-blue-400{% endif %}">
+                <div class="w-5 h-5 mr-3">
+                    {% include 'components/icons.html' with icon="quiz" class="w-5 h-5" %}
+                </div>
+                <span>Mes Quiz</span>
+            </a>
+
             <!-- Analysis and statistics -->
             {% comment %} <a href="{% url 'exam_statistics' %}"
                class="group flex items-center px-3 py-2 text-sm font-medium rounded-xl transition-all duration-300 {% if request.resolver_match.url_name == 'teacher_exam_list' %}bg-gradient-to-r from-blue-600/10 to-purple-600/10 text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400 hover:bg-gradient-to-r hover:from-blue-600/5 hover:to-purple-600/5 hover:text-blue-600 dark:hover:text-blue-400{% endif %}">

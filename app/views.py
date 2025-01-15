@@ -9,8 +9,8 @@ from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth.decorators import login_required
-from .forms import UserRegistrationForm, LoginForm, ExamForm
-from .models import Course, Group, Exam, Question, MCQChoice, UserProfile, Specialty, ExamAttempt, Response, StudentActionLog
+from .forms import UserRegistrationForm, LoginForm, ExamForm, QuizForm, QuizQuestionForm, QuizChoiceFormSet
+from .models import Course, Group, Exam, Question, MCQChoice, UserProfile, Specialty, ExamAttempt, Response, StudentActionLog, Quiz, QuizQuestion, QuizChoice, QuizAttempt, QuizResponse
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from reportlab.lib.colors import HexColor
@@ -26,6 +26,7 @@ from reportlab.pdfgen import canvas
 from io import BytesIO
 import csv
 import re
+import random
 
 
 
@@ -1121,3 +1122,244 @@ def custom_404(request, exception):
 def exam_rules(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     return render(request, 'student/exam/exam_rules.html', {'exam': exam})
+
+@login_required
+@role_required('teacher')
+def teacher_quiz_list(request):
+    quizzes = Quiz.objects.filter(teacher=request.user.userprofile).order_by('-created_at')
+    for quiz in quizzes:
+        quiz.total_attempts = quiz.attempts.count()
+        quiz.avg_score = quiz.attempts.filter(status='completed').aggregate(Avg('score'))['score__avg']
+    return render(request, 'teacher/quiz/quiz_list.html', {'quizzes': quizzes})
+
+@login_required
+@role_required('teacher')
+def create_quiz(request):
+    if request.method == 'POST':
+        form = QuizForm(request.POST)
+        if form.is_valid():
+            quiz = form.save(commit=False)
+            quiz.teacher = request.user.userprofile
+            quiz.save()
+            messages.success(request, 'Quiz créé avec succès.')
+            return redirect('edit_quiz', quiz_id=quiz.id)
+    else:
+        form = QuizForm(initial={'course': request.GET.get('course')})
+    return render(request, 'teacher/quiz/quiz_form.html', {'form': form})
+
+@login_required
+@role_required('teacher')
+def edit_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id, teacher=request.user.userprofile)
+    if request.method == 'POST':
+        form = QuizForm(request.POST, instance=quiz)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Quiz modifié avec succès.')
+            return redirect('teacher_quiz_list')
+    else:
+        form = QuizForm(instance=quiz)
+    
+    questions = quiz.questions.all().order_by('order')
+    attempts = quiz.attempts.select_related('student').order_by('-start_time')
+    
+    return render(request, 'teacher/quiz/quiz_form.html', {
+        'form': form,
+        'quiz': quiz,
+        'questions': questions,
+        'attempts': attempts
+    })
+
+@login_required
+@role_required('teacher')
+def add_quiz_question(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id, teacher=request.user.userprofile)
+    
+    if request.method == 'POST':
+        question_form = QuizQuestionForm(request.POST)
+        choice_formset = QuizChoiceFormSet(request.POST)
+        
+        if question_form.is_valid() and choice_formset.is_valid():
+            question = question_form.save(commit=False)
+            question.quiz = quiz
+            question.order = quiz.questions.count() + 1
+            question.save()
+            
+            # Save choices
+            choice_formset.instance = question
+            choices = choice_formset.save(commit=False)
+            for i, choice in enumerate(choices):
+                choice.question = question
+                choice.order = i + 1
+                choice.save()
+            
+            messages.success(request, 'Question ajoutée avec succès!')
+            return redirect('edit_quiz', quiz_id=quiz.id)
+        else:
+            messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
+    else:
+        question_form = QuizQuestionForm()
+        choice_formset = QuizChoiceFormSet()
+    
+    return render(request, 'teacher/quiz/quiz_question_form.html', {
+        'quiz': quiz,
+        'question_form': question_form,
+        'choice_formset': choice_formset,
+    })
+
+@login_required
+@role_required('teacher')
+def edit_quiz_question(request, question_id):
+    question = get_object_or_404(QuizQuestion, id=question_id, quiz__teacher=request.user.userprofile)
+    
+    if request.method == 'POST':
+        question_form = QuizQuestionForm(request.POST, instance=question)
+        choice_formset = QuizChoiceFormSet(request.POST, instance=question)
+        
+        if question_form.is_valid() and choice_formset.is_valid():
+            question_form.save()
+            choices = choice_formset.save(commit=False)
+            
+            # Update choice order
+            for i, choice in enumerate(choices):
+                choice.order = i + 1
+                choice.save()
+            
+            # Handle deleted choices
+            for obj in choice_formset.deleted_objects:
+                obj.delete()
+            
+            messages.success(request, 'Question mise à jour avec succès!')
+            return redirect('edit_quiz', quiz_id=question.quiz.id)
+    else:
+        question_form = QuizQuestionForm(instance=question)
+        choice_formset = QuizChoiceFormSet(instance=question)
+    
+    return render(request, 'teacher/quiz_question_form.html', {
+        'quiz': question.quiz,
+        'question_form': question_form,
+        'choice_formset': choice_formset,
+        'question': question,
+        'title': 'Modifier la Question'
+    })
+
+@login_required
+@role_required('teacher')
+def delete_quiz_question(request, question_id):
+    question = get_object_or_404(QuizQuestion, id=question_id, quiz__teacher=request.user.userprofile)
+    quiz_id = question.quiz.id
+    
+    # Update order of remaining questions
+    questions_to_update = question.quiz.questions.filter(order__gt=question.order)
+    for q in questions_to_update:
+        q.order -= 1
+        q.save()
+    
+    question.delete()
+    messages.success(request, 'Question supprimée avec succès!')
+    return redirect('edit_quiz', quiz_id=quiz_id)
+
+@login_required
+@role_required('teacher')
+def delete_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id, teacher=request.user.userprofile)
+    quiz.delete()
+    messages.success(request, 'Quiz supprimé avec succès!')
+    return redirect('teacher_quiz_list')
+
+@login_required
+@role_required('student')
+def student_quiz_list(request):
+    student_courses = request.user.userprofile.group.specialty.course_set.all()
+    quizzes = Quiz.objects.filter(
+        is_published=True,
+        course__in=student_courses
+    ).order_by('-created_at')
+    
+    for quiz in quizzes:
+        quiz.student_attempts = list(quiz.attempts.filter(student=request.user.userprofile).order_by('-start_time'))
+        quiz.best_score = quiz.get_student_best_score(request.user.userprofile)
+        quiz.is_available = quiz.is_available_for_student(request.user.userprofile)
+    
+    return render(request, 'student/quiz/quiz_list.html', {'quizzes': quizzes})
+
+@login_required
+@role_required('student')
+def take_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id, is_published=True)
+    if not quiz.course in request.user.userprofile.group.specialty.course_set.all():
+        messages.error(request, "Vous n'avez pas accès à ce quiz.")
+        return redirect('student_quiz_list')
+    
+    # Create a new attempt
+    attempt = QuizAttempt.objects.create(
+        quiz=quiz,
+        student=request.user.userprofile,
+        start_time=timezone.now()
+    )
+    
+    questions = list(quiz.questions.all().order_by('order'))
+    if quiz.randomize_questions:
+        random.shuffle(questions)
+    
+    best_score = quiz.get_student_best_score(request.user.userprofile)
+    
+    return render(request, 'student/quiz/take_quiz.html', {
+        'quiz': quiz,
+        'questions': questions,
+        'attempt': attempt,
+        'best_score': best_score
+    })
+
+@login_required
+@role_required('student')
+def submit_quiz(request, attempt_id):
+    attempt = get_object_or_404(QuizAttempt, id=attempt_id, student=request.user.userprofile)
+    if attempt.end_time:
+        messages.error(request, 'Ce quiz a déjà été soumis.')
+        return redirect('student_quiz_list')
+    
+    if request.method == 'POST':
+        attempt.end_time = timezone.now()
+        attempt.time_spent = attempt.end_time - attempt.start_time
+        
+        total_points = 0
+        earned_points = 0
+        
+        for question in attempt.quiz.questions.all():
+            response = QuizResponse.objects.create(
+                attempt=attempt,
+                question=question
+            )
+            
+            selected_choice_ids = request.POST.getlist(f'question_{question.id}')
+            if selected_choice_ids:
+                selected_choices = QuizChoice.objects.filter(id__in=selected_choice_ids)
+                response.selected_choices.set(selected_choices)
+                points = question.check_answer(selected_choices)
+                earned_points += points
+            
+            total_points += question.points
+        
+        attempt.score = (earned_points / total_points * 100) if total_points > 0 else 0
+        attempt.status = 'completed'
+        attempt.save()
+        
+        messages.success(request, f'Quiz terminé! Votre score: {attempt.score:.1f}%')
+        return redirect('quiz_results', attempt_id=attempt.id)
+    
+    return redirect('student_quiz_list')
+
+@login_required
+@role_required('student')
+def quiz_results(request, attempt_id):
+    attempt = get_object_or_404(QuizAttempt, id=attempt_id, student=request.user.userprofile)
+    if not attempt.end_time:
+        return redirect('take_quiz', quiz_id=attempt.quiz.id)
+    
+    responses = attempt.responses.all().select_related('question').prefetch_related('selected_choices', 'question__choices')
+    
+    return render(request, 'student/quiz/quiz_results.html', {
+        'attempt': attempt,
+        'responses': responses
+    })

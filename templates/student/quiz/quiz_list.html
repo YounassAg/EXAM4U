@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Quiz - Exam4U{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen bg-white dark:bg-gray-900">
+    {% include 'components/student_sidebar.html' %}
+
+    <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
+        <!-- Title Section -->
+        <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div class="relative z-10 p-6">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        {% include 'components/icons.html' with icon="quiz" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                    </div>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Quiz</h1>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Testez vos connaissances avec des quiz interactifs</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border {% if message.tags == 'error' %}border-red-200 dark:border-red-700{% else %}border-gray-200 dark:border-gray-700{% endif %} p-4">
+                    <div class="flex items-center space-x-3">
+                        {% if message.tags == 'error' %}
+                            {% include 'components/icons.html' with icon="x-circle" class="w-5 h-5 text-red-600 dark:text-red-400" %}
+                            <p class="text-red-600 dark:text-red-400">{{ message }}</p>
+                        {% else %}
+                            {% include 'components/icons.html' with icon="check-circle" class="w-5 h-5 text-green-600 dark:text-green-400" %}
+                            <p class="text-green-600 dark:text-green-400">{{ message }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Quiz List -->
+        {% if quizzes %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for quiz in quizzes %}
+                    <div class="group relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 dark:from-blue-400/2 dark:to-purple-400/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div class="relative p-6">
+                            <!-- Quiz Header -->
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white line-clamp-1">{{ quiz.title }}</h3>
+                                {% if quiz.time_limit %}
+                                    <div class="flex items-center space-x-1 text-gray-600 dark:text-gray-400">
+                                        {% include 'components/icons.html' with icon="clock" class="w-4 h-4" %}
+                                        <span class="text-sm">{{ quiz.time_limit }} min</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Quiz Course -->
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-1">{{ quiz.course.title }}</p>
+
+                            <!-- Quiz Stats -->
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl p-3">
+                                    <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400 mb-1">
+                                        {% include 'components/icons.html' with icon="document-text" class="w-4 h-4" %}
+                                        <span class="text-sm">Questions</span>
+                                    </div>
+                                    <p class="text-gray-900 dark:text-white">{{ quiz.questions.count }}</p>
+                                </div>
+
+                                <div class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl p-3">
+                                    <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400 mb-1">
+                                        {% include 'components/icons.html' with icon="academic-cap" class="w-4 h-4" %}
+                                        <span class="text-sm">Score min.</span>
+                                    </div>
+                                    <p class="text-gray-900 dark:text-white">{{ quiz.passing_score }}%</p>
+                                </div>
+                            </div>
+
+                            <!-- Best Score -->
+                            {% if quiz.student_attempts.exists %}
+                                <div class="mb-6">
+                                    <div class="flex items-center justify-between text-sm mb-2">
+                                        <span class="text-gray-600 dark:text-gray-400">Meilleur score</span>
+                                        <span class="font-medium {% if quiz.best_score >= quiz.passing_score %}text-green-600 dark:text-green-400{% else %}text-red-600 dark:text-red-400{% endif %}">
+                                            {{ quiz.best_score|floatformat:1 }}%
+                                        </span>
+                                    </div>
+                                    <div class="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full {% if quiz.best_score >= quiz.passing_score %}bg-green-500 dark:bg-green-400{% else %}bg-red-500 dark:bg-red-400{% endif %} rounded-full transition-all duration-300"
+                                             style="width: {{ quiz.best_score }}%">
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <!-- Action Button -->
+                            {% if quiz.is_available %}
+                                <a href="{% url 'take_quiz' quiz.id %}" class="block w-full px-6 py-2.5 text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transform hover:-translate-y-0.5 transition-all duration-300">
+                                    {% if quiz.student_attempts.exists and not quiz.student_attempts.0.is_completed %}
+                                        Reprendre le Quiz
+                                    {% else %}
+                                        Commencer le Quiz
+                                    {% endif %}
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
+                <div class="inline-flex items-center justify-center p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 mb-4">
+                    {% include 'components/icons.html' with icon="quiz" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Aucun quiz disponible</h3>
+                <p class="text-gray-600 dark:text-gray-400">Les quiz seront disponibles une fois publiés par vos enseignants.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+.animate-pulse {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.delay-1000 {
+    animation-delay: 1s;
+}
+</style>
+{% endblock %} 

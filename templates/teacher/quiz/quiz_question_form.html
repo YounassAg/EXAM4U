@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if question %}Modifier{% else %}Ajouter{% endif %} une Question - Exam4U{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen bg-white dark:bg-gray-900">
+    {% include 'components/teacher_sidebar.html' %}
+
+    <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
+        <!-- Title Section -->
+        <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div class="relative z-10 p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                            {% include 'components/icons.html' with icon="quiz" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                        </div>
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                                {% if question %}Modifier la Question{% else %}Ajouter une Question{% endif %}
+                            </h1>
+                            <p class="text-gray-600 dark:text-gray-400 mt-2">{{ quiz.title }}</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'edit_quiz' quiz.id %}" class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        {% include 'components/icons.html' with icon="x" class="w-6 h-6" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+            <div class="space-y-4">
+                {% for message in messages %}
+                    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-4">
+                        <div class="flex items-center space-x-3">
+                            {% if message.tags == 'error' %}
+                                {% include 'components/icons.html' with icon="x-circle" class="w-5 h-5 text-red-600 dark:text-red-400" %}
+                                <p class="text-red-600 dark:text-red-400">{{ message }}</p>
+                            {% else %}
+                                {% include 'components/icons.html' with icon="check-circle" class="w-5 h-5 text-green-600 dark:text-green-400" %}
+                                <p class="text-green-600 dark:text-green-400">{{ message }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Question form fields -->
+            {{ question_form.as_p }}
+            
+            <!-- Choices formset -->
+            {{ choice_formset.management_form }}
+            <div id="choices-container" class="space-y-4">
+                {% for choice_form in choice_formset %}
+                    <div class="choice-form">
+                        {{ choice_form.id }}
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Texte du choix
+                                </label>
+                                {{ choice_form.choice_text }}
+                            </div>
+                            <div class="flex items-center">
+                                {{ choice_form.is_correct }}
+                                <label class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                    Réponse correcte
+                                </label>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Explication (optionnelle)
+                                </label>
+                                {{ choice_form.explanation }}
+                            </div>
+                        </div>
+                        {% if choice_form.instance.pk %}
+                            {{ choice_form.DELETE }}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+                {% if question %}Enregistrer{% else %}Ajouter{% endif %}
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+.animate-pulse {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.delay-1000 {
+    animation-delay: 1s;
+}
+
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+    @apply w-full rounded-xl border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400;
+}
+
+input[type="checkbox"] {
+    @apply rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addChoiceButton = document.getElementById('add-choice');
+    const choicesContainer = document.getElementById('choices-container');
+    const totalFormsInput = document.getElementById('id_choices-TOTAL_FORMS');
+    
+    if (addChoiceButton && choicesContainer && totalFormsInput) {
+        addChoiceButton.addEventListener('click', function() {
+            const forms = choicesContainer.getElementsByClassName('choice-form');
+            const formCount = forms.length;
+            const maxForms = parseInt(document.getElementById('id_choices-MAX_NUM_FORMS').value);
+            
+            if (formCount < maxForms) {
+                const newForm = forms[0].cloneNode(true);
+                const formRegex = RegExp(`choices-(\\d+)-`, 'g');
+                
+                newForm.innerHTML = newForm.innerHTML.replace(formRegex, `choices-${formCount}-`);
+                
+                const inputs = newForm.getElementsByTagName('input');
+                const textareas = newForm.getElementsByTagName('textarea');
+                
+                Array.from(inputs).concat(Array.from(textareas)).forEach(input => {
+                    input.value = '';
+                    if (input.type === 'checkbox') {
+                        input.checked = false;
+                    }
+                });
+                
+                choicesContainer.appendChild(newForm);
+                totalFormsInput.value = formCount + 1;
+            } else {
+                alert('Vous avez atteint le nombre maximum de choix autorisés.');
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

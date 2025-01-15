@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}Résultats du Quiz - Exam4U{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen bg-white dark:bg-gray-900">
+    {% include 'components/student_sidebar.html' %}
+
+    <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
+        <!-- Title Section -->
+        <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div class="relative z-10 p-6">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        {% include 'components/icons.html' with icon="quiz" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                    </div>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">{{ attempt.quiz.title }}</h1>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">{{ attempt.quiz.course.title }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Score Section -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Score -->
+                <div class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600 p-4">
+                    <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400 mb-1">
+                        {% include 'components/icons.html' with icon="star" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
+                        <span class="font-medium">Score</span>
+                    </div>
+                    <p class="text-gray-900 dark:text-white">{{ attempt.score|floatformat:1 }}%</p>
+                </div>
+
+                <!-- Time Spent -->
+                <div class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600 p-4">
+                    <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400 mb-1">
+                        {% include 'components/icons.html' with icon="clock" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
+                        <span class="font-medium">Temps passé</span>
+                    </div>
+                    <p class="text-gray-900 dark:text-white">{{ attempt.time_spent|default:"--" }}</p>
+                </div>
+
+                <!-- Minimum Score -->
+                <div class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600 p-4">
+                    <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400 mb-1">
+                        {% include 'components/icons.html' with icon="academic-cap" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
+                        <span class="font-medium">Score minimum</span>
+                    </div>
+                    <p class="text-gray-900 dark:text-white">{{ attempt.quiz.passing_score }}%</p>
+                </div>
+
+                <!-- Status -->
+                <div class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600 p-4">
+                    <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400 mb-1">
+                        {% include 'components/icons.html' with icon="check" class="w-4 h-4 {% if attempt.score >= attempt.quiz.passing_score %}text-green-600 dark:text-green-400{% else %}text-red-600 dark:text-red-400{% endif %}" %}
+                        <span class="font-medium">Statut</span>
+                    </div>
+                    <p class="{% if attempt.score >= attempt.quiz.passing_score %}text-green-600 dark:text-green-400{% else %}text-red-600 dark:text-red-400{% endif %}">
+                        {% if attempt.score >= attempt.quiz.passing_score %}Réussi{% else %}Non réussi{% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions Review -->
+        <div class="space-y-6">
+            {% for response in responses %}
+            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <div class="space-y-4">
+                    <!-- Question Header -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Question {{ forloop.counter }}</span>
+                            {% if response.question.is_required %}
+                                <span class="px-2 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-100/50 dark:bg-blue-900/50 rounded-full">Obligatoire</span>
+                            {% endif %}
+                            {% if response.question.allow_multiple_answers %}
+                                <span class="px-2 py-1 text-xs font-medium text-purple-600 dark:text-purple-400 bg-purple-100/50 dark:bg-purple-900/50 rounded-full">Réponses multiples</span>
+                            {% endif %}
+                        </div>
+                        <span class="text-sm font-medium {% if response.points_earned == response.question.points %}text-green-600 dark:text-green-400{% elif response.points_earned > 0 %}text-yellow-600 dark:text-yellow-400{% else %}text-red-600 dark:text-red-400{% endif %}">
+                            {{ response.points_earned }}/{{ response.question.points }} points
+                        </span>
+                    </div>
+
+                    <!-- Question Text -->
+                    <p class="text-gray-900 dark:text-white">{{ response.question.question_text }}</p>
+
+                    <!-- Choices -->
+                    <div class="space-y-3">
+                        {% for choice in response.question.choices.all %}
+                            <div class="flex items-center p-3 bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl border {% if choice in response.selected_choices.all %}{% if choice.is_correct %}border-green-500 dark:border-green-500{% else %}border-red-500 dark:border-red-500{% endif %}{% elif choice.is_correct %}border-green-500 dark:border-green-500 opacity-50{% else %}border-gray-100 dark:border-gray-600{% endif %}">
+                                <div class="flex-1">
+                                    <div class="flex items-center">
+                                        {% if choice in response.selected_choices.all %}
+                                            {% if choice.is_correct %}
+                                                {% include 'components/icons.html' with icon="check" class="w-5 h-5 text-green-600 dark:text-green-400 mr-3" %}
+                                            {% else %}
+                                                {% include 'components/icons.html' with icon="x" class="w-5 h-5 text-red-600 dark:text-red-400 mr-3" %}
+                                            {% endif %}
+                                        {% elif choice.is_correct %}
+                                            {% include 'components/icons.html' with icon="check" class="w-5 h-5 text-green-600 dark:text-green-400 mr-3 opacity-50" %}
+                                        {% endif %}
+                                        <span class="text-gray-900 dark:text-white">{{ choice.choice_text }}</span>
+                                    </div>
+                                    {% if choice.explanation %}
+                                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">{{ choice.explanation }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Question Explanation -->
+                    {% if response.question.explanation %}
+                        <div class="mt-4 p-4 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                            <div class="flex items-center space-x-2 text-blue-600 dark:text-blue-400 mb-2">
+                                {% include 'components/icons.html' with icon="information-circle" class="w-5 h-5" %}
+                                <span class="font-medium">Explication</span>
+                            </div>
+                            <p class="text-gray-900 dark:text-white">{{ response.question.explanation }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-between space-x-4">
+            <a href="{% url 'student_quiz_list' %}" 
+               class="px-6 py-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium rounded-xl transition-colors duration-300">
+                Retour aux quiz
+            </a>
+            {% if attempt.score < attempt.quiz.passing_score %}
+                <a href="{% url 'take_quiz' attempt.quiz.id %}" 
+                   class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-xl transform hover:-translate-y-0.5 transition-all duration-300">
+                    Réessayer
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+.animate-pulse {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.delay-1000 {
+    animation-delay: 1s;
+}
+</style>
+{% endblock %}

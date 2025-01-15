@@ -146,3 +146,143 @@ class StudentActionLog(models.Model):
 
     def __str__(self):
         return f"{self.action} - {self.attempt.student} - {self.timestamp}"
+
+class Quiz(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='quizzes')
+    teacher = models.ForeignKey(UserProfile, on_delete=models.CASCADE, limit_choices_to={'role': 'teacher'})
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_published = models.BooleanField(default=False)
+    time_limit = models.IntegerField(null=True, blank=True, help_text="Durée en minutes")
+    passing_score = models.FloatField(default=50.0, help_text="Score minimum requis en pourcentage")
+    randomize_questions = models.BooleanField(default=False, help_text="Mélanger l'ordre des questions pour chaque tentative")
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Quiz'
+        verbose_name_plural = 'Quiz'
+
+    def __str__(self):
+        return self.title
+
+    def get_total_points(self):
+        return self.questions.aggregate(total=models.Sum('points'))['total'] or 0
+
+    def get_student_best_score(self, student):
+        attempts = self.attempts.filter(student=student, status='completed')
+        if not attempts.exists():
+            return None
+        return attempts.aggregate(best_score=models.Max('score'))['best_score']
+
+    def is_available_for_student(self, student):
+        return self.is_published
+
+class QuizQuestion(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
+    question_text = models.TextField()
+    points = models.IntegerField(default=1)
+    explanation = models.TextField(blank=True, null=True, help_text="Explication affichée après la réponse")
+    order = models.IntegerField(default=0)
+    is_required = models.BooleanField(default=True, help_text="La question doit être répondue")
+    allow_multiple_answers = models.BooleanField(default=False, help_text="Permettre la sélection de plusieurs réponses")
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'Question'
+        verbose_name_plural = 'Questions'
+
+    def __str__(self):
+        return f"Question {self.order} - {self.quiz.title}"
+
+    def get_correct_choices(self):
+        return self.choices.filter(is_correct=True)
+
+    def check_answer(self, selected_choices):
+        correct_choices = set(self.get_correct_choices())
+        selected_choices = set(selected_choices)
+        
+        if self.allow_multiple_answers:
+            # For multiple answers, all correct choices must be selected and no incorrect ones
+            if correct_choices == selected_choices:
+                return self.points
+            # Partial credit for partially correct answers
+            correct_selected = len(correct_choices.intersection(selected_choices))
+            incorrect_selected = len(selected_choices.difference(correct_choices))
+            if correct_selected > 0 and incorrect_selected == 0:
+                return (correct_selected / len(correct_choices)) * self.points
+            return 0
+        else:
+            # For single answer, only one choice should be selected and it must be correct
+            if len(selected_choices) == 1 and selected_choices.issubset(correct_choices):
+                return self.points
+            return 0
+
+class QuizChoice(models.Model):
+    question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE, related_name='choices')
+    choice_text = models.CharField(max_length=255)
+    is_correct = models.BooleanField(default=False)
+    explanation = models.TextField(blank=True, null=True, help_text="Explication pour cette réponse")
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = 'Choix'
+        verbose_name_plural = 'Choix'
+
+    def __str__(self):
+        return self.choice_text
+
+class QuizAttempt(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='attempts')
+    student = models.ForeignKey(UserProfile, on_delete=models.CASCADE, limit_choices_to={'role': 'student'})
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    score = models.FloatField(null=True, blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('in_progress', 'En cours'),
+            ('completed', 'Terminé'),
+            ('timed_out', 'Temps écoulé')
+        ],
+        default='in_progress'
+    )
+    time_spent = models.DurationField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-start_time']
+        verbose_name = 'Tentative'
+        verbose_name_plural = 'Tentatives'
+
+    def __str__(self):
+        return f"{self.quiz.title} - {self.student.user.get_full_name()} - {self.get_status_display()}"
+
+    def calculate_score(self):
+        total_points = self.quiz.get_total_points()
+        earned_points = sum(response.calculate_points() for response in self.responses.all())
+        self.score = (earned_points / total_points * 100) if total_points > 0 else 0
+        return self.score
+
+    def has_passed(self):
+        return self.score >= self.quiz.passing_score if self.score is not None else False
+
+class QuizResponse(models.Model):
+    attempt = models.ForeignKey(QuizAttempt, on_delete=models.CASCADE, related_name='responses')
+    question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE)
+    selected_choices = models.ManyToManyField(QuizChoice)
+    points_earned = models.FloatField(default=0)
+    response_time = models.DurationField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Réponse'
+        verbose_name_plural = 'Réponses'
+
+    def __str__(self):
+        return f"Réponse de {self.attempt.student.user.get_full_name()} - Question {self.question.order}"
+
+    def calculate_points(self):
+        self.points_earned = self.question.check_answer(self.selected_choices.all())
+        self.save()
+        return self.points_earned
