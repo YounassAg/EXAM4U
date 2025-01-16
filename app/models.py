@@ -258,8 +258,8 @@ class QuizQuestion(models.Model):
 
     class Meta:
         ordering = ['order']
-        verbose_name = 'Question'
-        verbose_name_plural = 'Questions'
+        verbose_name = 'Question_Quiz'
+        verbose_name_plural = 'Questions Quiz'
 
     def __str__(self):
         return f"Question {self.order} - {self.quiz.title}"
