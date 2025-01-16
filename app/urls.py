@@ -40,12 +40,9 @@ urlpatterns = [
     path('teacher/quizzes/create/', views.create_quiz, name='create_quiz'),
     path('teacher/quizzes/<int:quiz_id>/edit/', views.edit_quiz, name='edit_quiz'),
     path('teacher/quizzes/<int:quiz_id>/preview/', views.preview_quiz, name='preview_quiz'),
-    path('teacher/quizzes/<int:quiz_id>/questions/add/', views.add_quiz_question, name='add_quiz_question'),
-    path('teacher/quiz-questions/<int:question_id>/edit/', views.edit_quiz_question, name='edit_quiz_question'),
-    path('teacher/quiz-questions/<int:question_id>/delete/', views.delete_quiz_question, name='delete_quiz_question'),
     path('teacher/quizzes/<int:quiz_id>/delete/', views.delete_quiz, name='delete_quiz'),
 
-    # Quiz URLs - Student
+    # Student quiz URLs
     path('student/quizzes/', views.student_quiz_list, name='student_quiz_list'),
     path('student/quizzes/<int:quiz_id>/take/', views.take_quiz, name='take_quiz'),
     path('student/quiz-attempts/<int:attempt_id>/submit/', views.submit_quiz, name='submit_quiz'),

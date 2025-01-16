@@ -1136,137 +1136,137 @@ def teacher_quiz_list(request):
 @role_required('teacher')
 def create_quiz(request):
     if request.method == 'POST':
-        form = QuizForm(request.POST)
-        if form.is_valid():
-            quiz = form.save(commit=False)
-            quiz.teacher = request.user.userprofile
-            quiz.save()
-            messages.success(request, 'Quiz créé avec succès.')
-            return redirect('edit_quiz', quiz_id=quiz.id)
+        # Process quiz data
+        quiz = Quiz(teacher=request.user.userprofile)
+        quiz.title = request.POST.get('title')
+        quiz.description = request.POST.get('description')
+        quiz.course_id = request.POST.get('course')
+        quiz.time_limit = request.POST.get('time_limit')
+        quiz.passing_score = request.POST.get('passing_score')
+        quiz.is_published = request.POST.get('is_published') == 'true'
+        quiz.save()
+
+        # Process questions and choices
+        question_count = int(request.POST.get('question_count', 0))
+        for i in range(1, question_count + 1):
+            question_text = request.POST.get(f'question_text_{i}')
+            if question_text:
+                # Create question
+                question = QuizQuestion(
+                    quiz=quiz,
+                    question_text=question_text,
+                    points=float(request.POST.get(f'question_points_{i}', 1.0)),
+                    order=i
+                )
+                question.save()
+
+                # Process choices for this question
+                choice_count = int(request.POST.get(f'choice_count_{i}', 0))
+                for j in range(1, choice_count + 1):
+                    choice_text = request.POST.get(f'choice_text_{i}_{j}')
+                    if choice_text:
+                        QuizChoice.objects.create(
+                            question=question,
+                            choice_text=choice_text,
+                            is_correct=request.POST.get(f'choice_correct_{i}_{j}') == 'on',
+                            order=j
+                        )
+
+        messages.success(request, 'Quiz créé avec succès.')
+        return redirect('teacher_quiz_list')
     else:
-        form = QuizForm(initial={'course': request.GET.get('course')})
-    return render(request, 'teacher/quiz/quiz_form.html', {'form': form})
+        courses = Course.objects.filter(teacher=request.user.userprofile)
+        return render(request, 'teacher/quiz/create_quiz.html', {'courses': courses})
 
 @login_required
 @role_required('teacher')
 def edit_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id, teacher=request.user.userprofile)
+    courses = Course.objects.filter(teacher=request.user.userprofile).order_by('title')
     
     if request.method == 'POST':
-        form = QuizForm(request.POST, instance=quiz)
-        if form.is_valid():
-            quiz = form.save(commit=False)
-            quiz.teacher = request.user.userprofile
-            quiz.save()
-            messages.success(request, 'Quiz modifié avec succès.')
-            return redirect('teacher_quiz_list')
-        else:
-            messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
-    else:
-        form = QuizForm(instance=quiz)
-    
-    questions = quiz.questions.all().order_by('order')
+        # Basic quiz information
+        quiz.title = request.POST.get('title')
+        quiz.description = request.POST.get('description')
+        quiz.course_id = request.POST.get('course')
+        quiz.time_limit = request.POST.get('time_limit')
+        quiz.passing_score = request.POST.get('passing_score')
+        quiz.is_published = 'is_published' in request.POST
+        
+        try:
+            with transaction.atomic():
+                quiz.save()
+                
+                # Get the total number of questions
+                question_count = int(request.POST.get('question_count', 0))
+                
+                # Process each question
+                existing_questions = set(quiz.questions.values_list('id', flat=True))
+                processed_questions = set()
+                
+                for i in range(1, question_count + 1):
+                    question_text = request.POST.get(f'question_text_{i}')
+                    if not question_text:
+                        continue
+                        
+                    question_points = float(request.POST.get(f'question_points_{i}', 1.0))
+                    
+                    # Create or update question
+                    question_id = request.POST.get(f'question_id_{i}')
+                    if question_id and question_id.isdigit():
+                        question = QuizQuestion.objects.get(id=int(question_id))
+                        processed_questions.add(question.id)
+                    else:
+                        question = QuizQuestion(quiz=quiz)
+                    
+                    question.question_text = question_text
+                    question.points = question_points
+                    question.order = i
+                    question.save()
+                    
+                    # Process choices for this question
+                    choice_count = int(request.POST.get(f'choice_count_{i}', 0))
+                    existing_choices = set(question.choices.values_list('id', flat=True))
+                    processed_choices = set()
+                    
+                    for j in range(1, choice_count + 1):
+                        choice_text = request.POST.get(f'choice_text_{i}_{j}')
+                        if not choice_text:
+                            continue
+                            
+                        is_correct = f'choice_correct_{i}_{j}' in request.POST
+                        
+                        # Create or update choice
+                        choice_id = request.POST.get(f'choice_id_{i}_{j}')
+                        if choice_id and choice_id.isdigit():
+                            choice = QuizChoice.objects.get(id=int(choice_id))
+                            processed_choices.add(choice.id)
+                        else:
+                            choice = QuizChoice(question=question)
+                        
+                        choice.choice_text = choice_text
+                        choice.is_correct = is_correct
+                        choice.order = j
+                        choice.save()
+                    
+                    # Delete unprocessed choices
+                    question.choices.exclude(id__in=processed_choices).delete()
+                
+                # Delete unprocessed questions
+                quiz.questions.exclude(id__in=processed_questions).delete()
+                
+                messages.success(request, 'Quiz modifié avec succès.')
+                return redirect('teacher_quiz_list')
+                
+        except Exception as e:
+            messages.error(request, f'Une erreur est survenue lors de la modification du quiz: {str(e)}')
+            return redirect('edit_quiz', quiz_id=quiz.id)
     
     context = {
-        'form': form,
         'quiz': quiz,
-        'questions': questions,
-        'title': 'Modifier le Quiz'
+        'courses': courses,
     }
-    return render(request, 'teacher/quiz/quiz_form.html', context)
-
-@login_required
-@role_required('teacher')
-def add_quiz_question(request, quiz_id):
-    quiz = get_object_or_404(Quiz, id=quiz_id, teacher=request.user.userprofile)
-    
-    if request.method == 'POST':
-        question_form = QuizQuestionForm(request.POST)
-        choice_formset = QuizChoiceFormSet(request.POST)
-        
-        if question_form.is_valid() and choice_formset.is_valid():
-            question = question_form.save(commit=False)
-            question.quiz = quiz
-            question.order = quiz.questions.count() + 1
-            question.save()
-            
-            # Save choices
-            choice_formset.instance = question
-            choices = choice_formset.save(commit=False)
-            for i, choice in enumerate(choices):
-                choice.question = question
-                choice.order = i + 1
-                choice.save()
-            
-            messages.success(request, 'Question ajoutée avec succès!')
-            return redirect('edit_quiz', quiz_id=quiz.id)
-        else:
-            messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
-    else:
-        question_form = QuizQuestionForm()
-        choice_formset = QuizChoiceFormSet()
-    
-    return render(request, 'teacher/quiz/quiz_question_form.html', {
-        'quiz': quiz,
-        'question_form': question_form,
-        'choice_formset': choice_formset,
-    })
-
-@login_required
-@role_required('teacher')
-def edit_quiz_question(request, question_id):
-    question = get_object_or_404(QuizQuestion, id=question_id, quiz__teacher=request.user.userprofile)
-    
-    if request.method == 'POST':
-        question_form = QuizQuestionForm(request.POST, instance=question)
-        choice_formset = QuizChoiceFormSet(request.POST, instance=question)
-        
-        if question_form.is_valid() and choice_formset.is_valid():
-            question_form.save()
-            choices = choice_formset.save(commit=False)
-            
-            # Update choice order
-            for i, choice in enumerate(choices):
-                choice.order = i + 1
-                choice.save()
-            
-            # Handle deleted choices
-            for obj in choice_formset.deleted_objects:
-                obj.delete()
-            
-            messages.success(request, 'Question mise à jour avec succès!')
-            return redirect('edit_quiz', quiz_id=question.quiz.id)
-    else:
-        question_form = QuizQuestionForm(instance=question)
-        choice_formset = QuizChoiceFormSet(instance=question)
-    
-    return render(request, 'teacher/quiz_question_form.html', {
-        'quiz': question.quiz,
-        'question_form': question_form,
-        'choice_formset': choice_formset,
-        'question': question,
-        'title': 'Modifier la Question'
-    })
-
-@login_required
-@role_required('teacher')
-def delete_quiz_question(request, question_id):
-    question = get_object_or_404(QuizQuestion, id=question_id, quiz__teacher=request.user.userprofile)
-    quiz_id = question.quiz.id
-    
-    if request.method == 'POST':
-        # Update order of remaining questions
-        questions_to_update = question.quiz.questions.filter(order__gt=question.order)
-        for q in questions_to_update:
-            q.order -= 1
-            q.save()
-        
-        question.delete()
-        messages.success(request, 'Question supprimée avec succès!')
-    else:
-        messages.error(request, 'Méthode non autorisée.')
-    
-    return redirect('edit_quiz', quiz_id=quiz_id)
+    return render(request, 'teacher/quiz/edit_quiz.html', context)
 
 @login_required
 @role_required('teacher')

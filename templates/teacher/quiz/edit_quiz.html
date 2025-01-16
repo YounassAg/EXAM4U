@@ -1,0 +1,348 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Modifier le Quiz - Exam4U{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+    {% include 'components/teacher_sidebar.html' %}
+
+    <div class="flex-1 p-8 space-y-8">
+        <!-- Title Section -->
+        <div
+            class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div
+                class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse">
+            </div>
+            <div
+                class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000">
+            </div>
+            <div class="relative z-10 p-6">
+                <div class="flex items-center space-x-4">
+                    <div
+                        class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        {% include 'components/icons.html' with icon="document" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                    </div>
+                    <div>
+                        <h1
+                            class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                            Modifier le Quiz: {{ quiz.title }}</h1>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Modifiez les détails et les questions de votre
+                            quiz</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Section -->
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            <input type="hidden" name="question_count" id="question_count" value="{{ quiz.questions.all|length }}">
+
+            <div
+                class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 space-y-6">
+                <!-- Basic Info Section -->
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titre du
+                        Quiz</label>
+                    <input type="text" name="title" id="title" value="{{ quiz.title }}" required
+                        class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div>
+                    <label for="description"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description</label>
+                    <textarea name="description" id="description" rows="3"
+                        class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ quiz.description }}</textarea>
+                </div>
+
+                <div>
+                    <label for="course"
+                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cours</label>
+                    <select name="course" id="course" required
+                        class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        {% for course in courses %}
+                        <option value="{{ course.id }}" {% if course.id == quiz.course.id %}selected{% endif %}>
+                            {{ course.title }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                        <label for="time_limit"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Temps Limite
+                            (minutes)</label>
+                        <input type="number" name="time_limit" id="time_limit" value="{{ quiz.time_limit }}" min="1"
+                            max="180"
+                            class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="passing_score"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Score Minimum
+                            (%)</label>
+                        <input type="number" name="passing_score" id="passing_score" value="{{ quiz.passing_score }}"
+                            required min="0" max="100" step="0.1"
+                            class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div class="col-span-2">
+                        <label class="flex items-center space-x-3">
+                            <input type="checkbox" name="is_published" value="true"
+                                {% if quiz.is_published %}checked{% endif %}
+                                class="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                            <span class="text-sm text-gray-700 dark:text-gray-300">Publier le quiz immédiatement</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions Section -->
+            <div id="questions-container" class="space-y-6">
+                {% for question in quiz.questions.all %}
+                <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 space-y-6"
+                    id="question_{{ forloop.counter }}">
+                    <input type="hidden" name="question_id_{{ forloop.counter }}" value="{{ question.id }}">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                        <h2 class="text-lg font-bold text-gray-900 dark:text-white">Question {{ forloop.counter }}</h2>
+                        <button type="button"
+                            class="remove-question-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5"
+                            data-question-id="{{ forloop.counter }}">
+                            <div
+                                class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
+                                {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                            </div>
+                            <span class="font-medium">Supprimer</span>
+                        </button>
+                    </div>
+
+                    <div>
+                        <label for="question_text_{{ forloop.counter }}"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Question</label>
+                        <textarea name="question_text_{{ forloop.counter }}" id="question_text_{{ forloop.counter }}"
+                            rows="3" required
+                            class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ question.question_text }}</textarea>
+                    </div>
+
+                    <div>
+                        <label for="question_points_{{ forloop.counter }}"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Points</label>
+                        <input type="number" name="question_points_{{ forloop.counter }}" step="0.5"
+                            id="question_points_{{ forloop.counter }}" value="{{ question.points }}" required
+                            class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <!-- Choices Section -->
+                    <div class="choices-section">
+                        <div class="choices-container space-y-4" id="choices_{{ forloop.counter }}">
+                            <input type="hidden" name="choice_count_{{ forloop.counter }}"
+                                id="choice_count_{{ forloop.counter }}" value="{{ question.choices.all|length }}">
+                            {% for choice in question.choices.all %}
+                            <div class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600 p-4 space-y-4 mb-4"
+                                id="choice_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
+                                <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                                    <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix
+                                        {{ forloop.counter }}</h3>
+                                    <button type="button"
+                                        class="remove-choice-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5"
+                                        data-question-id="{{ forloop.parentloop.counter }}"
+                                        data-choice-id="{{ forloop.counter }}">
+                                        <div
+                                            class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
+                                            {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                                        </div>
+                                        <span class="font-medium">Supprimer</span>
+                                    </button>
+                                </div>
+                                <div>
+                                    <label for="choice_text_{{ forloop.parentloop.counter }}_{{ forloop.counter }}"
+                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Texte du
+                                        Choix</label>
+                                    <input type="text"
+                                        name="choice_text_{{ forloop.parentloop.counter }}_{{ forloop.counter }}"
+                                        id="choice_text_{{ forloop.parentloop.counter }}_{{ forloop.counter }}"
+                                        value="{{ choice.choice_text }}" required
+                                        class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox"
+                                        name="choice_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}"
+                                        id="choice_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}"
+                                        {% if choice.is_correct %}checked{% endif %}
+                                        class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
+                                    <label for="choice_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}"
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-300">Réponse
+                                        Correcte</label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button"
+                            class="add-choice-btn mt-4 sm:w-40 group inline-flex items-center justify-center px-3 py-1.5 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-1.5"
+                            data-question-id="{{ forloop.counter }}">
+                            <div
+                                class="p-1 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                                {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
+                            </div>
+                            <span class="font-medium">Ajouter un Choix</span>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button type="button" id="add-question-btn"
+                    class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-2">
+                    <div
+                        class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
+                    </div>
+                    <span class="font-medium">Ajouter une Question</span>
+                </button>
+                <button type="submit"
+                    class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-2">
+                    <div
+                        class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        {% include 'components/icons.html' with icon="check" class="w-4 h-4" %}
+                    </div>
+                    <span class="font-medium">Enregistrer les Modifications</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let questionCount = parseInt(document.getElementById('question_count') ? .value || 0);
+
+        document.getElementById('add-question-btn').addEventListener('click', function () {
+            questionCount++;
+            document.getElementById('question_count').value = questionCount;
+
+            const questionContainer = document.createElement('div');
+            questionContainer.classList.add('bg-white/80', 'dark:bg-gray-800/80', 'backdrop-blur-lg',
+                'rounded-2xl', 'shadow-lg', 'border', 'border-gray-200', 'dark:border-gray-700',
+                'p-6', 'space-y-6');
+            questionContainer.setAttribute('id', `question_${questionCount}`);
+
+            questionContainer.innerHTML = `
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white">Question ${questionCount}</h2>
+                <button type="button" class="remove-question-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${questionCount}">
+                    <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
+                        {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                    </div>
+                    <span class="font-medium">Supprimer</span>
+                </button>
+            </div>
+
+            <div>
+                <label for="question_text_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Question</label>
+                <textarea name="question_text_${questionCount}" id="question_text_${questionCount}" rows="3" required
+                          class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300"></textarea>
+            </div>
+
+            <div>
+                <label for="question_points_${questionCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Points</label>
+                <input type="number" name="question_points_${questionCount}" step="0.5" id="question_points_${questionCount}" required value="1"
+                       class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
+            </div>
+
+            <!-- Choices Section -->
+            <div class="choices-section">
+                <div class="choices-container space-y-4" id="choices_${questionCount}">
+                    <input type="hidden" name="choice_count_${questionCount}" id="choice_count_${questionCount}" value="0">
+                </div>
+                <button type="button" class="add-choice-btn mt-4 sm:w-40 group inline-flex items-center justify-center px-3 py-1.5 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${questionCount}">
+                    <div class="p-1 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
+                    </div>
+                    <span class="font-medium">Ajouter un Choix</span>
+                </button>
+            </div>
+        `;
+
+            document.getElementById('questions-container').appendChild(questionContainer);
+        });
+
+        // Handle removing questions
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('remove-question-btn') || event.target.closest(
+                    '.remove-question-btn')) {
+                const button = event.target.classList.contains('remove-question-btn') ? event.target :
+                    event.target.closest('.remove-question-btn');
+                const questionId = button.getAttribute('data-question-id');
+                const questionElement = document.getElementById(`question_${questionId}`);
+                questionElement.remove();
+                questionCount--;
+                document.getElementById('question_count').value = questionCount;
+            }
+        });
+
+        // Handle adding choices
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('add-choice-btn') || event.target.closest(
+                    '.add-choice-btn')) {
+                const button = event.target.classList.contains('add-choice-btn') ? event.target : event
+                    .target.closest('.add-choice-btn');
+                const questionId = button.getAttribute('data-question-id');
+                const choiceCountElem = document.getElementById(`choice_count_${questionId}`);
+                let choiceCount = parseInt(choiceCountElem.value) + 1;
+                choiceCountElem.value = choiceCount;
+
+                const choiceContainer = document.createElement('div');
+                choiceContainer.classList.add('bg-gray-50/80', 'dark:bg-gray-700/50',
+                    'backdrop-blur-sm', 'rounded-xl', 'border', 'border-gray-100',
+                    'dark:border-gray-600', 'p-4', 'space-y-4', 'mb-4');
+                choiceContainer.setAttribute('id', `choice_${questionId}_${choiceCount}`);
+
+                choiceContainer.innerHTML = `
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                    <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix ${choiceCount}</h3>
+                    <button type="button" class="remove-choice-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" 
+                            data-question-id="${questionId}" data-choice-id="${choiceCount}">
+                        <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
+                            {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                        </div>
+                        <span class="font-medium">Supprimer</span>
+                    </button>
+                </div>
+                <div>
+                    <label for="choice_text_${questionId}_${choiceCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Texte du Choix</label>
+                    <input type="text" name="choice_text_${questionId}_${choiceCount}" id="choice_text_${questionId}_${choiceCount}" required 
+                           class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" name="choice_correct_${questionId}_${choiceCount}" id="choice_correct_${questionId}_${choiceCount}"
+                           class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
+                    <label for="choice_correct_${questionId}_${choiceCount}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Réponse Correcte
+                    </label>
+                </div>
+            `;
+
+                const choicesContainer = document.getElementById(`choices_${questionId}`);
+                choicesContainer.appendChild(choiceContainer);
+            }
+        });
+
+        // Handle removing choices
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('remove-choice-btn') || event.target.closest(
+                    '.remove-choice-btn')) {
+                const button = event.target.classList.contains('remove-choice-btn') ? event.target :
+                    event.target.closest('.remove-choice-btn');
+                const questionId = button.getAttribute('data-question-id');
+                const choiceId = button.getAttribute('data-choice-id');
+                const choiceElement = document.getElementById(`choice_${questionId}_${choiceId}`);
+                choiceElement.remove();
+            }
+        });
+    });
+</script>
+{% endblock %}
