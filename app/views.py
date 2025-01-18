@@ -46,7 +46,7 @@ def index(request):
 
 
 def get_groups_by_specialty(request, specialty_id):
-    groups = Group.objects.filter(specialty_id=specialty_id).values('id', 'group_code', 'year')
+    groups = Group.objects.filter(specialty_id=specialty_id).values('id', 'group_code', 'start_year', 'end_year')
     return JsonResponse(list(groups), safe=False)
 
 

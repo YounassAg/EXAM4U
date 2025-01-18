@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 data.forEach(group => {
                     const option = document.createElement('option');
                     option.value = group.id;
-                    option.textContent = `${group.group_code} (${group.year})`;
+                    option.textContent = `${group.group_code} (${group.start_year}/${group.end_year})`;
                     groupSelect.appendChild(option);
                 });
             })
