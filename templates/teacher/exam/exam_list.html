@@ -35,7 +35,7 @@
             </a>
         </div>
 
-        {% if messages %}
+        {% comment %} {% if messages %}
             <div class="messages space-y-4">
                 {% for message in messages %}
                     <div class="message {{ message.tags }} bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 border-l-4 border-l-blue-500 text-gray-900 dark:text-white transform hover:scale-[1.01] transition-all duration-300">
@@ -43,7 +43,7 @@
                     </div>
                 {% endfor %}
             </div>
-        {% endif %}
+        {% endif %} {% endcomment %}
 
         <!-- Exams List Section -->
         <div class="grid grid-cols-1 gap-6">
