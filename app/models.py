@@ -14,10 +14,11 @@ class Specialty(models.Model):
 class Group(models.Model):
     group_code = models.CharField(max_length=50)
     specialty = models.ForeignKey(Specialty, on_delete=models.CASCADE)
-    year = models.IntegerField()
+    start_year = models.IntegerField()
+    end_year = models.IntegerField()
 
     def __str__(self):
-        return f"{self.group_code} ({self.year})"
+        return f"{self.group_code} ({self.start_year}/{self.end_year})"
 
 
 class UserProfile(models.Model):
