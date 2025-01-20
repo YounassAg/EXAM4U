@@ -4,6 +4,12 @@ Exam4U is a Django-based web application designed to facilitate the creation and
 
 ![Home Photo](static/images/home.png)
 
+## Prerequisites
+
+- Python 3.8 or higher
+- MySQL database
+- Node.js and npm (for Tailwind CSS)
+
 ## Features
 
 - Create and manage exams with various settings.
@@ -37,7 +43,23 @@ Exam4U is a Django-based web application designed to facilitate the creation and
    - pip install pytz
    ```
 
-4. **Set up the database:**
+4. **Set up Tailwind CSS:**
+
+   ```bash
+   # Install Node.js dependencies
+   npm install
+
+   # Install Tailwind CSS and its dependencies
+   npm install tailwindcss@latest postcss@latest autoprefixer@latest
+
+   # Start Tailwind CSS build process in watch mode (keep this running during development)
+   npx tailwindcss -i ./static/css/input.css -o ./static/css/tailwind.css --watch
+
+   # For production build (minified CSS)
+   npx tailwindcss -i ./static/css/input.css -o ./static/css/tailwind.css --minify
+   ```
+
+5. **Set up the database:**
 
    Ensure you have MySQL installed and running. Create a database and a user with the necessary permissions. Update the `DATABASES` setting in `exam4u/settings.py` with your database credentials:
 
@@ -54,19 +76,19 @@ Exam4U is a Django-based web application designed to facilitate the creation and
    }
    ```
 
-5. **Apply migrations:**
+6. **Apply migrations:**
 
    ```bash
    python manage.py migrate
    ```
 
-6. **Run the development server:**
+7. **Run the development server:**
 
    ```bash
    python manage.py runserver
    ```
 
-7. **Access the application:**
+8. **Access the application:**
 
    Open your web browser and go to `http://127.0.0.1:8000`.
 
