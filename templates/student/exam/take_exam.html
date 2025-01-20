@@ -236,15 +236,15 @@
     // Handle back/forward browser buttons
     window.addEventListener('popstate', function(e) {
         e.preventDefault();
-        Swal.fire({
-            icon: 'warning',
-            title: 'Navigation Non Autorisée',
-            text: 'Veuillez terminer votre examen avant de naviguer ailleurs.',
-            confirmButtonText: 'Rester sur l\'examen',
-            allowOutsideClick: false,
-            background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-            color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-        });
+        // Swal.fire({
+        //     icon: 'warning',
+        //     title: 'Navigation Non Autorisée',
+        //     text: 'Veuillez terminer votre examen avant de naviguer ailleurs.',
+        //     confirmButtonText: 'Rester sur l\'examen',
+        //     allowOutsideClick: false,
+        //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+        //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+        // });
         history.pushState(null, '', window.location.href);
     });
 
@@ -256,15 +256,15 @@
         timerElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
         if (timeLeft === 300) { // Exactly 5 minutes remaining
-            Swal.fire({
-                icon: 'warning',
-                title: 'Plus que 5 minutes!',
-                text: 'Il ne reste que 5 minutes. Veuillez soumettre votre examen rapidement.',
-                confirmButtonText: 'Compris',
-                allowOutsideClick: false,
-                background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-                color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-            });
+            // Swal.fire({
+            //     icon: 'warning',
+            //     title: 'Plus que 5 minutes!',
+            //     text: 'Il ne reste que 5 minutes. Veuillez soumettre votre examen rapidement.',
+            //     confirmButtonText: 'Compris',
+            //     allowOutsideClick: false,
+            //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+            //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+            // });
         }
 
         if (timeLeft <= 300) { // 5 minutes or less remaining
@@ -344,16 +344,16 @@
         });
 
         // Show alert and submit
-        Swal.fire({
-            icon: 'warning',
-            title: 'Temps écoulé!',
-            text: 'Votre examen va être soumis automatiquement. Les questions sans réponse seront marquées comme "Non répondu".',
-            showConfirmButton: false,
-            timer: 3000,
-            allowOutsideClick: false,
-            background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-            color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-        }).then(() => {
+        // Swal.fire({
+        //     icon: 'warning',
+        //     title: 'Temps écoulé!',
+        //     text: 'Votre examen va être soumis automatiquement. Les questions sans réponse seront marquées comme "Non répondu".',
+        //     showConfirmButton: false,
+        //     timer: 3000,
+        //     allowOutsideClick: false,
+        //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+        //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+        // }).then(() => {
             // Remove timer from session storage
             sessionStorage.removeItem(TIMER_KEY);
             
@@ -363,7 +363,7 @@
             submitButton.style.display = 'none';
             form.appendChild(submitButton);
             submitButton.click();
-        });
+        // });
     }
 
     // Update timer every second
@@ -398,22 +398,22 @@
                     }
                 }
             } else if (input.type === 'text' || input.tagName.toLowerCase() === 'textarea') {
-    if (!input.value.trim()) {
-        // Handle code editor questions
-        if (input.classList.contains('code-editor')) {
-            const wrapper = input.closest('.code-question-wrapper');
-            if (wrapper) {
-                const editor = wrapper.querySelector('.CodeMirror')?.CodeMirror;
-                if (editor && !editor.getValue().trim()) {
-                    editor.setValue('Not Answered');
-                    editor.save(); // Update the hidden textarea
+                if (!input.value.trim()) {
+                    // Handle code editor questions
+                    if (input.classList.contains('code-editor')) {
+                        const wrapper = input.closest('.code-question-wrapper');
+                        if (wrapper) {
+                            const editor = wrapper.querySelector('.CodeMirror')?.CodeMirror;
+                            if (editor && !editor.getValue().trim()) {
+                                editor.setValue('Not Answered');
+                                editor.save(); // Update the hidden textarea
+                            }
+                        }
+                    } else {
+                        input.value = "Not Answered";
+                    }
                 }
             }
-        } else {
-            input.value = "Not Answered";
-        }
-    }
-}
         });
 
         // Handle checkboxes (not required by default)
@@ -434,20 +434,20 @@
         });
 
         // Show confirmation dialog
-        Swal.fire({
-            title: 'Confirmer la soumission',
-            text: "Êtes-vous sûr de vouloir soumettre vos réponses ?",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#3B82F6',
-            cancelButtonColor: '#6B7280',
-            confirmButtonText: 'Oui, soumettre',
-            cancelButtonText: 'Annuler',
-            allowOutsideClick: false,
-            background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-            color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-        }).then((result) => {
-            if (result.isConfirmed) {
+        // Swal.fire({
+        //     title: 'Confirmer la soumission',
+        //     text: "Êtes-vous sûr de vouloir soumettre vos réponses ?",
+        //     icon: 'question',
+        //     showCancelButton: true,
+        //     confirmButtonColor: '#3B82F6',
+        //     cancelButtonColor: '#6B7280',
+        //     confirmButtonText: 'Oui, soumettre',
+        //     cancelButtonText: 'Annuler',
+        //     allowOutsideClick: false,
+        //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+        //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+        // }).then((result) => {
+        //     if (result.isConfirmed) {
                 // Remove timer from session storage
                 sessionStorage.removeItem(TIMER_KEY);
                 
@@ -457,8 +457,8 @@
                 submitButton.style.display = 'none';
                 form.appendChild(submitButton);
                 submitButton.click();
-            }
-        });
+        //     }
+        // });
     }
 
     // Handle form submission event
@@ -527,15 +527,15 @@
             updateAttemptStatus("abandoned");
             logFraudAction("Network disconnect", "Connexion réseau perdue");
             
-            Swal.fire({
-                icon: 'warning',
-                title: 'Connexion Perdue',
-                text: 'Veuillez vous reconnecter dans les 30 secondes pour éviter l\'arrêt de l\'examen',
-                timer: this.MAX_OFFLINE_TIME,
-                timerProgressBar: true,
-                background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-                color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-            });
+            // Swal.fire({
+            //     icon: 'warning',
+            //     title: 'Connexion Perdue',
+            //     text: 'Veuillez vous reconnecter dans les 30 secondes pour éviter l\'arrêt de l\'examen',
+            //     timer: this.MAX_OFFLINE_TIME,
+            //     timerProgressBar: true,
+            //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+            //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+            // });
         }
 
         handleOnline() {
@@ -546,26 +546,26 @@
                     logFraudAction("Extended disconnect", `Hors ligne pendant ${offlineTime}ms`);
                     updateAttemptStatus("in_progress");
                     
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Examen Terminé',
-                        text: 'Déconnexion réseau prolongée détectée',
-                        allowOutsideClick: false,
-                        confirmButtonText: 'Quitter l\'examen',
-                        background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-                        color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-                    });
+                    // Swal.fire({
+                    //     icon: 'error',
+                    //     title: 'Examen Terminé',
+                    //     text: 'Déconnexion réseau prolongée détectée',
+                    //     allowOutsideClick: false,
+                    //     confirmButtonText: 'Quitter l\'examen',
+                    //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+                    //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+                    // });
                 } else {
                     updateAttemptStatus("in_progress");
                     logFraudAction("Network reconnect", `Reconnecté après ${offlineTime}ms`);
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Reconnecté',
-                        text: "Vous êtes reconnecté au réseau. Continuez l'examen rapidement pour éviter tout problème.",
-                        confirmButtonText: 'Ok',
-                        background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-                        color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-                    });
+                    // Swal.fire({
+                    //     icon: 'success',
+                    //     title: 'Reconnecté',
+                    //     text: "Vous êtes reconnecté au réseau. Continuez l'examen rapidement pour éviter tout problème.",
+                    //     confirmButtonText: 'Ok',
+                    //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+                    //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+                    // });
                 }
             }
         }
@@ -581,12 +581,12 @@
                 if (e.clientY <= 0 || e.clientX <= 0 || 
                     e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
                     logFraudAction("Mouse leave", "Le curseur de la souris a quitté la fenêtre");
-                    Swal.fire({
-                        icon: "warning",
-                        title: "Avertissement",
-                        text: "Veuillez garder votre curseur dans la fenêtre d'examen",
-                        timer: 3000
-                    });
+                    // Swal.fire({
+                    //     icon: "warning",
+                    //     title: "Avertissement",
+                    //     text: "Veuillez garder votre curseur dans la fenêtre d'examen",
+                    //     timer: 3000
+                    // });
                 }
             });
         },
@@ -618,12 +618,12 @@
             document.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 logFraudAction("Context menu", "Clic droit tenté");
-                Swal.fire({
-                    icon: "warning",
-                    title: "Action Non Autorisée",
-                    text: "Le clic droit est désactivé pendant l'examen",
-                    timer: 2000
-                });
+                // Swal.fire({
+                //     icon: "warning",
+                //     title: "Action Non Autorisée",
+                //     text: "Le clic droit est désactivé pendant l'examen",
+                //     timer: 2000
+                // });
             });
         },
 
@@ -639,12 +639,12 @@
         setupTextProtection() {
             document.addEventListener('copy', (event) => {
                 logFraudAction("Copy attempt", "Texte copié.");
-                Swal.fire({
-                    icon: "warning",
-                    title: "Copie Détectée",
-                    text: "La copie de texte n'est pas autorisée pendant l'examen.",
-                    confirmButtonText: "Compris",
-                });
+                // Swal.fire({
+                //     icon: "warning",
+                //     title: "Copie Détectée",
+                //     text: "La copie de texte n'est pas autorisée pendant l'examen.",
+                //     confirmButtonText: "Compris",
+                // });
                 event.preventDefault();
             });
 
@@ -665,12 +665,12 @@
 
                 if (widthDiff > 100 || heightDiff > 100) {
                     logFraudAction("Screen resize", `Écran redimensionné: ${window.innerWidth}x${window.innerHeight}`);
-                    Swal.fire({
-                        icon: "warning",
-                        title: "Comportement Suspect Détecté",
-                        text: "Le redimensionnement de l'écran n'est pas autorisé pendant l'examen.",
-                        confirmButtonText: "Ok",
-                    });
+                    // Swal.fire({
+                    //     icon: "warning",
+                    //     title: "Comportement Suspect Détecté",
+                    //     text: "Le redimensionnement de l'écran n'est pas autorisé pendant l'examen.",
+                    //     confirmButtonText: "Ok",
+                    // });
                 }
 
                 initialWidth = window.innerWidth;
@@ -683,12 +683,12 @@
 
                 if (isCtrlPressed && forbiddenShortcuts.includes(event.key.toLowerCase())) {
                     logFraudAction("Suspicious shortcut", `Raccourci utilisé: Ctrl+${event.key.toUpperCase()}`);
-                    Swal.fire({
-                        icon: "error",
-                        title: "Action Non Autorisée Détectée",
-                        text: `Le raccourci Ctrl+${event.key.toUpperCase()} n'est pas autorisé pendant l'examen.`,
-                        confirmButtonText: "Ok",
-                    });
+                    // Swal.fire({
+                    //     icon: "error",
+                    //     title: "Action Non Autorisée Détectée",
+                    //     text: `Le raccourci Ctrl+${event.key.toUpperCase()} n'est pas autorisé pendant l'examen.`,
+                    //     confirmButtonText: "Ok",
+                    // });
                     event.preventDefault();
                 }
             });
