@@ -125,8 +125,38 @@ class Response(models.Model):
     response_grade = models.FloatField(null=True, blank=True)
 
     def __str__(self):
-        return f"Response to {self.question.wording[:30]}..."
-    
+        return f"Response to {self.question} by {self.attempt.student}"
+
+    def calculate_mcq_score(self):
+        """Calculate score for MCQ questions using the denial logic:
+        - Each wrong answer denies one correct answer
+        - Score is calculated as percentage of remaining correct answers
+        - Final score is rounded to nearest 0.5
+        """
+        if self.question.question_type != 'MCQ':
+            return 0
+
+        # Get all correct and selected choices
+        correct_choices = set(self.question.mcqchoice_set.filter(is_correct=True).values_list('choice_label', flat=True))
+        selected_choices = set(choice.strip() for choice in self.response_text.split(' ~±ſ~ƟƢ~ '))
+        
+        # Count correct and incorrect selections
+        correct_selections = correct_choices.intersection(selected_choices)
+        incorrect_selections = selected_choices.difference(correct_choices)
+        
+        # Each incorrect selection denies one correct selection
+        remaining_correct = max(0, len(correct_selections) - len(incorrect_selections))
+        
+        # Calculate score as percentage of remaining correct answers out of total correct answers
+        if len(correct_choices) == 0:
+            return 0
+            
+        raw_score = (remaining_correct / len(correct_choices)) * self.question.points
+        
+        # Round to nearest 0.5
+        rounded_score = round(raw_score * 2) / 2
+        return rounded_score
+
 class StudentActionLog(models.Model):
     ACTION_CHOICES = [
         ('page_load', 'Page Loaded'),

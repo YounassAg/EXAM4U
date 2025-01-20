@@ -624,31 +624,44 @@ def grade_attempt(request, attempt_id):
     if request.method == 'POST':
         total_points = 0
         total_possible_points = 0
+        
         for response in responses:
-            response_grade = float(request.POST.get(f'grade_{response.id}', 0))
+            if response.question.question_type == 'MCQ':
+                # Auto-calculate MCQ score using denial logic
+                response_grade = response.calculate_mcq_score()
+            else:
+                # Manual grading for non-MCQ questions
+                response_grade = float(request.POST.get(f'grade_{response.id}', 0))
+            
             response.response_grade = response_grade
             response.save()
             total_points += response_grade
             total_possible_points += response.question.points
-        final_grade = total_points if total_possible_points > 0 else 0
+            
+        final_grade = (total_points / total_possible_points * 20) if total_possible_points > 0 else 0
         attempt.grade = final_grade
         attempt.status = 'completed'
         attempt.save()
         messages.success(request, 'La correction a été enregistrée avec succès!')
         return redirect('exam_attempts', exam_id=attempt.exam.id)
-    
+
+    # Prepare response data for template
     responses_data = []
     for response in responses:
+        suggested_grade = None
+        if response.question.question_type == 'MCQ':
+            # Calculate suggested grade for MCQ questions
+            suggested_grade = response.calculate_mcq_score()
+        
         responses_data.append({
             'response': response,
-            'suggested_grade': response.response_grade if response.response_grade is not None else None
+            'suggested_grade': suggested_grade
         })
-    
-    context = {
+
+    return render(request, 'teacher/exam/correct_exam.html', {
         'attempt': attempt,
         'responses_data': responses_data,
-    }
-    return render(request, 'teacher/exam/correct_exam.html', context)
+    })
 
 
 @login_required
