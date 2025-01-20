@@ -130,8 +130,9 @@ class Response(models.Model):
     def calculate_mcq_score(self):
         """Calculate score for MCQ questions using the denial logic:
         - Each wrong answer denies one correct answer
-        - Score is calculated as percentage of remaining correct answers
-        - Final score is rounded to nearest 0.5
+        - If student selects some but not all correct answers, they get partial credit
+        - Score is calculated as percentage of correct answers selected minus denials
+        - Final score is rounded up to next 0.5 increment
         """
         if self.question.question_type != 'MCQ':
             return 0
@@ -144,18 +145,21 @@ class Response(models.Model):
         correct_selections = correct_choices.intersection(selected_choices)
         incorrect_selections = selected_choices.difference(correct_choices)
         
-        # Each incorrect selection denies one correct selection
-        remaining_correct = max(0, len(correct_selections) - len(incorrect_selections))
+        # Calculate partial credit for correct selections
+        partial_credit = len(correct_selections) / len(correct_choices)
         
-        # Calculate score as percentage of remaining correct answers out of total correct answers
-        if len(correct_choices) == 0:
-            return 0
-            
-        raw_score = (remaining_correct / len(correct_choices)) * self.question.points
+        # Each incorrect selection denies one correct answer's worth of credit
+        denial_penalty = len(incorrect_selections) / len(correct_choices)
         
-        # Round to nearest 0.5
-        rounded_score = round(raw_score * 2) / 2
-        return rounded_score
+        # Calculate final score percentage (partial credit minus denials)
+        score_percentage = max(0, partial_credit - denial_penalty)
+        
+        # Calculate raw score based on question points
+        raw_score = score_percentage * self.question.points
+        
+        # Round up to next 0.5 increment
+        rounded_score = (int(raw_score * 2 + 0.99) / 2)
+        return min(rounded_score, self.question.points)  # Ensure we don't exceed max points
 
 class StudentActionLog(models.Model):
     ACTION_CHOICES = [
