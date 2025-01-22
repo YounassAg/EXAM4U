@@ -165,7 +165,59 @@ def student_courses(request):
 @login_required
 @role_required('student')
 def student_dashboard(request):
-    return render(request, 'student/dashboard.html')
+    # Get the student's profile
+    student_profile = UserProfile.objects.get(user=request.user)
+    
+    # Get completed exams
+    completed_exams = ExamAttempt.objects.filter(student=student_profile, status='completed').count()
+    
+    # Get recent activity (last 5 exam attempts)
+    recent_activity = ExamAttempt.objects.filter(student=student_profile).order_by('-start_date')[:5]
+    
+    # Prepare recent activity data for the template
+    recent_activity_data = []
+    for attempt in recent_activity:
+        recent_activity_data.append({
+            'title': f"Tentative pour {attempt.exam.title}",
+            'date': attempt.start_date.strftime("%Y-%m-%d %H:%M"),
+            'icon': 'exam'  # Assuming you have an 'exam' icon in your icons.html
+        })
+    
+    # Get grades distribution for charts
+    grades_distribution = ExamAttempt.objects.filter(
+        student=student_profile,
+        status='completed',
+        grade__isnull=False
+    ).values('exam__title').annotate(
+        grade_avg=Avg('grade'),
+        attempts_count=Count('id')
+    ).order_by('exam__title')
+    
+    # Prepare data for the grades distribution chart
+    grades_labels = [exam['exam__title'] for exam in grades_distribution]
+    grades_data = [exam['grade_avg'] for exam in grades_distribution]
+    
+    # Get performance trends (grades over time)
+    performance_trends = ExamAttempt.objects.filter(
+        student=student_profile,
+        status='completed',
+        grade__isnull=False
+    ).order_by('start_date').values('start_date', 'grade')
+    
+    # Prepare data for the performance trends chart
+    trends_labels = [trend['start_date'].strftime("%Y-%m-%d") for trend in performance_trends]
+    trends_data = [trend['grade'] for trend in performance_trends]
+    
+    context = {
+        'completed_exams': completed_exams,
+        'recent_activity': recent_activity_data,
+        'grades_labels': grades_labels,
+        'grades_data': grades_data,
+        'trends_labels': trends_labels,
+        'trends_data': trends_data,
+    }
+    
+    return render(request, 'student/dashboard.html', context)
 
 
 @login_required
