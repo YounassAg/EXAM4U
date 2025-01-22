@@ -123,7 +123,7 @@ def teacher_dashboard(request):
     for completion in recent_completions:
         recent_activities.append({
             'type': 'exam_completed',
-            'description': f"{completion.student} - {completion.exam.title}",
+            'description': f"{completion.student.user.first_name} {completion.student.user.last_name} {completion.exam.title} | {completion.type}",
             'timestamp': completion.modified_at,
             'grade': completion.grade if completion.grade is not None else 'Pas encore corrigé'
         })

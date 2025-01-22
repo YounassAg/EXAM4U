@@ -23,26 +23,6 @@
                 </div>
             </div>
         </div>
-
-        {% if messages %}
-            <div class="space-y-3 md:space-y-4">
-                {% for message in messages %}
-                    <div class="message {{ message.tags }} bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-4 rounded-2xl border {% if message.tags == 'error' %}border-red-200 dark:border-red-800 bg-red-50/80 dark:bg-red-900/20 text-red-600 dark:text-red-400{% else %}border-green-200 dark:border-green-800 bg-green-50/80 dark:bg-green-900/20 text-green-600 dark:text-green-400{% endif %} shadow-lg hover:shadow-xl hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300">
-                        <div class="flex items-center space-x-3">
-                            <div class="p-2 rounded-lg {% if message.tags == 'error' %}bg-red-100/80 dark:bg-red-800/50{% else %}bg-green-100/80 dark:bg-green-800/50{% endif %}">
-                                {% if message.tags == 'error' %}
-                                    {% include 'components/icons.html' with icon="exclamation" class="w-5 h-5" %}
-                                {% else %}
-                                    {% include 'components/icons.html' with icon="check" class="w-5 h-5" %}
-                                {% endif %}
-                            </div>
-                            <p class="flex-1">{{ message }}</p>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-
         <!-- Exams List Section -->
         <div class="space-y-6">
             <!-- Exam Grid -->

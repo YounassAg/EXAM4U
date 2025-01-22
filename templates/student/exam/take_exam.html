@@ -27,12 +27,6 @@
                                     </div>
                                     <span id="timer" class="font-mono text-lg font-medium text-blue-600 dark:text-blue-400"></span>
                                 </div>
-                                <div class="flex items-center space-x-2">
-                                    <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
-                                        {% include 'components/icons.html' with icon="refresh" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
-                                    </div>
-                                    <span class="text-gray-600 dark:text-gray-400">Tentative: {{ attempt_number }}/{{ exam.max_attempts }}</span>
-                                </div>
                             </div>
                         </div>
                         <p class="text-gray-600 dark:text-gray-400">{{ exam.description }}</p>
