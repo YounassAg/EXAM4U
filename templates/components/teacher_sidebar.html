@@ -6,10 +6,10 @@
     <div class="relative p-6 border-b border-gray-200 dark:border-gray-700">
         <div class="flex items-center space-x-3">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform duration-300">
-                <span class="text-white text-lg font-semibold">{{ user.username|make_list|first|upper }}</span>
+                <span class="text-white text-lg font-semibold">{{ user.userprofile.last_name |make_list|first|upper }}</span>
             </div>
             <div>
-                <h2 class="text-sm font-semibold text-gray-900 dark:text-white">{{ user.get_full_name }}</h2>
+                <h2 class="text-sm font-semibold text-gray-900 dark:text-white">{{ user.userprofile.last_name }} {{ user.userprofile.first_name}}</h2>
                 <p class="text-xs bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-semibold">Enseignant</p>
             </div>
         </div>

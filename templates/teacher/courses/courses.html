@@ -55,19 +55,19 @@
                                 <div class="p-1.5 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg mr-2.5 transform group-hover:scale-110 transition-transform">
                                     {% include 'components/icons.html' with icon="calendar" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
                                 </div>
-                                <span>{{ course.duration }} heures</span>
+                                <span>{{ course.duration }}&nbsp;heures</span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                                 <div class="p-1.5 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg mr-2.5 transform group-hover:scale-110 transition-transform">
                                     {% include 'components/icons.html' with icon="user-plus" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
                                 </div>
-                                <span>{{ course.students.count }} étudiants</span>
+                                <span>{{ course.students.count }}&nbsp;étudiants</span>
                             </div>
                             <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
                                 <div class="p-1.5 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg mr-2.5 transform group-hover:scale-110 transition-transform">
                                     {% include 'components/icons.html' with icon="chart" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
                                 </div>
-                                <span>{{ course.exams.count }} examens</span>
+                                <span>{{ course.exams.count }}&nbsp;examens</span>
                             </div>
                         </div>
 
