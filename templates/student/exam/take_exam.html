@@ -13,28 +13,19 @@
         <!-- Main Content -->
         <div class="space-y-6 md:space-y-8">
             <!-- Title Section -->
-            <div
-                class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300">
-                <div
-                    class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse">
-                </div>
-                <div
-                    class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000">
-                </div>
+            <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300">
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+                <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
                 <div class="relative z-10 p-6 md:p-8">
                     <div class="flex flex-col space-y-4">
                         <div class="flex items-center justify-between flex-wrap gap-4">
-                            <h1
-                                class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-                                {{ exam.title }}</h1>
+                            <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">{{ exam.title }}</h1>
                             <div class="flex items-center space-x-6 flex-wrap gap-4">
                                 <div class="flex items-center space-x-2">
-                                    <div
-                                        class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                                    <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
                                         {% include 'components/icons.html' with icon="clock" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
                                     </div>
-                                    <span id="timer"
-                                        class="font-mono text-lg font-medium text-blue-600 dark:text-blue-400"></span>
+                                    <span id="timer" class="font-mono text-lg font-medium text-blue-600 dark:text-blue-400"></span>
                                 </div>
                             </div>
                         </div>
@@ -48,74 +39,76 @@
             <form id="examForm" method="post" class="space-y-6 md:space-y-8">
                 {% csrf_token %}
                 {% for question in questions %}
-                <div
-                    class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 space-y-4">
-                    <!-- Question Header -->
-                    <div class="flex items-center space-x-3">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Question {{ forloop.counter }}</h3>
-                        <span class="text-sm text-gray-600 dark:text-gray-400">({{ question.points }} points)</span>
-                    </div>
-
-                    <!-- Question Text -->
-                    <div class="text-gray-700 dark:text-gray-300">{{ question.wording }}</div>
-
-                    <!-- Choices or Answer Field -->
-                    <div class="space-y-3 mt-4">
-                        {% if question.question_type == 'MCQ' %}
-                        {% for choice in question.mcqchoice_set.all %}
-                        {% if question.allow_multiple_answers %}
-                        <label
-                            class="flex items-start p-4 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-600">
-                            <div class="flex items-center h-5">
-                                <input type="checkbox" name="question_{{ question.id }}" value="{{ choice.id }}"
-                                    class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
-                            </div>
-                            <div class="ml-3 flex-1 min-w-0">
-                                <span class="text-gray-900 dark:text-white">{{ choice.choice_label }}</span>
-                            </div>
-                        </label>
-                        {% else %}
-                        <label
-                            class="flex items-start p-4 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-600">
-                            <div class="flex items-center h-5">
-                                <input type="radio" name="question_{{ question.id }}" value="{{ choice.id }}"
-                                    class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
-                                    required>
-                            </div>
-                            <div class="ml-3 flex-1 min-w-0">
-                                <span class="text-gray-900 dark:text-white">{{ choice.choice_label }}</span>
-                            </div>
-                        </label>
-                        {% endif %}
-                        {% endfor %}
-                        {% elif question.question_type == 'short_answer' %}
-                        <div>
-                            <input type="text" name="question_{{ question.id }}"
-                                class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                required>
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 space-y-4">
+                        <!-- Question Header -->
+                        <div class="flex items-center space-x-3">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Question {{ forloop.counter }}</h3>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">({{ question.points }} points)</span>
                         </div>
-                        {% elif question.question_type == 'open' %}
-                        {% include 'components/code_question.html' with question_name=question.id %}
-                        {% endif %}
 
+                        <!-- Question Text -->
+                        <div class="text-gray-700 dark:text-gray-300">{{ question.wording }}</div>
+                    
+                        <!-- Choices or Answer Field -->
+                        <div class="space-y-3 mt-4">
+                            {% if question.question_type == 'MCQ' %}
+                                {% for choice in question.mcqchoice_set.all %}
+                                    {% if question.allow_multiple_answers %}
+                                        <label class="flex items-start p-4 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-600">
+                                            <div class="flex items-center h-5">
+                                                <input type="checkbox" 
+                                                       name="question_{{ question.id }}" 
+                                                       value="{{ choice.id }}"
+                                                       class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400">
+                                            </div>
+                                            <div class="ml-3 flex-1 min-w-0">
+                                                <span class="text-gray-900 dark:text-white">{{ choice.choice_label }}</span>
+                                            </div>
+                                        </label>
+                                    {% else %}
+                                        <label class="flex items-start p-4 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-blue-50 dark:hover:bg-gray-600">
+                                            <div class="flex items-center h-5">
+                                                <input type="radio" 
+                                                       name="question_{{ question.id }}" 
+                                                       value="{{ choice.id }}"
+                                                       class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                                                       required>
+                                            </div>
+                                            <div class="ml-3 flex-1 min-w-0">
+                                                <span class="text-gray-900 dark:text-white">{{ choice.choice_label }}</span>
+                                            </div>
+                                        </label>
+                                    {% endif %}
+                                {% endfor %}
+                            {% elif question.question_type == 'short_answer' %}
+                                <div>
+                                    <input type="text" 
+                                           name="question_{{ question.id }}" 
+                                           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                           required>
+                                </div>
+                                {% elif question.question_type == 'open' %}
+                                {% include 'components/code_question.html' with question_name=question.id %}
+                            {% endif %}
+                            
+                        </div>
                     </div>
-                </div>
                 {% endfor %}
 
                 <!-- Action Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <button type="button" onclick="history.back()"
-                        class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-gray-600 dark:text-gray-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 dark:hover:from-gray-500 dark:hover:to-gray-600 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(75,85,99,0.25)] hover:-translate-y-0.5 space-x-2">
-                        <div
-                            class="p-2 rounded-lg bg-gradient-to-br from-gray-500/10 to-gray-600/10 dark:from-gray-400/5 dark:to-gray-500/5">
+                    <button type="button" 
+                            onclick="history.back()" 
+                            class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-gray-600 dark:text-gray-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-gray-600 hover:to-gray-700 dark:hover:from-gray-500 dark:hover:to-gray-600 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(75,85,99,0.25)] hover:-translate-y-0.5 space-x-2">
+                        <div class="p-2 rounded-lg bg-gradient-to-br from-gray-500/10 to-gray-600/10 dark:from-gray-400/5 dark:to-gray-500/5">
                             {% include 'components/icons.html' with icon="arrow-left" class="w-5 h-5" %}
                         </div>
                         <span class="font-medium">Retour</span>
                     </button>
-                    <button type="button" onclick="confirmSubmit()"
-                        class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-2">
-                        <div
-                            class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                    <button type="button" 
+                            onclick="confirmSubmit()"
+                            class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-2">
+                        <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
                             {% include 'components/icons.html' with icon="check" class="w-5 h-5" %}
                         </div>
                         <span class="font-medium">Soumettre</span>
@@ -127,97 +120,70 @@
 </div>
 
 <style>
-    @keyframes pulse {
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
 
-        0%,
-        100% {
-            opacity: 0.6;
-        }
+.animate-pulse {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
 
-        50% {
-            opacity: 1;
-        }
-    }
+.delay-1000 {
+    animation-delay: 1s;
+}
 
-    .animate-pulse {
-        animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+    20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
 
-    .delay-1000 {
-        animation-delay: 1s;
-    }
+.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
 
-    @keyframes shake {
+/* Input focus styles */
+.focus-within\:ring-2:focus-within {
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
 
-        0%,
-        100% {
-            transform: translateX(0);
-        }
+/* Smooth transitions */
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+}
 
-        10%,
-        30%,
-        50%,
-        70%,
-        90% {
-            transform: translateX(-2px);
-        }
+/* Choice hover effects */
+.group\/choice:hover {
+    --tw-border-opacity: 1;
+    border-color: rgb(59 130 246 / var(--tw-border-opacity));
+}
 
-        20%,
-        40%,
-        60%,
-        80% {
-            transform: translateX(2px);
-        }
-    }
-
-    .shake {
-        animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
-    }
-
-    /* Input focus styles */
-    .focus-within\:ring-2:focus-within {
-        --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-        --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-        box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
-    }
-
-    /* Smooth transitions */
-    .transition-all {
-        transition-property: all;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        transition-duration: 300ms;
-    }
-
-    /* Choice hover effects */
+/* Dark mode specific styles */
+@media (prefers-color-scheme: dark) {
     .group\/choice:hover {
         --tw-border-opacity: 1;
-        border-color: rgb(59 130 246 / var(--tw-border-opacity));
+        border-color: rgb(96 165 250 / var(--tw-border-opacity));
     }
-
-    /* Dark mode specific styles */
-    @media (prefers-color-scheme: dark) {
-        .group\/choice:hover {
-            --tw-border-opacity: 1;
-            border-color: rgb(96 165 250 / var(--tw-border-opacity));
-        }
-    }
+}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    // Timer functionality with session storage persistence
     const TIMER_KEY = 'exam_{{ exam.id }}_timer';
     const START_TIME_KEY = 'exam_{{ exam.id }}_start_time';
-    const duration = {
-        {
-            exam.duration
-        }
-    };
+    const duration = {{ exam.duration }}; // Add the duration variable
     let timeLeft;
 
     // Initialize or restore timer
     const storedTime = sessionStorage.getItem(TIMER_KEY);
     const startTime = sessionStorage.getItem(START_TIME_KEY);
-
+    
     if (storedTime === null || startTime === null) {
         // First time starting the exam
         timeLeft = duration * 60; // Convert to seconds
@@ -242,7 +208,7 @@
     };
 
     // Prevent leaving the page
-    window.onbeforeunload = function (e) {
+    window.onbeforeunload = function(e) {
         if (!document.getElementById('examForm').hasAttribute('data-submitted')) {
             e.preventDefault();
             e.returnValue = 'Vous avez un examen en cours. Êtes-vous sûr de vouloir quitter ?';
@@ -251,7 +217,7 @@
     };
 
     // Handle form submission event
-    document.getElementById('examForm').addEventListener('submit', function (e) {
+    document.getElementById('examForm').addEventListener('submit', function(e) {
         // Mark form as submitted to allow leaving the page
         this.setAttribute('data-submitted', 'true');
         // Remove timer from session storage
@@ -261,16 +227,46 @@
 
     const timerElement = document.getElementById('timer');
 
+    // Handle back/forward browser buttons
+    window.addEventListener('popstate', function(e) {
+        e.preventDefault();
+        // Swal.fire({
+        //     icon: 'warning',
+        //     title: 'Navigation Non Autorisée',
+        //     text: 'Veuillez terminer votre examen avant de naviguer ailleurs.',
+        //     confirmButtonText: 'Rester sur l\'examen',
+        //     allowOutsideClick: false,
+        //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+        //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+        // });
+        history.pushState(null, '', window.location.href);
+    });
+
     function updateTimer() {
         const hours = Math.floor(timeLeft / 3600);
         const minutes = Math.floor((timeLeft % 3600) / 60);
         const seconds = timeLeft % 60;
 
-        timerElement.textContent =
-            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        timerElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-        if (timeLeft === 300) { // 5 minutes warning
+        if (timeLeft === 300) { // Exactly 5 minutes remaining
+            // Swal.fire({
+            //     icon: 'warning',
+            //     title: 'Plus que 5 minutes!',
+            //     text: 'Il ne reste que 5 minutes. Veuillez soumettre votre examen rapidement.',
+            //     confirmButtonText: 'Compris',
+            //     allowOutsideClick: false,
+            //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+            //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+            // });
+        }
+
+        if (timeLeft <= 300) { // 5 minutes or less remaining
             timerElement.classList.add('text-red-600', 'dark:text-red-400');
+            if (!timerElement.classList.contains('shake')) {
+                timerElement.classList.add('shake');
+                setTimeout(() => timerElement.classList.remove('shake'), 500);
+            }
         }
 
         if (timeLeft <= 0) {
@@ -286,44 +282,184 @@
 
     function autoSubmitExam() {
         const form = document.getElementById('examForm');
-
-        // Fill empty required fields with "Not Answered"
-        form.querySelectorAll('input[required], textarea[required]').forEach(input => {
-            if (!input.value.trim()) {
-                input.value = "Not Answered";
+        
+        // Fill empty required fields
+        const radioGroups = {};
+        const inputs = form.querySelectorAll('input[required], textarea[required]');
+        
+        inputs.forEach(input => {
+            if (input.type === 'radio') {
+                const name = input.name;
+                if (!radioGroups[name]) {
+                    radioGroups[name] = true;
+                    const group = form.querySelectorAll(`input[name="${name}"]`);
+                    let checked = false;
+                    group.forEach(radio => {
+                        if (radio.checked) checked = true;
+                    });
+                    if (!checked) {
+                        group[0].checked = true;
+                    }
+                }
+            } else if (input.type === 'text' || input.tagName.toLowerCase() === 'textarea') {
+                if (!input.value.trim()) {
+                    // Handle code editor questions
+                    if (input.classList.contains('code-editor')) {
+                        const wrapper = input.closest('.code-question-wrapper');
+                        if (wrapper) {
+                            const editor = wrapper.querySelector('.CodeMirror')?.CodeMirror;
+                            if (editor && !editor.getValue().trim()) {
+                                editor.setValue('Not Answered');
+                                editor.save(); // Update the hidden textarea
+                            }
+                        }
+                    } else {
+                        input.value = "Not Answered";
+                    }
+                }
             }
         });
 
-        // Remove timer from session storage
-        sessionStorage.removeItem(TIMER_KEY);
-        sessionStorage.removeItem(START_TIME_KEY);
+        // Handle checkboxes (not required by default)
+        const checkboxGroups = {};
+        form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            const name = checkbox.name;
+            if (!checkboxGroups[name]) {
+                checkboxGroups[name] = true;
+                const group = form.querySelectorAll(`input[name="${name}"]`);
+                let checked = false;
+                group.forEach(cb => {
+                    if (cb.checked) checked = true;
+                });
+                if (!checked) {
+                    group[0].checked = true;
+                }
+            }
+        });
 
-        // Submit the form
-        form.submit();
+        // Show alert and submit
+        // Swal.fire({
+        //     icon: 'warning',
+        //     title: 'Temps écoulé!',
+        //     text: 'Votre examen va être soumis automatiquement. Les questions sans réponse seront marquées comme "Non répondu".',
+        //     showConfirmButton: false,
+        //     timer: 3000,
+        //     allowOutsideClick: false,
+        //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+        //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+        // }).then(() => {
+            // Remove timer from session storage
+            sessionStorage.removeItem(TIMER_KEY);
+            
+            // Create a hidden submit button and click it
+            const submitButton = document.createElement('button');
+            submitButton.type = 'submit';
+            submitButton.style.display = 'none';
+            form.appendChild(submitButton);
+            submitButton.click();
+        // });
     }
 
     // Update timer every second
     updateTimer();
     const timerInterval = setInterval(updateTimer, 1000);
 
+    // Clear timer on form submission
+    document.getElementById("examForm").addEventListener("submit", function() {
+        sessionStorage.removeItem(TIMER_KEY);
+    });
+
     // Form submission handling
     function confirmSubmit() {
         const form = document.getElementById('examForm');
-
-        // Fill empty required fields with "Not Answered"
-        form.querySelectorAll('input[required], textarea[required]').forEach(input => {
-            if (!input.value.trim()) {
-                input.value = "Not Answered";
+        
+        // Fill empty required fields
+        const radioGroups = {};
+        const inputs = form.querySelectorAll('input[required], textarea[required]');
+        
+        inputs.forEach(input => {
+            if (input.type === 'radio') {
+                const name = input.name;
+                if (!radioGroups[name]) {
+                    radioGroups[name] = true;
+                    const group = form.querySelectorAll(`input[name="${name}"]`);
+                    let checked = false;
+                    group.forEach(radio => {
+                        if (radio.checked) checked = true;
+                    });
+                    if (!checked) {
+                        group[0].checked = true;
+                    }
+                }
+            } else if (input.type === 'text' || input.tagName.toLowerCase() === 'textarea') {
+                if (!input.value.trim()) {
+                    // Handle code editor questions
+                    if (input.classList.contains('code-editor')) {
+                        const wrapper = input.closest('.code-question-wrapper');
+                        if (wrapper) {
+                            const editor = wrapper.querySelector('.CodeMirror')?.CodeMirror;
+                            if (editor && !editor.getValue().trim()) {
+                                editor.setValue('Not Answered');
+                                editor.save(); // Update the hidden textarea
+                            }
+                        }
+                    } else {
+                        input.value = "Not Answered";
+                    }
+                }
             }
         });
 
+        // Handle checkboxes (not required by default)
+        const checkboxGroups = {};
+        form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            const name = checkbox.name;
+            if (!checkboxGroups[name]) {
+                checkboxGroups[name] = true;
+                const group = form.querySelectorAll(`input[name="${name}"]`);
+                let checked = false;
+                group.forEach(cb => {
+                    if (cb.checked) checked = true;
+                });
+                if (!checked) {
+                    group[0].checked = true;
+                }
+            }
+        });
+
+        // Show confirmation dialog
+        // Swal.fire({
+        //     title: 'Confirmer la soumission',
+        //     text: "Êtes-vous sûr de vouloir soumettre vos réponses ?",
+        //     icon: 'question',
+        //     showCancelButton: true,
+        //     confirmButtonColor: '#3B82F6',
+        //     cancelButtonColor: '#6B7280',
+        //     confirmButtonText: 'Oui, soumettre',
+        //     cancelButtonText: 'Annuler',
+        //     allowOutsideClick: false,
+        //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
+        //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
+        // }).then((result) => {
+        //     if (result.isConfirmed) {
+                // Remove timer from session storage
+                sessionStorage.removeItem(TIMER_KEY);
+                
+                // Create a hidden submit button and click it
+                const submitButton = document.createElement('button');
+                submitButton.type = 'submit';
+                submitButton.style.display = 'none';
+                form.appendChild(submitButton);
+                submitButton.click();
+        //     }
+        // });
+    }
+
+    // Handle form submission event
+    document.getElementById('examForm').addEventListener('submit', function(e) {
         // Remove timer from session storage
         sessionStorage.removeItem(TIMER_KEY);
-        sessionStorage.removeItem(START_TIME_KEY);
-
-        // Submit the form
-        form.submit();
-    }
+    });
 
     // Attempt status management
     const attemptId = "{{ attempt.id }}";
@@ -332,23 +468,23 @@
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
         fetch("{% url 'update_attempt_status' %}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    "X-CSRFToken": csrftoken,
-                },
-                body: new URLSearchParams({
-                    attempt_id: attemptId,
-                    status: status
-                }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) {
-                    console.error(data.message);
-                }
-            })
-            .catch(error => console.error("Error updating attempt status:", error));
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": csrftoken,
+            },
+            body: new URLSearchParams({
+                attempt_id: attemptId,
+                status: status
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                console.error(data.message);
+            }
+        })
+        .catch(error => console.error("Error updating attempt status:", error));
     }
 
     // Fraud detection logging
@@ -384,7 +520,7 @@
             this.disconnectionTime = Date.now();
             updateAttemptStatus("abandoned");
             logFraudAction("Network disconnect", "Connexion réseau perdue");
-
+            
             // Swal.fire({
             //     icon: 'warning',
             //     title: 'Connexion Perdue',
@@ -399,11 +535,11 @@
         handleOnline() {
             if (this.disconnectionTime) {
                 const offlineTime = Date.now() - this.disconnectionTime;
-
+                
                 if (offlineTime > this.MAX_OFFLINE_TIME) {
                     logFraudAction("Extended disconnect", `Hors ligne pendant ${offlineTime}ms`);
                     updateAttemptStatus("in_progress");
-
+                    
                     // Swal.fire({
                     //     icon: 'error',
                     //     title: 'Examen Terminé',
@@ -431,12 +567,12 @@
 
     // Exam Security Management
     const ExamSecurity = {
-        focusLostCount: 0, // Add counter for focus loss
+        focusLostCount: 0,  // Add counter for focus loss
 
         // Track mouse position leaving viewport
         setupMouseTracking() {
             document.addEventListener('mouseleave', (e) => {
-                if (e.clientY <= 0 || e.clientX <= 0 ||
+                if (e.clientY <= 0 || e.clientX <= 0 || 
                     e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
                     logFraudAction("Mouse leave", "Le curseur de la souris a quitté la fenêtre");
                     // Swal.fire({
@@ -454,7 +590,7 @@
             const devToolsCheck = () => {
                 const widthThreshold = window.outerWidth - window.innerWidth > 160;
                 const heightThreshold = window.outerHeight - window.innerHeight > 160;
-
+                
                 if (widthThreshold || heightThreshold) {
                     logFraudAction("Dev tools", "Outils développeur potentiellement ouverts");
                     return true;
@@ -463,9 +599,9 @@
             };
 
             setInterval(devToolsCheck, 1000);
-
-            window.addEventListener('devtoolschange', function (e) {
-                if (e.detail.open) {
+            
+            window.addEventListener('devtoolschange', function(e) {
+                if(e.detail.open) {
                     logFraudAction("Dev tools", "Outils développeur ouverts");
                 }
             });
@@ -522,8 +658,7 @@
                 const heightDiff = Math.abs(window.innerHeight - initialHeight);
 
                 if (widthDiff > 100 || heightDiff > 100) {
-                    logFraudAction("Screen resize",
-                        `Écran redimensionné: ${window.innerWidth}x${window.innerHeight}`);
+                    logFraudAction("Screen resize", `Écran redimensionné: ${window.innerWidth}x${window.innerHeight}`);
                     // Swal.fire({
                     //     icon: "warning",
                     //     title: "Comportement Suspect Détecté",
@@ -541,8 +676,7 @@
                 const isCtrlPressed = event.ctrlKey || event.metaKey;
 
                 if (isCtrlPressed && forbiddenShortcuts.includes(event.key.toLowerCase())) {
-                    logFraudAction("Suspicious shortcut",
-                        `Raccourci utilisé: Ctrl+${event.key.toUpperCase()}`);
+                    logFraudAction("Suspicious shortcut", `Raccourci utilisé: Ctrl+${event.key.toUpperCase()}`);
                     // Swal.fire({
                     //     icon: "error",
                     //     title: "Action Non Autorisée Détectée",
@@ -572,10 +706,74 @@
         }
     }, 30000);
 
-    // Initialize security measures
+    // Save answers functionality
+    function saveAnswers() {
+        const form = document.getElementById('examForm');
+        const answers = {};
+        
+        // Save all input values
+        form.querySelectorAll('input, textarea').forEach(input => {
+            if (input.type === 'radio' || input.type === 'checkbox') {
+                if (input.checked) {
+                    if (!answers[input.name]) {
+                        answers[input.name] = [];
+                    }
+                    answers[input.name].push(input.value);
+                }
+            } else if (input.type !== 'hidden') { // Skip CSRF token
+                answers[input.name] = input.value;
+            }
+        });
+        
+        // Save to sessionStorage
+        sessionStorage.setItem(`exam_{{ exam.id }}_answers`, JSON.stringify(answers));
+    }
+
+    // Restore answers functionality
+    function restoreAnswers() {
+        const savedAnswers = sessionStorage.getItem(`exam_{{ exam.id }}_answers`);
+        if (savedAnswers) {
+            const answers = JSON.parse(savedAnswers);
+            const form = document.getElementById('examForm');
+            
+            // Restore all input values
+            Object.keys(answers).forEach(name => {
+                const inputs = form.querySelectorAll(`[name="${name}"]`);
+                inputs.forEach(input => {
+                    if (input.type === 'radio' || input.type === 'checkbox') {
+                        if (Array.isArray(answers[name])) {
+                            input.checked = answers[name].includes(input.value);
+                        }
+                    } else if (input.type !== 'hidden') { // Skip CSRF token
+                        input.value = answers[name];
+                    }
+                });
+            });
+        }
+    }
+
+    // Save answers periodically and before leaving page
+    const SAVE_INTERVAL = 5000; // Save every 5 seconds
+    setInterval(saveAnswers, SAVE_INTERVAL);
+
+    // Save answers when input changes
+    document.getElementById('examForm').addEventListener('input', saveAnswers);
+
+    // Save answers before unload
+    window.addEventListener('beforeunload', saveAnswers);
+
+    // Restore answers when page loads
     document.addEventListener('DOMContentLoaded', () => {
+        restoreAnswers();
         ExamSecurity.init();
         new NetworkMonitor();
+    });
+
+    // Clear answers on successful submission
+    document.getElementById('examForm').addEventListener('submit', function() {
+        sessionStorage.removeItem(`exam_{{ exam.id }}_answers`);
+        sessionStorage.removeItem(TIMER_KEY);
+        sessionStorage.removeItem(START_TIME_KEY);
     });
 </script>
 
