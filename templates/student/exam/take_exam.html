@@ -706,72 +706,14 @@
         }
     }, 30000);
 
-    // Save answers functionality
-    function saveAnswers() {
-        const form = document.getElementById('examForm');
-        const answers = {};
-        
-        // Save all input values
-        form.querySelectorAll('input, textarea').forEach(input => {
-            if (input.type === 'radio' || input.type === 'checkbox') {
-                if (input.checked) {
-                    if (!answers[input.name]) {
-                        answers[input.name] = [];
-                    }
-                    answers[input.name].push(input.value);
-                }
-            } else if (input.type !== 'hidden') { // Skip CSRF token
-                answers[input.name] = input.value;
-            }
-        });
-        
-        // Save to sessionStorage
-        sessionStorage.setItem(`exam_{{ exam.id }}_answers`, JSON.stringify(answers));
-    }
-
-    // Restore answers functionality
-    function restoreAnswers() {
-        const savedAnswers = sessionStorage.getItem(`exam_{{ exam.id }}_answers`);
-        if (savedAnswers) {
-            const answers = JSON.parse(savedAnswers);
-            const form = document.getElementById('examForm');
-            
-            // Restore all input values
-            Object.keys(answers).forEach(name => {
-                const inputs = form.querySelectorAll(`[name="${name}"]`);
-                inputs.forEach(input => {
-                    if (input.type === 'radio' || input.type === 'checkbox') {
-                        if (Array.isArray(answers[name])) {
-                            input.checked = answers[name].includes(input.value);
-                        }
-                    } else if (input.type !== 'hidden') { // Skip CSRF token
-                        input.value = answers[name];
-                    }
-                });
-            });
-        }
-    }
-
-    // Save answers periodically and before leaving page
-    const SAVE_INTERVAL = 5000; // Save every 5 seconds
-    setInterval(saveAnswers, SAVE_INTERVAL);
-
-    // Save answers when input changes
-    document.getElementById('examForm').addEventListener('input', saveAnswers);
-
-    // Save answers before unload
-    window.addEventListener('beforeunload', saveAnswers);
-
     // Restore answers when page loads
     document.addEventListener('DOMContentLoaded', () => {
-        restoreAnswers();
         ExamSecurity.init();
         new NetworkMonitor();
     });
 
     // Clear answers on successful submission
     document.getElementById('examForm').addEventListener('submit', function() {
-        sessionStorage.removeItem(`exam_{{ exam.id }}_answers`);
         sessionStorage.removeItem(TIMER_KEY);
         sessionStorage.removeItem(START_TIME_KEY);
     });
