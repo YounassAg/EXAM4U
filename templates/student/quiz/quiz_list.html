@@ -24,6 +24,22 @@
             </div>
         </div>
 
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border {% if message.tags == 'error' %}border-red-200 dark:border-red-700{% else %}border-gray-200 dark:border-gray-700{% endif %} p-4">
+                    <div class="flex items-center space-x-3">
+                        {% if message.tags == 'error' %}
+                            {% include 'components/icons.html' with icon="x-circle" class="w-5 h-5 text-red-600 dark:text-red-400" %}
+                            <p class="text-red-600 dark:text-red-400">{{ message }}</p>
+                        {% else %}
+                            {% include 'components/icons.html' with icon="check-circle" class="w-5 h-5 text-green-600 dark:text-green-400" %}
+                            <p class="text-green-600 dark:text-green-400">{{ message }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
 
         <!-- Quiz List -->
         {% if quizzes %}
