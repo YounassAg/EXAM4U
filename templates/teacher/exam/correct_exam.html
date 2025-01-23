@@ -2,33 +2,46 @@
 
 {% block title %}Correction: {{ attempt.exam.title }} - Exam4U{% endblock %}
 
+{% block extra_css %}
+{% include 'components/code_editor_deps.html' %}
+{% endblock %}
+
 {% block content %}
 <div class="flex min-h-screen bg-white dark:bg-gray-900">
     {% include 'components/teacher_sidebar.html' %}
-    
+
     <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
         <!-- Title Section -->
-        <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
-            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div
+            class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div
+                class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse">
+            </div>
+            <div
+                class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000">
+            </div>
             <div class="relative z-10 p-6">
                 <div class="flex items-center space-x-4">
-                    <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                    <div
+                        class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
                         {% include 'components/icons.html' with icon="clipboard-check" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
                     </div>
                     <div>
-                        <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                        <h1
+                            class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
                             Correction: {{ attempt.exam.title }}
                         </h1>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-600 dark:text-gray-400 mt-2">
                             <div class="flex items-center space-x-2">
-                                <div class="p-1.5 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                                <div
+                                    class="p-1.5 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
                                     {% include 'components/icons.html' with icon="user" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
                                 </div>
                                 <p>Étudiant: {{ attempt.student.first_name }} {{ attempt.student.last_name }}</p>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <div class="p-1.5 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                                <div
+                                    class="p-1.5 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
                                     {% include 'components/icons.html' with icon="calendar" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
                                 </div>
                                 <p>Commencé le: {{ attempt.start_date|date:"d/m/Y H:i" }}</p>
@@ -43,115 +56,139 @@
             {% csrf_token %}
             <div class="space-y-6">
                 {% for response_data in responses_data %}
-                    {% with response=response_data.response %}
-                    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 transition-all duration-300 hover:shadow-xl">
-                        <div class="mb-4 flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <span class="px-3 py-1 text-sm font-medium rounded-full 
+                {% with response=response_data.response %}
+                <div
+                    class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 transition-all duration-300 hover:shadow-xl">
+                    <div class="mb-4 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="px-3 py-1 text-sm font-medium rounded-full 
                                     {% if response.question.question_type == 'MCQ' %}
                                         bg-blue-100 dark:bg-blue-800/30 text-blue-600 dark:text-blue-400
                                     {% else %}
                                         bg-green-100 dark:bg-green-800/30 text-green-600 dark:text-green-400
                                     {% endif %}">
-                                    {{ response.question.get_question_type_display }}
-                                </span>
-                                <span class="text-sm text-gray-500 dark:text-gray-400">Question {{ forloop.counter }}</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <label class="text-gray-700 dark:text-gray-300">Note:</label>
-                                <input type="number" 
-                                    name="grade_{{ response.id }}" 
-                                    value="{{ response_data.suggested_grade|default:0 }}" 
-                                    step="0.5"
-                                    min="0" 
-                                    max="{{ response.question.points }}"
-                                    class="w-20 px-3 py-2 text-right bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-white transition-shadow duration-300">
-                                <span class="text-gray-600 dark:text-gray-400">/ {{ response.question.points }}</span>
-                            </div>                            
+                                {{ response.question.get_question_type_display }}
+                            </span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Question {{ forloop.counter }}</span>
                         </div>
-
-                        {# Question #}
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2 flex items-center space-x-2">
-                                <div class="p-1.5 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
-                                    {% include 'components/icons.html' with icon="question" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
-                                </div>
-                                <span>Question:</span>
-                            </h3>
-                            <div class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl p-4 border border-gray-200 dark:border-gray-600">
-                                <pre class="whitespace-pre-wrap break-words text-gray-700 dark:text-gray-300">{{ response.question.wording }}</pre>
-                            </div>
+                        <div class="flex items-center space-x-2">
+                            <label class="text-gray-700 dark:text-gray-300">Note:</label>
+                            <input type="number" name="grade_{{ response.id }}"
+                                value="{{ response_data.suggested_grade|default:0 }}" step="0.5" min="0"
+                                max="{{ response.question.points }}"
+                                class="w-20 px-3 py-2 text-right bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 dark:text-white transition-shadow duration-300">
+                            <span class="text-gray-600 dark:text-gray-400">/ {{ response.question.points }}</span>
                         </div>
+                    </div>
 
-                        {# Student's Response #}
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2 flex items-center space-x-2">
-                                <div class="p-1.5 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
-                                    {% include 'components/icons.html' with icon="pencil" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
-                                </div>
-                                <span>Réponse de l'étudiant:</span>
-                            </h3>
-                            <div class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl p-4 border border-gray-200 dark:border-gray-600">
-                                {% if response.question.question_type == 'MCQ' %}
-                                    <div class="space-y-2">
-                                        {% for choice in response.question.mcqchoice_set.all %}
-                                        <div class="flex items-center group">
-                                            <input type="checkbox" disabled 
-                                                {% if choice.choice_label in response.response_text %}checked{% endif %}
-                                                class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
-                                            <span class="ml-2 text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{{ choice.choice_label }}</span>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                {% else %}
-                                    <pre class="whitespace-pre-wrap break-words text-gray-700 dark:text-gray-300">{{ response.response_text }}</pre>
-                                {% endif %}
+                    {# Question #}
+                    <div class="mb-6">
+                        <h3
+                            class="text-lg font-semibold text-gray-900 dark:text-white mb-2 flex items-center space-x-2">
+                            <div
+                                class="p-1.5 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                                {% include 'components/icons.html' with icon="question" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
                             </div>
+                            <span>Question:</span>
+                        </h3>
+                        <div
+                            class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl p-4 border border-gray-200 dark:border-gray-600">
+                            <pre
+                                class="whitespace-pre-wrap break-words text-gray-700 dark:text-gray-300">{{ response.question.wording }}</pre>
                         </div>
+                    </div>
 
-                        {% if response.question.question_type == 'MCQ' %}
-                        <div class="mt-4">
-                            <button type="button" 
-                                    class="group text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-all duration-300 flex items-center space-x-2"
-                                    onclick="toggleCorrectAnswer(this)">
-                                <span class="toggle-text group-hover:underline">Afficher les réponses correctes</span>
-                                {% include 'components/icons.html' with icon="chevron-down" class="w-5 h-5 toggle-icon transition-transform duration-300 group-hover:scale-110" %}
-                            </button>
-                            <div class="hidden mt-4 p-4 rounded-xl bg-green-50/80 dark:bg-green-900/20 backdrop-blur-sm border border-green-200 dark:border-green-800">
-                                <h4 class="font-semibold mb-2 text-green-700 dark:text-green-400 flex items-center space-x-2">
-                                    <div class="p-1.5 rounded-lg bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-400/5 dark:to-emerald-400/5">
-                                        {% include 'components/icons.html' with icon="check-circle" class="w-4 h-4" %}
-                                    </div>
-                                    <span>Réponses correctes:</span>
-                                </h4>
+                    {# Student's Response #}
+                    <div class="mb-6">
+                        <h3
+                            class="text-lg font-semibold text-gray-900 dark:text-white mb-2 flex items-center space-x-2">
+                            <div
+                                class="p-1.5 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                                {% include 'components/icons.html' with icon="pencil" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
+                            </div>
+                            <span>Réponse de l'étudiant:</span>
+                        </h3>
+                        <div
+                            class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl p-4 border border-gray-200 dark:border-gray-600">
+                            {% if response.question.question_type == 'MCQ' %}
+                            <div class="space-y-2">
                                 {% for choice in response.question.mcqchoice_set.all %}
-                                    {% if choice.is_correct %}
-                                        <div class="flex items-center space-x-2 text-green-600 dark:text-green-400 ml-7">
-                                            {% include 'components/icons.html' with icon="check" class="w-4 h-4" %}
-                                            <span>{{ choice.choice_label }}</span>
-                                        </div>
-                                    {% endif %}
+                                <div class="flex items-center group">
+                                    <input type="checkbox" disabled
+                                        {% if choice.choice_label in response.response_text %}checked{% endif %}
+                                        class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
+                                    <span
+                                        class="ml-2 text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{{ choice.choice_label }}</span>
+                                </div>
                                 {% endfor %}
                             </div>
+                            {% elif response.question.question_type == 'open' %}
+                            <div class="code-question-wrapper space-y-2">
+                                <select
+                                    class="language-selector w-full sm:w-auto rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2">
+                                    <option value="python">Python</option>
+                                    <option value="javascript">JavaScript</option>
+                                    <option value="php">PHP</option>
+                                    <option value="sql">MySQL/SQL</option>
+                                </select>
+                                <textarea id="code_editor_{{ response.id }}"
+                                    class="code-editor hidden">{{ response.response_text }}</textarea>
+                            </div>
+                            {% else %}
+                            <pre
+                                class="whitespace-pre-wrap break-words text-gray-700 dark:text-gray-300">{{ response.response_text }}</pre>
+                            {% endif %}
                         </div>
-                        {% endif %}
                     </div>
-                    {% endwith %}
+
+                    {% if response.question.question_type == 'MCQ' %}
+                    <div class="mt-4">
+                        <button type="button"
+                            class="group text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-all duration-300 flex items-center space-x-2"
+                            onclick="toggleCorrectAnswer(this)">
+                            <span class="toggle-text group-hover:underline">Afficher les réponses correctes</span>
+                            {% include 'components/icons.html' with icon="chevron-down" class="w-5 h-5 toggle-icon transition-transform duration-300 group-hover:scale-110" %}
+                        </button>
+                        <div
+                            class="hidden mt-4 p-4 rounded-xl bg-green-50/80 dark:bg-green-900/20 backdrop-blur-sm border border-green-200 dark:border-green-800">
+                            <h4
+                                class="font-semibold mb-2 text-green-700 dark:text-green-400 flex items-center space-x-2">
+                                <div
+                                    class="p-1.5 rounded-lg bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-400/5 dark:to-emerald-400/5">
+                                    {% include 'components/icons.html' with icon="check-circle" class="w-4 h-4" %}
+                                </div>
+                                <span>Réponses correctes:</span>
+                            </h4>
+                            {% for choice in response.question.mcqchoice_set.all %}
+                            {% if choice.is_correct %}
+                            <div class="flex items-center space-x-2 text-green-600 dark:text-green-400 ml-7">
+                                {% include 'components/icons.html' with icon="check" class="w-4 h-4" %}
+                                <span>{{ choice.choice_label }}</span>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endwith %}
                 {% endfor %}
             </div>
 
             <div class="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <a href="{% url 'exam_attempts' attempt.exam.id %}" 
+                <a href="{% url 'exam_attempts' attempt.exam.id %}"
                     class="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:shadow-[0_0_15px_rgba(107,114,128,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
-                    <div class="p-2 bg-gradient-to-br from-gray-500/10 to-gray-600/10 dark:from-gray-400/5 dark:to-gray-500/5 rounded-lg">
+                    <div
+                        class="p-2 bg-gradient-to-br from-gray-500/10 to-gray-600/10 dark:from-gray-400/5 dark:to-gray-500/5 rounded-lg">
                         {% include 'components/icons.html' with icon="arrow-left" class="w-4 h-4" %}
                     </div>
                     <span class="font-medium">Retour</span>
                 </a>
                 <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-4">
-                    <button type="submit" 
-                            class="inline-flex items-center space-x-2 text-green-600 dark:text-green-400 hover:shadow-[0_0_15px_rgba(34,197,94,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
-                        <div class="p-2 bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-400/5 dark:to-emerald-400/5 rounded-lg">
+                    <button type="submit"
+                        class="inline-flex items-center space-x-2 text-green-600 dark:text-green-400 hover:shadow-[0_0_15px_rgba(34,197,94,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
+                        <div
+                            class="p-2 bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-400/5 dark:to-emerald-400/5 rounded-lg">
                             {% include 'components/icons.html' with icon="check" class="w-4 h-4" %}
                         </div>
                         <span class="font-medium">Soumettre les Notes</span>
@@ -163,33 +200,56 @@
 </div>
 
 <style>
-@keyframes pulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
-}
+    @keyframes pulse {
 
-.animate-pulse {
-    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
+        0%,
+        100% {
+            opacity: 0.6;
+        }
 
-.delay-1000 {
-    animation-delay: 1s;
-}
+        50% {
+            opacity: 1;
+        }
+    }
+
+    .animate-pulse {
+        animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    .delay-1000 {
+        animation-delay: 1s;
+    }
 </style>
 
 <script>
-    function toggleCorrectAnswer(button) {
-        const correctAnswersDiv = button.nextElementSibling;
-        const icon = button.querySelector('.toggle-icon');
-        const text = button.querySelector('.toggle-text');
-
-        correctAnswersDiv.classList.toggle('hidden');
-        icon.classList.toggle('rotate-180');
-        if (correctAnswersDiv.classList.contains('hidden')) {
-            text.innerText = 'Afficher les réponses correctes';
-        } else {
-            text.innerText = 'Masquer les réponses correctes';
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize code editor manager
+        if (typeof window.codeEditorManager === 'undefined') {
+            window.codeEditorManager = new CodeEditorManager();
         }
+
+        // Initialize all code editors
+        document.querySelectorAll('.code-editor').forEach(textarea => {
+            if (!textarea.id) {
+                textarea.id = 'code-editor-' + Math.random().toString(36).substr(2, 9);
+            }
+            const editor = window.codeEditorManager.initializeEditor(textarea);
+            if (editor) {
+                editor.setOption('readOnly', true); // Make editors read-only for correction
+            }
+        });
+    });
+
+    // Existing toggle function for MCQ correct answers
+    function toggleCorrectAnswer(button) {
+        const answerSection = button.nextElementSibling;
+        const toggleIcon = button.querySelector('.toggle-icon');
+        const toggleText = button.querySelector('.toggle-text');
+
+        answerSection.classList.toggle('hidden');
+        toggleIcon.style.transform = answerSection.classList.contains('hidden') ? '' : 'rotate(180deg)';
+        toggleText.textContent = answerSection.classList.contains('hidden') ?
+            'Afficher les réponses correctes' : 'Masquer les réponses correctes';
     }
 </script>
 {% endblock %}

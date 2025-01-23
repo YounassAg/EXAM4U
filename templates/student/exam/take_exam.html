@@ -27,22 +27,11 @@
                             <h1
                                 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
                                 {{ exam.title }}</h1>
-                            <div class="flex items-center space-x-6 flex-wrap gap-4">
-                                <div class="flex items-center space-x-2">
-                                    <div
-                                        class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
-                                        {% include 'components/icons.html' with icon="clock" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
-                                    </div>
-                                    <span id="timer"
-                                        class="font-mono text-lg font-medium text-blue-600 dark:text-blue-400"></span>
-                                </div>
-                            </div>
                         </div>
                         <p class="text-gray-600 dark:text-gray-400">{{ exam.description }}</p>
                     </div>
                 </div>
             </div>
-
 
             <!-- Questions Form -->
             <form id="examForm" method="post" class="space-y-6 md:space-y-8">
@@ -209,37 +198,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Timer functionality with session storage persistence
-    const TIMER_KEY = 'exam_{{ exam.id }}_timer';
-    const START_TIME_KEY = 'exam_{{ exam.id }}_start_time';
-    const duration = {
-        {
-            exam.duration
-        }
-    }; // Add the duration variable
-    let timeLeft;
-
-    // Initialize or restore timer
-    const storedTime = sessionStorage.getItem(TIMER_KEY);
-    const startTime = sessionStorage.getItem(START_TIME_KEY);
-
-    if (storedTime === null || startTime === null) {
-        // First time starting the exam
-        timeLeft = duration * 60; // Convert to seconds
-        sessionStorage.setItem(TIMER_KEY, timeLeft.toString());
-        sessionStorage.setItem(START_TIME_KEY, Date.now().toString());
-    } else {
-        // Returning to the exam - calculate remaining time
-        const elapsedTime = Math.floor((Date.now() - parseInt(startTime)) / 1000);
-        timeLeft = Math.max(0, duration * 60 - elapsedTime);
-        if (timeLeft <= 0) {
-            // If time has already expired, submit immediately
-            autoSubmitExam();
-        } else {
-            sessionStorage.setItem(TIMER_KEY, timeLeft.toString());
-        }
-    }
-
     // Disable back button
     window.history.pushState(null, null, window.location.href);
     window.onpopstate = function () {
@@ -255,163 +213,10 @@
         }
     };
 
-    // Handle form submission event
-    document.getElementById('examForm').addEventListener('submit', function (e) {
-        // Mark form as submitted to allow leaving the page
-        this.setAttribute('data-submitted', 'true');
-        // Remove timer from session storage
-        sessionStorage.removeItem(TIMER_KEY);
-        sessionStorage.removeItem(START_TIME_KEY);
-    });
-
-    const timerElement = document.getElementById('timer');
-
-    // Handle back/forward browser buttons
-    window.addEventListener('popstate', function (e) {
-        e.preventDefault();
-        // Swal.fire({
-        //     icon: 'warning',
-        //     title: 'Navigation Non Autorisée',
-        //     text: 'Veuillez terminer votre examen avant de naviguer ailleurs.',
-        //     confirmButtonText: 'Rester sur l\'examen',
-        //     allowOutsideClick: false,
-        //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-        //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-        // });
-        history.pushState(null, '', window.location.href);
-    });
-
-    function updateTimer() {
-        const hours = Math.floor(timeLeft / 3600);
-        const minutes = Math.floor((timeLeft % 3600) / 60);
-        const seconds = timeLeft % 60;
-
-        timerElement.textContent =
-            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-        if (timeLeft === 300) { // Exactly 5 minutes remaining
-            // Swal.fire({
-            //     icon: 'warning',
-            //     title: 'Plus que 5 minutes!',
-            //     text: 'Il ne reste que 5 minutes. Veuillez soumettre votre examen rapidement.',
-            //     confirmButtonText: 'Compris',
-            //     allowOutsideClick: false,
-            //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-            //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-            // });
-        }
-
-        if (timeLeft <= 300) { // 5 minutes or less remaining
-            timerElement.classList.add('text-red-600', 'dark:text-red-400');
-            if (!timerElement.classList.contains('shake')) {
-                timerElement.classList.add('shake');
-                setTimeout(() => timerElement.classList.remove('shake'), 500);
-            }
-        }
-
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            sessionStorage.removeItem(TIMER_KEY);
-            sessionStorage.removeItem(START_TIME_KEY);
-            autoSubmitExam();
-        } else {
-            timeLeft--;
-            sessionStorage.setItem(TIMER_KEY, timeLeft.toString());
-        }
-    }
-
-    function autoSubmitExam() {
-        const form = document.getElementById('examForm');
-
-        // Fill empty required fields
-        const radioGroups = {};
-        const inputs = form.querySelectorAll('input[required], textarea[required]');
-
-        inputs.forEach(input => {
-            if (input.type === 'radio') {
-                const name = input.name;
-                if (!radioGroups[name]) {
-                    radioGroups[name] = true;
-                    const group = form.querySelectorAll(`input[name="${name}"]`);
-                    let checked = false;
-                    group.forEach(radio => {
-                        if (radio.checked) checked = true;
-                    });
-                    if (!checked) {
-                        group[0].checked = true;
-                    }
-                }
-            } else if (input.type === 'text' || input.tagName.toLowerCase() === 'textarea') {
-                if (!input.value.trim()) {
-                    // Handle code editor questions
-                    if (input.classList.contains('code-editor')) {
-                        const wrapper = input.closest('.code-question-wrapper');
-                        if (wrapper) {
-                            const editor = wrapper.querySelector('.CodeMirror') ? .CodeMirror;
-                            if (editor && !editor.getValue().trim()) {
-                                editor.setValue('Not Answered');
-                                editor.save(); // Update the hidden textarea
-                            }
-                        }
-                    } else {
-                        input.value = "Not Answered";
-                    }
-                }
-            }
-        });
-
-        // Handle checkboxes (not required by default)
-        const checkboxGroups = {};
-        form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            const name = checkbox.name;
-            if (!checkboxGroups[name]) {
-                checkboxGroups[name] = true;
-                const group = form.querySelectorAll(`input[name="${name}"]`);
-                let checked = false;
-                group.forEach(cb => {
-                    if (cb.checked) checked = true;
-                });
-                if (!checked) {
-                    group[0].checked = true;
-                }
-            }
-        });
-
-        // Show alert and submit
-        // Swal.fire({
-        //     icon: 'warning',
-        //     title: 'Temps écoulé!',
-        //     text: 'Votre examen va être soumis automatiquement. Les questions sans réponse seront marquées comme "Non répondu".',
-        //     showConfirmButton: false,
-        //     timer: 3000,
-        //     allowOutsideClick: false,
-        //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-        //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-        // }).then(() => {
-        // Remove timer from session storage
-        sessionStorage.removeItem(TIMER_KEY);
-
-        // Create a hidden submit button and click it
-        const submitButton = document.createElement('button');
-        submitButton.type = 'submit';
-        submitButton.style.display = 'none';
-        form.appendChild(submitButton);
-        submitButton.click();
-        // });
-    }
-
-    // Update timer every second
-    updateTimer();
-    const timerInterval = setInterval(updateTimer, 1000);
-
-    // Clear timer on form submission
-    document.getElementById("examForm").addEventListener("submit", function () {
-        sessionStorage.removeItem(TIMER_KEY);
-    });
-
     // Form submission handling
     function confirmSubmit() {
         const form = document.getElementById('examForm');
+        if (!form) return;
 
         // Fill empty required fields
         const radioGroups = {};
@@ -437,10 +242,10 @@
                     if (input.classList.contains('code-editor')) {
                         const wrapper = input.closest('.code-question-wrapper');
                         if (wrapper) {
-                            const editor = wrapper.querySelector('.CodeMirror') ? .CodeMirror;
-                            if (editor && !editor.getValue().trim()) {
-                                editor.setValue('Not Answered');
-                                editor.save(); // Update the hidden textarea
+                            const editor = wrapper.querySelector('.CodeMirror');
+                            if (editor && editor.CodeMirror && !editor.CodeMirror.getValue().trim()) {
+                                editor.CodeMirror.setValue('Not Answered');
+                                editor.CodeMirror.save(); // Update the hidden textarea
                             }
                         }
                     } else {
@@ -467,39 +272,12 @@
             }
         });
 
-        // Show confirmation dialog
-        // Swal.fire({
-        //     title: 'Confirmer la soumission',
-        //     text: "Êtes-vous sûr de vouloir soumettre vos réponses ?",
-        //     icon: 'question',
-        //     showCancelButton: true,
-        //     confirmButtonColor: '#3B82F6',
-        //     cancelButtonColor: '#6B7280',
-        //     confirmButtonText: 'Oui, soumettre',
-        //     cancelButtonText: 'Annuler',
-        //     allowOutsideClick: false,
-        //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-        //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-        // }).then((result) => {
-        //     if (result.isConfirmed) {
-        // Remove timer from session storage
-        sessionStorage.removeItem(TIMER_KEY);
+        // Mark form as submitted to allow leaving the page
+        form.setAttribute('data-submitted', 'true');
 
-        // Create a hidden submit button and click it
-        const submitButton = document.createElement('button');
-        submitButton.type = 'submit';
-        submitButton.style.display = 'none';
-        form.appendChild(submitButton);
-        submitButton.click();
-        //     }
-        // });
+        // Submit the form
+        form.submit();
     }
-
-    // Handle form submission event
-    document.getElementById('examForm').addEventListener('submit', function (e) {
-        // Remove timer from session storage
-        sessionStorage.removeItem(TIMER_KEY);
-    });
 
     // Attempt status management
     const attemptId = "{{ attempt.id }}";
@@ -560,16 +338,6 @@
             this.disconnectionTime = Date.now();
             updateAttemptStatus("abandoned");
             logFraudAction("Network disconnect", "Connexion réseau perdue");
-
-            // Swal.fire({
-            //     icon: 'warning',
-            //     title: 'Connexion Perdue',
-            //     text: 'Veuillez vous reconnecter dans les 30 secondes pour éviter l\'arrêt de l\'examen',
-            //     timer: this.MAX_OFFLINE_TIME,
-            //     timerProgressBar: true,
-            //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-            //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-            // });
         }
 
         handleOnline() {
@@ -579,27 +347,9 @@
                 if (offlineTime > this.MAX_OFFLINE_TIME) {
                     logFraudAction("Extended disconnect", `Hors ligne pendant ${offlineTime}ms`);
                     updateAttemptStatus("in_progress");
-
-                    // Swal.fire({
-                    //     icon: 'error',
-                    //     title: 'Examen Terminé',
-                    //     text: 'Déconnexion réseau prolongée détectée',
-                    //     allowOutsideClick: false,
-                    //     confirmButtonText: 'Quitter l\'examen',
-                    //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-                    //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-                    // });
                 } else {
                     updateAttemptStatus("in_progress");
                     logFraudAction("Network reconnect", `Reconnecté après ${offlineTime}ms`);
-                    // Swal.fire({
-                    //     icon: 'success',
-                    //     title: 'Reconnecté',
-                    //     text: "Vous êtes reconnecté au réseau. Continuez l'examen rapidement pour éviter tout problème.",
-                    //     confirmButtonText: 'Ok',
-                    //     background: document.documentElement.classList.contains('dark') ? '#1F2937' : '#FFFFFF',
-                    //     color: document.documentElement.classList.contains('dark') ? '#FFFFFF' : '#000000'
-                    // });
                 }
             }
         }
@@ -615,12 +365,6 @@
                 if (e.clientY <= 0 || e.clientX <= 0 ||
                     e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
                     logFraudAction("Mouse leave", "Le curseur de la souris a quitté la fenêtre");
-                    // Swal.fire({
-                    //     icon: "warning",
-                    //     title: "Avertissement",
-                    //     text: "Veuillez garder votre curseur dans la fenêtre d'examen",
-                    //     timer: 3000
-                    // });
                 }
             });
         },
@@ -652,12 +396,6 @@
             document.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 logFraudAction("Context menu", "Clic droit tenté");
-                // Swal.fire({
-                //     icon: "warning",
-                //     title: "Action Non Autorisée",
-                //     text: "Le clic droit est désactivé pendant l'examen",
-                //     timer: 2000
-                // });
             });
         },
 
@@ -673,12 +411,6 @@
         setupTextProtection() {
             document.addEventListener('copy', (event) => {
                 logFraudAction("Copy attempt", "Texte copié.");
-                // Swal.fire({
-                //     icon: "warning",
-                //     title: "Copie Détectée",
-                //     text: "La copie de texte n'est pas autorisée pendant l'examen.",
-                //     confirmButtonText: "Compris",
-                // });
                 event.preventDefault();
             });
 
@@ -700,12 +432,6 @@
                 if (widthDiff > 100 || heightDiff > 100) {
                     logFraudAction("Screen resize",
                         `Écran redimensionné: ${window.innerWidth}x${window.innerHeight}`);
-                    // Swal.fire({
-                    //     icon: "warning",
-                    //     title: "Comportement Suspect Détecté",
-                    //     text: "Le redimensionnement de l'écran n'est pas autorisé pendant l'examen.",
-                    //     confirmButtonText: "Ok",
-                    // });
                 }
 
                 initialWidth = window.innerWidth;
@@ -719,12 +445,6 @@
                 if (isCtrlPressed && forbiddenShortcuts.includes(event.key.toLowerCase())) {
                     logFraudAction("Suspicious shortcut",
                         `Raccourci utilisé: Ctrl+${event.key.toUpperCase()}`);
-                    // Swal.fire({
-                    //     icon: "error",
-                    //     title: "Action Non Autorisée Détectée",
-                    //     text: `Le raccourci Ctrl+${event.key.toUpperCase()} n'est pas autorisé pendant l'examen.`,
-                    //     confirmButtonText: "Ok",
-                    // });
                     event.preventDefault();
                 }
             });
@@ -748,16 +468,9 @@
         }
     }, 30000);
 
-    // Restore answers when page loads
     document.addEventListener('DOMContentLoaded', () => {
         ExamSecurity.init();
         new NetworkMonitor();
-    });
-
-    // Clear answers on successful submission
-    document.getElementById('examForm').addEventListener('submit', function () {
-        sessionStorage.removeItem(TIMER_KEY);
-        sessionStorage.removeItem(START_TIME_KEY);
     });
 </script>
 
