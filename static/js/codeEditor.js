@@ -4,19 +4,31 @@ class CodeEditorManager {
         this.editors = new Map();
         this.languageModes = {
             'python': {
-                mode: 'python',
+                mode: {
+                    name: 'python',
+                    version: 3
+                },
                 name: 'Python'
             },
             'javascript': {
-                mode: 'javascript',
+                mode: {
+                    name: 'javascript',
+                    json: true
+                },
                 name: 'JavaScript'
             },
             'php': {
-                mode: 'application/x-httpd-php',
+                mode: {
+                    name: 'php',
+                    startOpen: true
+                },
                 name: 'PHP'
             },
             'sql': {
-                mode: 'text/x-sql',
+                mode: {
+                    name: 'sql',
+                    dialect: 'mysql'
+                },
                 name: 'MySQL'
             }
         };
@@ -29,11 +41,14 @@ class CodeEditorManager {
         if (!wrapper) return;
 
         const languageSelector = wrapper.querySelector('.language-selector');
-        const selectedMode = this.languageModes[languageSelector?.value || 'python'];
+        const selectedMode = this.languageModes[languageSelector ? .value || 'python'];
 
         const editorOptions = {
             lineNumbers: true,
-            mode: selectedMode?.mode || 'python',
+            mode: selectedMode ? .mode || {
+                name: 'python',
+                version: 3
+            },
             theme: document.documentElement.classList.contains('dark') ? 'monokai' : 'eclipse',
             indentUnit: 4,
             tabSize: 4,
