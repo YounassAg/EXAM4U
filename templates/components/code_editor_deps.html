@@ -1,19 +1,140 @@
 {% load static %}
 
-<!-- CodeMirror CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/eclipse.min.css">
-<link rel="stylesheet" href="{% static 'css/codeEditor.css' %}">
+<!-- Ace Editor Core -->
+<script src="{% static 'js/ace.min.js' %}"></script>
 
-<!-- CodeMirror JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/clike/clike.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/php/php.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/sql/sql.min.js"></script>
+<!-- Ace Editor Themes -->
+<script src="{% static 'js/theme-monokai.min.js' %}"></script>
 
-<!-- Custom Code Editor -->
-<script src="{% static 'js/codeEditor.js' %}"></script>
+<!-- Ace Editor Modes -->
+<script src="{% static 'js/mode-python.min.js' %}"></script>
+<script src="{% static 'js/mode-javascript.min.js' %}"></script>
+<script src="{% static 'js/mode-php.min.js' %}"></script>
+<script src="{% static 'js/mode-sql.min.js' %}"></script>
+
+<style>
+    .code-question-wrapper {
+        background: transparent;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .code-editor {
+        width: 100%;
+        height: 300px;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.75rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 14px;
+        transition: all 0.2s ease-in-out;
+        overflow: hidden;
+        background: #ffffff;
+    }
+
+    .dark .code-editor {
+        border-color: #374151;
+        background: #111827;
+    }
+
+    .code-editor.focused {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+
+    .dark .code-editor.focused {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
+    }
+
+    .language-selector {
+        min-width: 150px;
+        padding: 0.625rem 1rem;
+        border-radius: 0.75rem;
+        border: 2px solid #e5e7eb;
+        background: #ffffff;
+        color: #374151;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        font-weight: 500;
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+    }
+
+    .dark .language-selector {
+        background-color: #111827;
+        border-color: #374151;
+        color: #e5e7eb;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    }
+
+    .language-selector:hover {
+        border-color: #d1d5db;
+        background-color: #f9fafb;
+    }
+
+    .dark .language-selector:hover {
+        border-color: #4b5563;
+        background-color: #1f2937;
+    }
+
+    .language-selector:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+
+    .dark .language-selector:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
+    }
+
+    /* Ace Editor Custom Styles */
+    .ace_editor {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+    }
+
+    .ace_gutter {
+        background: #f3f4f6 !important;
+        color: #6b7280 !important;
+    }
+
+    .dark .ace_gutter {
+        background: #1f2937 !important;
+        color: #9ca3af !important;
+    }
+
+    .ace_print-margin {
+        display: none !important;
+    }
+
+    .ace_scrollbar::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .ace_scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .ace_scrollbar::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 4px;
+    }
+
+    .dark .ace_scrollbar::-webkit-scrollbar-thumb {
+        background: #4b5563;
+    }
+
+    .ace_scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af;
+    }
+
+    .dark .ace_scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #6b7280;
+    }
+</style>

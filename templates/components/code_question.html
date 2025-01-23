@@ -1,42 +1,117 @@
 {% load static %}
 
-<div class="code-question-wrapper space-y-2">
+<div class="code-question-wrapper">
     <!-- Language selector -->
-    <select class="language-selector w-full sm:w-auto rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2">
-        <option value="python">Python</option>
-        <option value="javascript">JavaScript</option>
-        <option value="php">PHP</option>
-        <option value="sql">MySQL/SQL</option>
-    </select>
-    
+    <div class="flex items-center space-x-3 mb-4">
+        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Programming Language</label>
+        <select class="language-selector">
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+            <option value="php">PHP</option>
+            <option value="sql">MySQL/SQL</option>
+        </select>
+    </div>
+
     <!-- Code editor -->
-    <textarea name="question_{{ question_name }}" 
-              id="code_editor_{{ question_name }}"
-              class="code-editor hidden"
-              required></textarea>
+    <div class="relative">
+        <div id="editor_{{ question_name }}" class="code-editor"></div>
+        <textarea name="question_{{ question_name }}" class="hidden" required></textarea>
+    </div>
 </div>
 
 <script>
-    (function() {
-        function initializeThisEditor() {
-            // Initialize code editor manager if not already initialized
-            if (typeof window.codeEditorManager === 'undefined') {
-                window.codeEditorManager = new CodeEditorManager();
-            }
-            
-            // Initialize this specific editor
-            const textarea = document.getElementById('code_editor_{{ question_name }}');
-            if (textarea && !window.codeEditorManager.editors.has(textarea.id)) {
-                window.codeEditorManager.initializeEditor(textarea);
-            }
+    (function () {
+        function initializeEditor() {
+            const editorDiv = document.getElementById('editor_{{ question_name }}');
+            const textarea = editorDiv.nextElementSibling;
+            const wrapper = editorDiv.closest('.code-question-wrapper');
+            const languageSelector = wrapper.querySelector('.language-selector');
+
+            if (!editorDiv || !textarea || !wrapper || !languageSelector) return;
+
+            // Create editor
+            const editor = ace.edit(editorDiv);
+
+            // Configure editor
+            const isDark = document.documentElement.classList.contains('dark');
+            editor.setTheme(isDark ? "ace/theme/monokai" : "ace/theme/textmate");
+            editor.session.setMode("ace/mode/" + (languageSelector.value || 'python'));
+            editor.setOptions({
+                fontSize: "14px",
+                fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+                enableBasicAutocompletion: true,
+                enableLiveAutocompletion: true,
+                enableSnippets: true,
+                showPrintMargin: false,
+                highlightActiveLine: true,
+                highlightSelectedWord: true,
+                cursorStyle: "ace",
+                copyWithEmptySelection: false,
+                displayIndentGuides: true,
+                scrollPastEnd: 0.5,
+                tabSize: 4,
+                useSoftTabs: true,
+                showInvisibles: false,
+                wrap: true,
+                indentedSoftWrap: true,
+                behavioursEnabled: true,
+                wrapBehavioursEnabled: true,
+                autoScrollEditorIntoView: true,
+                minLines: 10,
+                maxLines: Infinity
+            });
+
+            // Handle language changes
+            languageSelector.addEventListener('change', () => {
+                editor.session.setMode("ace/mode/" + languageSelector.value);
+                editor.focus();
+            });
+
+            // Handle dark mode
+            const observer = new MutationObserver(mutations => {
+                mutations.forEach(mutation => {
+                    if (mutation.attributeName === 'class') {
+                        const isDark = document.documentElement.classList.contains('dark');
+                        editor.setTheme(isDark ? "ace/theme/monokai" : "ace/theme/textmate");
+                    }
+                });
+            });
+
+            observer.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+
+            // Handle content changes
+            editor.session.on('change', () => {
+                textarea.value = editor.getValue();
+                if (typeof window.logExamAction === 'function') {
+                    window.logExamAction('code_edit', {
+                        question_id: textarea.name.replace('question_', ''),
+                        content_length: editor.getValue().length
+                    });
+                }
+            });
+
+            // Handle focus states
+            editor.on('focus', () => {
+                editorDiv.classList.add('focused');
+            });
+
+            editor.on('blur', () => {
+                editorDiv.classList.remove('focused');
+            });
+
+            // Focus editor
+            editor.focus();
         }
 
-        // Try to initialize immediately if document is already loaded
+        // Initialize editor
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            initializeThisEditor();
+            initializeEditor();
         } else {
-            // Otherwise wait for DOMContentLoaded
-            document.addEventListener('DOMContentLoaded', initializeThisEditor);
+            document.addEventListener('DOMContentLoaded', initializeEditor);
         }
+        setTimeout(initializeEditor, 100);
     })();
 </script>

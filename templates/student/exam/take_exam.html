@@ -2,6 +2,92 @@
 {% load static %}
 {% block extra_css %}
 {% include 'components/code_editor_deps.html' %}
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="{% static 'js/vendor/sweetalert2.min.css' %}">
+<style>
+    /* Code editor specific styles */
+    .code-question-wrapper {
+        margin-top: 1rem;
+    }
+
+    .language-selector {
+        margin-bottom: 0.5rem;
+        min-width: 150px;
+    }
+
+    /* Ensure code editor is visible in both light and dark modes */
+    .CodeMirror {
+        height: 200px !important;
+        font-size: 14px;
+        line-height: 1.6;
+        border-radius: 0.5rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .dark .CodeMirror {
+        border-color: rgb(75 85 99 / 0.5);
+    }
+
+    .CodeMirror-focused {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important;
+    }
+
+    .CodeMirror-placeholder {
+        color: #9ca3af !important;
+    }
+
+    .dark .CodeMirror-placeholder {
+        color: #6b7280 !important;
+    }
+
+    .CodeMirror-linenumber {
+        color: #6b7280;
+        padding: 0 8px;
+    }
+
+    .dark .CodeMirror-linenumber {
+        color: #9ca3af;
+    }
+
+    .CodeMirror-gutters {
+        border-right: 1px solid #e5e7eb;
+        background-color: #f9fafb;
+    }
+
+    .dark .CodeMirror-gutters {
+        border-right: 1px solid #374151;
+        background-color: #1f2937;
+    }
+
+    /* Scrollbar styling */
+    .CodeMirror-vscrollbar,
+    .CodeMirror-hscrollbar {
+        outline: none;
+    }
+
+    .CodeMirror-scrollbar-filler {
+        background-color: transparent;
+    }
+
+    /* Selection color */
+    .CodeMirror-selected {
+        background: #e5e7eb !important;
+    }
+
+    .dark .CodeMirror-selected {
+        background: #374151 !important;
+    }
+
+    /* Active line highlight */
+    .CodeMirror-activeline-background {
+        background: #f3f4f6;
+    }
+
+    .dark .CodeMirror-activeline-background {
+        background: #1f2937;
+    }
+</style>
 {% endblock %}
 {% block title %}{{ exam.title }} - Exam4U{% endblock %}
 
@@ -196,7 +282,8 @@
     }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- SweetAlert2 JS -->
+<script src="{% static 'js/vendor/sweetalert2.min.js' %}"></script>
 <script>
     // Disable back button
     window.history.pushState(null, null, window.location.href);
@@ -213,14 +300,59 @@
         }
     };
 
+    // Initialize code editor manager
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof window.codeEditorManager === 'undefined') {
+            window.codeEditorManager = new CodeEditorManager();
+        }
+
+        // Initialize all code editors
+        document.querySelectorAll('.code-editor').forEach(textarea => {
+            if (!textarea.id) {
+                textarea.id = 'code-editor-' + Math.random().toString(36).substr(2, 9);
+            }
+            window.codeEditorManager.initializeEditor(textarea);
+        });
+
+        // Handle theme changes
+        const observer = new MutationObserver(mutations => {
+            mutations.forEach(mutation => {
+                if (mutation.attributeName === 'class') {
+                    const isDark = document.documentElement.classList.contains('dark');
+                    document.querySelectorAll('.code-editor').forEach(textarea => {
+                        const editor = window.codeEditorManager.getEditor(textarea.id);
+                        if (editor) {
+                            editor.setOption('theme', isDark ? 'monokai' : 'default');
+                            editor.refresh();
+                        }
+                    });
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    });
+
     // Form submission handling
     function confirmSubmit() {
         const form = document.getElementById('examForm');
         if (!form) return;
 
+        // Save all code editor contents before submission
+        document.querySelectorAll('.code-editor').forEach(textarea => {
+            const editor = window.codeEditorManager.getEditor(textarea.id);
+            if (editor) {
+                editor.save();
+            }
+        });
+
         // Fill empty required fields
         const radioGroups = {};
         const inputs = form.querySelectorAll('input[required], textarea[required]');
+        let hasEmptyFields = false;
 
         inputs.forEach(input => {
             if (input.type === 'radio') {
@@ -233,50 +365,45 @@
                         if (radio.checked) checked = true;
                     });
                     if (!checked) {
-                        group[0].checked = true;
+                        hasEmptyFields = true;
+                        const questionDiv = input.closest('.bg-white.dark\\:bg-gray-800');
+                        if (questionDiv) questionDiv.classList.add('shake');
+                        setTimeout(() => questionDiv.classList.remove('shake'), 500);
                     }
                 }
-            } else if (input.type === 'text' || input.tagName.toLowerCase() === 'textarea') {
-                if (!input.value.trim()) {
-                    // Handle code editor questions
-                    if (input.classList.contains('code-editor')) {
-                        const wrapper = input.closest('.code-question-wrapper');
-                        if (wrapper) {
-                            const editor = wrapper.querySelector('.CodeMirror');
-                            if (editor && editor.CodeMirror && !editor.CodeMirror.getValue().trim()) {
-                                editor.CodeMirror.setValue('Not Answered');
-                                editor.CodeMirror.save(); // Update the hidden textarea
-                            }
-                        }
-                    } else {
-                        input.value = "Not Answered";
-                    }
-                }
+            } else if (!input.value.trim()) {
+                hasEmptyFields = true;
+                const questionDiv = input.closest('.bg-white.dark\\:bg-gray-800');
+                if (questionDiv) questionDiv.classList.add('shake');
+                setTimeout(() => questionDiv.classList.remove('shake'), 500);
             }
         });
 
-        // Handle checkboxes (not required by default)
-        const checkboxGroups = {};
-        form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            const name = checkbox.name;
-            if (!checkboxGroups[name]) {
-                checkboxGroups[name] = true;
-                const group = form.querySelectorAll(`input[name="${name}"]`);
-                let checked = false;
-                group.forEach(cb => {
-                    if (cb.checked) checked = true;
-                });
-                if (!checked) {
-                    group[0].checked = true;
-                }
+        if (hasEmptyFields) {
+            Swal.fire({
+                title: 'Champs requis',
+                text: 'Veuillez répondre à toutes les questions avant de soumettre.',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Confirm submission
+        Swal.fire({
+            title: 'Confirmer la soumission',
+            text: 'Êtes-vous sûr de vouloir soumettre votre examen ? Cette action est irréversible.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Oui, soumettre',
+            cancelButtonText: 'Non, revenir',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.setAttribute('data-submitted', 'true');
+                form.submit();
             }
         });
-
-        // Mark form as submitted to allow leaving the page
-        form.setAttribute('data-submitted', 'true');
-
-        // Submit the form
-        form.submit();
     }
 
     // Attempt status management
