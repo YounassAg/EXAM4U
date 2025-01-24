@@ -15,7 +15,8 @@
     <!-- Code editor -->
     <div class="relative">
         <div id="editor_{{ question_name }}" class="code-editor"></div>
-        <textarea name="question_{{ question_name }}" class="hidden" required></textarea>
+        <textarea name="question_{{ question_name }}" tabindex="-1"
+            style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;" required></textarea>
     </div>
 </div>
 
@@ -34,14 +35,11 @@
 
             // Configure editor
             const isDark = document.documentElement.classList.contains('dark');
-            editor.setTheme(isDark ? "ace/theme/monokai" : "ace/theme/textmate");
+            editor.setTheme(isDark ? "ace/theme/monokai" : "ace/theme/monokai");
             editor.session.setMode("ace/mode/" + (languageSelector.value || 'python'));
             editor.setOptions({
                 fontSize: "14px",
                 fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-                enableBasicAutocompletion: true,
-                enableLiveAutocompletion: true,
-                enableSnippets: true,
                 showPrintMargin: false,
                 highlightActiveLine: true,
                 highlightSelectedWord: true,
@@ -61,30 +59,18 @@
                 maxLines: Infinity
             });
 
+            // Set initial value to prevent validation errors
+            textarea.value = editor.getValue() || "Not answered";
+
             // Handle language changes
             languageSelector.addEventListener('change', () => {
                 editor.session.setMode("ace/mode/" + languageSelector.value);
                 editor.focus();
             });
 
-            // Handle dark mode
-            const observer = new MutationObserver(mutations => {
-                mutations.forEach(mutation => {
-                    if (mutation.attributeName === 'class') {
-                        const isDark = document.documentElement.classList.contains('dark');
-                        editor.setTheme(isDark ? "ace/theme/monokai" : "ace/theme/textmate");
-                    }
-                });
-            });
-
-            observer.observe(document.documentElement, {
-                attributes: true,
-                attributeFilter: ['class']
-            });
-
             // Handle content changes
             editor.session.on('change', () => {
-                textarea.value = editor.getValue();
+                textarea.value = editor.getValue() || "Not answered";
                 if (typeof window.logExamAction === 'function') {
                     window.logExamAction('code_edit', {
                         question_id: textarea.name.replace('question_', ''),
@@ -112,6 +98,5 @@
         } else {
             document.addEventListener('DOMContentLoaded', initializeEditor);
         }
-        setTimeout(initializeEditor, 100);
     })();
 </script>

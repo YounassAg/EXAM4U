@@ -120,7 +120,7 @@
             </div>
 
             <!-- Questions Form -->
-            <form id="examForm" method="post" class="space-y-6 md:space-y-8">
+            <form id="examForm" method="post" onsubmit="confirmSubmit(event)" class="space-y-6 md:space-y-8">
                 {% csrf_token %}
                 {% for question in questions %}
                 <div
@@ -191,7 +191,7 @@
                         </div>
                         <span class="font-medium">Retour</span>
                     </button>
-                    <button type="button" onclick="confirmSubmit()"
+                    <button type="submit"
                         class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-2">
                         <div
                             class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
@@ -302,28 +302,15 @@
 
     // Initialize code editor manager
     document.addEventListener('DOMContentLoaded', function () {
-        if (typeof window.codeEditorManager === 'undefined') {
-            window.codeEditorManager = new CodeEditorManager();
-        }
-
-        // Initialize all code editors
-        document.querySelectorAll('.code-editor').forEach(textarea => {
-            if (!textarea.id) {
-                textarea.id = 'code-editor-' + Math.random().toString(36).substr(2, 9);
-            }
-            window.codeEditorManager.initializeEditor(textarea);
-        });
-
         // Handle theme changes
         const observer = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
                 if (mutation.attributeName === 'class') {
-                    const isDark = document.documentElement.classList.contains('dark');
-                    document.querySelectorAll('.code-editor').forEach(textarea => {
-                        const editor = window.codeEditorManager.getEditor(textarea.id);
+                    document.querySelectorAll('.code-editor').forEach(editorDiv => {
+                        const editor = ace.edit(editorDiv);
                         if (editor) {
-                            editor.setOption('theme', isDark ? 'monokai' : 'default');
-                            editor.refresh();
+                            editor.setTheme(
+                                "ace/theme/monokai"); // Use monokai for both themes
                         }
                     });
                 }
@@ -337,63 +324,54 @@
     });
 
     // Form submission handling
-    function confirmSubmit() {
+    function confirmSubmit(event) {
+        event.preventDefault(); // Prevent default form submission
         const form = document.getElementById('examForm');
         if (!form) return;
 
-        // Save all code editor contents before submission
-        document.querySelectorAll('.code-editor').forEach(textarea => {
-            const editor = window.codeEditorManager.getEditor(textarea.id);
-            if (editor) {
-                editor.save();
-            }
-        });
+        // Handle all question types
+        const questions = document.querySelectorAll('.bg-white.dark\\:bg-gray-800');
 
-        // Fill empty required fields
-        const radioGroups = {};
-        const inputs = form.querySelectorAll('input[required], textarea[required]');
-        let hasEmptyFields = false;
-
-        inputs.forEach(input => {
-            if (input.type === 'radio') {
-                const name = input.name;
-                if (!radioGroups[name]) {
-                    radioGroups[name] = true;
-                    const group = form.querySelectorAll(`input[name="${name}"]`);
-                    let checked = false;
-                    group.forEach(radio => {
-                        if (radio.checked) checked = true;
-                    });
-                    if (!checked) {
-                        hasEmptyFields = true;
-                        const questionDiv = input.closest('.bg-white.dark\\:bg-gray-800');
-                        if (questionDiv) questionDiv.classList.add('shake');
-                        setTimeout(() => questionDiv.classList.remove('shake'), 500);
-                    }
+        questions.forEach(questionDiv => {
+            // Handle MCQ questions
+            const radioGroup = questionDiv.querySelectorAll('input[type="radio"]');
+            if (radioGroup.length > 0) {
+                let isAnswered = false;
+                radioGroup.forEach(radio => {
+                    if (radio.checked) isAnswered = true;
+                });
+                if (!isAnswered && radioGroup[0]) {
+                    radioGroup[0].checked = true;
                 }
-            } else if (!input.value.trim()) {
-                hasEmptyFields = true;
-                const questionDiv = input.closest('.bg-white.dark\\:bg-gray-800');
-                if (questionDiv) questionDiv.classList.add('shake');
-                setTimeout(() => questionDiv.classList.remove('shake'), 500);
+            }
+
+            // Handle short answer questions
+            const shortAnswer = questionDiv.querySelector('input[type="text"]');
+            if (shortAnswer && !shortAnswer.value.trim()) {
+                shortAnswer.value = "Not answered";
+            }
+
+            // Handle code editor questions
+            const codeEditor = questionDiv.querySelector('.code-editor');
+            if (codeEditor) {
+                const editor = ace.edit(codeEditor);
+                const textarea = codeEditor.nextElementSibling;
+                const content = editor.getValue().trim();
+
+                if (!content) {
+                    editor.setValue("Not answered");
+                    textarea.value = "Not answered";
+                } else {
+                    textarea.value = content;
+                }
             }
         });
 
-        if (hasEmptyFields) {
-            Swal.fire({
-                title: 'Champs requis',
-                text: 'Veuillez répondre à toutes les questions avant de soumettre.',
-                icon: 'warning',
-                confirmButtonText: 'OK'
-            });
-            return;
-        }
-
-        // Confirm submission
+        // Final confirmation
         Swal.fire({
             title: 'Confirmer la soumission',
             text: 'Êtes-vous sûr de vouloir soumettre votre examen ? Cette action est irréversible.',
-            icon: 'question',
+            icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Oui, soumettre',
             cancelButtonText: 'Non, revenir',
@@ -401,14 +379,13 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 form.setAttribute('data-submitted', 'true');
+                // Use traditional form submission
                 form.submit();
             }
         });
     }
 
     // Attempt status management
-    const attemptId = "{{ attempt.id }}";
-
     function updateAttemptStatus(status) {
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
@@ -419,7 +396,7 @@
                     "X-CSRFToken": csrftoken,
                 },
                 body: new URLSearchParams({
-                    attempt_id: attemptId,
+                    attempt_id: "{{ attempt.id }}",
                     status: status
                 }),
             })
