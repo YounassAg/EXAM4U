@@ -72,3 +72,4 @@ coverage.xml
 *.bak
 *.tmp
 *.temp 
+exam4u/settings.py
