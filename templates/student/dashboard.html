@@ -3,6 +3,7 @@
 {% block title %}Tableau de Bord - Exam4U{% endblock %}
 
 {% block content %}
+{% load static %}
 <div class="flex min-h-screen bg-white dark:bg-gray-900">
     {% include 'components/student_sidebar.html' %}
     
@@ -27,66 +28,33 @@
             </div>
         </div>
 
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            <!-- Total Courses -->
-            <div class="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
-                <div class="p-4 md:p-6">
-                    <div class="flex items-center justify-between">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total des Cours</p>
-                            <p class="mt-2 text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">{{ total_courses }}</p>
-                        </div>
-                        <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
-                            {% include 'components/icons.html' with icon="book" class="w-6 md:w-8 h-6 md:h-8 text-blue-600 dark:text-blue-400" %}
-                        </div>
+        <!-- Completed Exams -->
+        <div class="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="p-4 md:p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Examens Complétés</p>
+                        <p class="mt-2 text-2xl md:text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent">{{ completed_exams }}</p>
+                    </div>
+                    <div class="p-3 rounded-full bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-400/5 dark:to-emerald-400/5">
+                        {% include 'components/icons.html' with icon="check" class="w-6 md:w-8 h-6 md:h-8 text-green-600 dark:text-green-400" %}
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Completed Exams -->
-            <div class="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
-                <div class="p-4 md:p-6">
-                    <div class="flex items-center justify-between">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Examens Complétés</p>
-                            <p class="mt-2 text-2xl md:text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent">{{ completed_exams }}</p>
-                        </div>
-                        <div class="p-3 rounded-full bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-400/5 dark:to-emerald-400/5">
-                            {% include 'components/icons.html' with icon="check" class="w-6 md:w-8 h-6 md:h-8 text-green-600 dark:text-green-400" %}
-                        </div>
-                    </div>
-                </div>
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Grades Distribution Chart -->
+            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Répartition des Notes</h2>
+                <canvas id="gradesChart"></canvas>
             </div>
 
-            <!-- Upcoming Exams -->
-            <div class="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
-                <div class="p-4 md:p-6">
-                    <div class="flex items-center justify-between">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Examens à Venir</p>
-                            <p class="mt-2 text-2xl md:text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">{{ upcoming_exams }}</p>
-                        </div>
-                        <div class="p-3 rounded-full bg-gradient-to-br from-amber-500/10 to-orange-500/10 dark:from-amber-400/5 dark:to-orange-400/5">
-                            {% include 'components/icons.html' with icon="calendar" class="w-6 md:w-8 h-6 md:h-8 text-amber-600 dark:text-amber-400" %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Average Score -->
-            <div class="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
-                <div class="p-4 md:p-6">
-                    <div class="flex items-center justify-between">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Note Moyenne</p>
-                            <p class="mt-2 text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">{{ average_score|default:"N/A" }}</p>
-                        </div>
-                        <div class="p-3 rounded-full bg-gradient-to-br from-purple-500/10 to-pink-500/10 dark:from-purple-400/5 dark:to-pink-400/5">
-                            {% include 'components/icons.html' with icon="chart" class="w-6 md:w-8 h-6 md:h-8 text-purple-600 dark:text-purple-400" %}
-                        </div>
-                    </div>
-                </div>
+            <!-- Performance Trends Chart -->
+            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Évolution des Performances</h2>
+                <canvas id="performanceChart"></canvas>
             </div>
         </div>
 
@@ -131,53 +99,57 @@
     </div>
 </div>
 
-<style>
-@keyframes pulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
-}
+<!-- Include Chart.js -->
+<script src="{% static 'js/chart.js' %}"></script>
 
-.animate-pulse {
-    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.delay-1000 {
-    animation-delay: 1s;
-}
-</style>
-
-<!-- Sidebar Toggle Script -->
+<!-- Charts Script -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebarToggle = document.getElementById('sidebar-toggle');
-        const sidebar = document.querySelector('.student-sidebar');
-        const toggleIcon = sidebarToggle.querySelector('.sidebar-toggle-icon');
-        const closeIcon = sidebarToggle.querySelector('.sidebar-close-icon');
-        const overlay = document.getElementById('sidebar-overlay');
-
-        function toggleSidebar() {
-            sidebar.classList.toggle('translate-x-0');
-            sidebar.classList.toggle('-translate-x-full');
-            toggleIcon.classList.toggle('hidden');
-            closeIcon.classList.toggle('hidden');
-            overlay.classList.toggle('hidden');
-            document.body.classList.toggle('overflow-hidden');
-        }
-
-        sidebarToggle.addEventListener('click', toggleSidebar);
-        overlay.addEventListener('click', toggleSidebar);
-
-        // Close sidebar on window resize if screen becomes large
-        window.addEventListener('resize', function() {
-            if (window.innerWidth >= 768) { // md breakpoint
-                sidebar.classList.remove('translate-x-0');
-                sidebar.classList.add('-translate-x-full');
-                toggleIcon.classList.remove('hidden');
-                closeIcon.classList.add('hidden');
-                overlay.classList.add('hidden');
-                document.body.classList.remove('overflow-hidden');
+    // Grades Distribution Chart
+    const gradesCtx = document.getElementById('gradesChart').getContext('2d');
+    new Chart(gradesCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ grades_labels|safe }},
+            datasets: [{
+                label: 'Note Moyenne',
+                data: {{ grades_data|safe }},
+                backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                borderColor: 'rgba(79, 70, 229, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 20
+                }
             }
-        });
+        }
+    });
+
+    // Performance Trends Chart
+    const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+    new Chart(performanceCtx, {
+        type: 'line',
+        data: {
+            labels: {{ trends_labels|safe }},
+            datasets: [{
+                label: 'Note',
+                data: {{ trends_data|safe }},
+                borderColor: 'rgba(99, 102, 241, 1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 20
+                }
+            }
+        }
     });
 </script>
 {% endblock %}
