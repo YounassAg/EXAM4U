@@ -1,7 +1,6 @@
 {% load static %}
 
 <div class="code-question-wrapper">
-    <!-- Language selector -->
     <div class="flex items-center space-x-3 mb-4">
         <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Programming Language</label>
         <select class="language-selector">
@@ -11,10 +10,8 @@
             <option value="sql">MySQL/SQL</option>
         </select>
     </div>
-
-    <!-- Code editor -->
     <div class="relative">
-        <div id="editor_{{ question_name }}" class="code-editor"></div>
+        <div id="editor_{{ question_name }}" class="code-editor" data-question-id="{{ question_name }}"></div>
         <textarea name="question_{{ question_name }}" tabindex="-1"
             style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;" required></textarea>
     </div>

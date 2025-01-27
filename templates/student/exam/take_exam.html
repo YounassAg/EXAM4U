@@ -120,7 +120,7 @@
             </div>
 
             <!-- Questions Form -->
-            <form id="examForm" method="post" onsubmit="confirmSubmit(event)" class="space-y-6 md:space-y-8">
+            <form id="examForm" method="post" onsubmit="confirmSubmit(event)" data-attempt-id="{{ attempt.id }}" class="space-y-6 md:space-y-8">
                 {% csrf_token %}
                 {% for question in questions %}
                 <div
@@ -577,5 +577,181 @@
         new NetworkMonitor();
     });
 </script>
+<script>
+    // Function to save answers automatically
+function saveAnswer(questionId, value, type) {
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const attemptId = document.querySelector('#examForm').getAttribute('data-attempt-id');
 
+    // Create the request data based on question type
+    let requestData = {
+        attempt_id: attemptId,
+        question_id: questionId,
+        response_text: value || "Not answered"
+    };
+
+    if (type === 'MCQ') {
+        if (Array.isArray(value)) {
+            // For multiple choice questions with multiple answers
+            const selectedChoices = value.map(choiceId => {
+                const label = document.querySelector(`input[value="${choiceId}"]`)
+                    .closest('label')
+                    .querySelector('span').textContent.trim();
+                return label;
+            });
+            requestData.response_text = selectedChoices.join(' ~±ſ~ƟƢ~ ');
+        } else {
+            // For single choice MCQ
+            const label = document.querySelector(`input[value="${value}"]`)
+                .closest('label')
+                .querySelector('span').textContent.trim();
+            requestData.response_text = label;
+        }
+    } else {
+        // For text inputs and code editors
+        requestData.response_text = value || "Not answered";
+    }
+
+    // Make the AJAX request to save the answer
+    fetch('/save-answer/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            console.error('Error saving answer:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error saving answer:', error);
+    });
+}
+
+// Setup event listeners for all question types
+function setupAnswerTracking() {
+    // Handle MCQ inputs
+    document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => {
+        input.addEventListener('change', (e) => {
+            const questionId = e.target.name.split('_')[1];
+            const type = 'MCQ';
+            
+            if (e.target.type === 'checkbox') {
+                // Get all selected checkboxes for this question
+                const selectedValues = Array.from(
+                    document.querySelectorAll(`input[name="${e.target.name}"]:checked`)
+                ).map(cb => cb.value);
+                saveAnswer(questionId, selectedValues, type);
+            } else {
+                saveAnswer(questionId, e.target.value, type);
+            }
+        });
+    });
+
+    // Handle text inputs
+    document.querySelectorAll('input[type="text"]').forEach(input => {
+        let timeoutId;
+        input.addEventListener('input', (e) => {
+            const questionId = e.target.name.split('_')[1];
+            
+            // Clear existing timeout
+            clearTimeout(timeoutId);
+            
+            // Set new timeout to save after 500ms of no typing
+            timeoutId = setTimeout(() => {
+                saveAnswer(questionId, e.target.value, 'short_answer');
+            }, 500);
+        });
+    });
+
+    // Handle code editors
+    document.querySelectorAll('.code-editor').forEach(editorDiv => {
+        const editor = ace.edit(editorDiv);
+        const questionId = editorDiv.getAttribute('data-question-id'); // Extract questionId here
+
+        let timeoutId;
+        editor.getSession().on('change', () => {
+            // Clear existing timeout
+            clearTimeout(timeoutId);
+
+            // Set new timeout to save after 1s of no typing
+            timeoutId = setTimeout(() => {
+                saveAnswer(questionId, editor.getValue(), 'open'); // Use the extracted questionId
+            }, 1000);
+        });
+    });
+}
+
+// Load saved answers when page loads or reloads
+function loadSavedAnswers() {
+    const attemptId = document.querySelector('#examForm').getAttribute('data-attempt-id');
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(`/get-saved-answers/${attemptId}/`, {
+        headers: {
+            'X-CSRFToken': csrftoken,
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            data.answers.forEach(answer => {
+                const questionId = answer.question_id;
+                const responseText = answer.response_text;
+
+                // Handle MCQ answers
+                if (answer.question_type === 'MCQ') {
+                    if (responseText.includes(' ~±ſ~ƟƢ~ ')) {
+                        // Multiple answers
+                        const selectedLabels = responseText.split(' ~±ſ~ƟƢ~ ');
+                        selectedLabels.forEach(label => {
+                            const input = Array.from(document.querySelectorAll(`input[name="question_${questionId}"]`))
+                                .find(input => input.closest('label').querySelector('span').textContent.trim() === label);
+                            if (input) input.checked = true;
+                        });
+                    } else {
+                        // Single answer
+                        const input = Array.from(document.querySelectorAll(`input[name="question_${questionId}"]`))
+                            .find(input => input.closest('label').querySelector('span').textContent.trim() === responseText);
+                        if (input) input.checked = true;
+                    }
+                }
+                // Handle text inputs
+                else if (answer.question_type === 'short_answer') {
+                    const input = document.querySelector(`input[name="question_${questionId}"]`);
+                    if (input) input.value = responseText;
+                }
+                // Handle code editors
+                else if (answer.question_type === 'open') {
+                    const editorDiv = document.querySelector(`.code-editor[data-question-id="${questionId}"]`);
+                    if (editorDiv) {
+                        const editor = ace.edit(editorDiv);
+                        editor.setValue(responseText, -1);
+                    }
+                }
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error loading saved answers:', error);
+    });
+}
+
+// Initialize everything when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    setupAnswerTracking();
+    loadSavedAnswers();
+});
+
+// Handle page visibility changes
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        loadSavedAnswers();
+    }
+});
+</script>
 {% endblock %}

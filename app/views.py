@@ -504,6 +504,51 @@ def take_exam(request, exam_id):
         'attempt': attempt,
     })
 
+
+@login_required
+@role_required('student')
+def save_answer(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Method not allowed'})
+    
+    data = json.loads(request.body)
+    attempt_id = data.get('attempt_id')
+    question_id = data.get('question_id')
+    response_text = data.get('response_text')
+    
+    try:
+        attempt = ExamAttempt.objects.get(id=attempt_id, student=request.user.userprofile)
+        question = Question.objects.get(id=question_id, exam=attempt.exam)
+        
+        # Update or create the response
+        Response.objects.update_or_create(
+            attempt=attempt,
+            question=question,
+            defaults={'response_text': response_text}
+        )
+        
+        return JsonResponse({'success': True})
+    except (ExamAttempt.DoesNotExist, Question.DoesNotExist):
+        return JsonResponse({'success': False, 'message': 'Invalid attempt or question'})
+
+@login_required
+@role_required('student')
+def get_saved_answers(request, attempt_id):
+    try:
+        attempt = ExamAttempt.objects.get(id=attempt_id, student=request.user.userprofile)
+        responses = Response.objects.filter(attempt=attempt).select_related('question')
+        
+        answers = [{
+            'question_id': response.question.id,
+            'question_type': response.question.question_type,
+            'response_text': response.response_text
+        } for response in responses]
+        
+        return JsonResponse({'success': True, 'answers': answers})
+    except ExamAttempt.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Invalid attempt'})
+    
+
 @csrf_exempt
 def log_student_action(request):
     if request.method == 'POST':
@@ -648,10 +693,15 @@ def grade_attempt(request, attempt_id):
     # Prepare response data for template
     responses_data = []
     for response in responses:
-        suggested_grade = None
-        if response.question.question_type == 'MCQ':
-            # Calculate suggested grade for MCQ questions
+        # If there's an existing grade, use it as the suggested grade
+        if response.response_grade is not None:
+            suggested_grade = response.response_grade
+        elif response.question.question_type == 'MCQ':
+            # Calculate suggested grade for MCQ questions only if no existing grade
             suggested_grade = response.calculate_mcq_score()
+        else:
+            # For non-MCQ questions without an existing grade, default to 0
+            suggested_grade = 0
         
         responses_data.append({
             'response': response,
@@ -662,7 +712,6 @@ def grade_attempt(request, attempt_id):
         'attempt': attempt,
         'responses_data': responses_data,
     })
-
 
 @login_required
 @role_required('student')

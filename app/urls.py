@@ -23,6 +23,10 @@ urlpatterns = [
     path('exams/teacher/<int:exam_id>/rattrapage/', views.rattrapage_exam, name='rattrapage_exam'),
     path('exams/student/<int:exam_id>/rules/', views.exam_rules, name='exam_rules'),
     path('exams/student/<int:exam_id>/take/', views.take_exam, name='take_exam'),
+
+    path('save-answer/', views.save_answer, name='save_answer'),
+    path('get-saved-answers/<int:attempt_id>/', views.get_saved_answers, name='get_saved_answers'),
+
     path('exams/update-status/', views.update_attempt_status, name='update_attempt_status'),
     path('exams/get-status/', views.get_exam_status, name='get_exam_status'),
     path('exams/teacher/<int:exam_id>/delete/', views.delete_exam, name='delete_exam'),
