@@ -649,6 +649,27 @@ def exam_attempts(request, exam_id):
 
 @login_required
 @role_required('teacher')
+def get_exam_attempts_json(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    attempts = ExamAttempt.objects.filter(exam=exam).order_by('-modified_at')  # Order by modified_at to get the latest updates first
+    attempts_data = []
+
+    for attempt in attempts:
+        attempts_data.append({
+            'id': attempt.id,
+            'student_name': attempt.student.user.get_full_name(),
+            'username': attempt.student.user.username,
+            'start_date': attempt.start_date.strftime("%d/%m/%Y"),
+            'status': attempt.get_status_display(),
+            'type': attempt.get_type_display(),
+            'grade': attempt.grade if attempt.grade else "Non noté",
+            'time_taken': (attempt.end_date - attempt.start_date).total_seconds() / 60 if attempt.end_date and attempt.start_date else None,
+        })
+
+    return JsonResponse({'attempts': attempts_data})
+
+@login_required
+@role_required('teacher')
 def grade_attempt(request, attempt_id):
     attempt = get_object_or_404(ExamAttempt.objects.select_related(
         'exam', 'student', 'student__user', 'exam__course'

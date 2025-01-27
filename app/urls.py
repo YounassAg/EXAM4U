@@ -32,6 +32,7 @@ urlpatterns = [
     path('exams/teacher/<int:exam_id>/delete/', views.delete_exam, name='delete_exam'),
     path('exams/teacher/<int:exam_id>/edit/', views.edit_exam, name='edit_exam'),
     path('exams/teacher/<int:exam_id>/attempts/', views.exam_attempts, name='exam_attempts'),
+    path('exam/<int:exam_id>/attempts/json/', views.get_exam_attempts_json, name='get_exam_attempts_json'),
     path('exams/teacher/attempt/<int:attempt_id>/grade/', views.grade_attempt, name='grade_attempt'),
     path('exams/student/completed/', views.exam_completed, name='exam_completed'),
     path('exams/teacher/<int:exam_id>/download-results/', views.download_exam_results, name='download_exam_results'),
