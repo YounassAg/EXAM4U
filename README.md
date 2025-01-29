@@ -4,6 +4,7 @@ Exam4U is a Django-based web application designed to facilitate the creation and
 
 ![Home Photo](static/images/Home-Page.png)
 ![Home Photo](static/images/Teacher-Dashboard.png)
+![Home Photo](static/images/Student-Dashboard.png)
 
 ## Features
 
