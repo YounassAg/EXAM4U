@@ -1,348 +1,259 @@
-{% extends 'base.html' %} {% block title %}Liste des Examens - Exam4U{% endblock
-%} {% block content %}
+{% extends 'base.html' %}
+
+{% block title %}Liste des Examens - Exam4U{% endblock %}
+
+{% block content %}
 <div class="flex min-h-screen bg-white dark:bg-gray-900">
-  {% include 'components/teacher_sidebar.html' %}
+    {% include 'components/teacher_sidebar.html' %}
 
-  <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
-    <!-- Title Section -->
-    <div
-      class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700"
-    >
-      <div
-        class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"
-      ></div>
-      <div
-        class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"
-      ></div>
-      <div class="relative z-10 p-6">
-        <div class="flex items-center space-x-4">
-          <div
-            class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5"
-          >
-            {% include 'components/icons.html' with icon="clipboard" class="w-8
-            h-8 text-blue-600 dark:text-blue-400" %}
-          </div>
-          <div>
-            <h1
-              class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent"
-            >
-              Mes Examens
-            </h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">
-              Gérez et consultez vos examens
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Add Exam Button -->
-    <div
-      class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6"
-    >
-      <a
-        href="{% url 'create_exam' %}"
-        class="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5"
-      >
-        <div
-          class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg"
-        >
-          {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
-        </div>
-        <span class="font-medium">Ajouter un Examen</span>
-      </a>
-    </div>
-
-    <!-- Replace the filter section -->
-    <div class="filter-container">
-      <div class="filter-header">
-        <div class="icon-wrapper">
-          {% include 'components/icons.html' with icon="funnel" class="w-5 h-5"
-          %}
-        </div>
-        <h2>Filtres</h2>
-      </div>
-
-      <div class="filter-content">
-        <!-- Search Bar -->
-        <div class="search-wrapper">
-          <div class="search-icon">
-            {% include 'components/icons.html' with icon="search" class="w-5
-            h-5" %}
-          </div>
-          <input
-            type="text"
-            class="search-input"
-            placeholder="Rechercher par titre, cours, groupe..."
-          />
-        </div>
-
-        <!-- Filter Options -->
-        <div class="filter-grid">
-          <!-- Group Filter -->
-          <div class="filter-group">
-            <label>Groupe</label>
-            <div class="select-wrapper">
-              <select>
-                <option value="">Tous les groupes</option>
-                <option value="DD201">DD201</option>
-                <option value="DD202">DD202</option>
-                <option value="DD203">DD203</option>
-              </select>
-              {% include 'components/icons.html' with icon="chevron-down"
-              class="select-icon" %}
+    <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
+        <!-- Title Section -->
+        <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div class="relative z-10 p-6">
+                <div class="flex items-center space-x-4">
+                    <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                        {% include 'components/icons.html' with icon="clipboard" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                    </div>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Mes Examens</h1>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Gérez et consultez vos examens</p>
+                    </div>
+                </div>
             </div>
-          </div>
-
-          <!-- Exam Type Filter -->
-          <div class="filter-group">
-            <label>Type d'examen</label>
-            <div class="select-wrapper">
-              <select>
-                <option value="">Tous les types</option>
-                <option value="normal">Normal</option>
-                <option value="rattrapage">Rattrapage</option>
-              </select>
-              {% include 'components/icons.html' with icon="chevron-down"
-              class="select-icon" %}
-            </div>
-          </div>
-
-          <!-- Course Filter -->
-          <div class="filter-group">
-            <label>Cours</label>
-            <div class="select-wrapper">
-              <select>
-                <option value="">Tous les cours</option>
-                <option value="python">Python</option>
-                <option value="java">Java</option>
-                <option value="web">Web Development</option>
-              </select>
-              {% include 'components/icons.html' with icon="chevron-down"
-              class="select-icon" %}
-            </div>
-          </div>
         </div>
 
-        <!-- Active Filters -->
-        <div class="active-filters">
-          <span class="filter-label">Filtres actifs:</span>
-          <div class="filter-tags">
-            <div class="filter-tag">
-              <span>DD201</span>
-              {% include 'components/icons.html' with icon="x"
-              class="tag-remove" %}
-            </div>
-            <div class="filter-tag">
-              <span>Normal</span>
-              {% include 'components/icons.html' with icon="x"
-              class="tag-remove" %}
-            </div>
-          </div>
-          <button class="reset-filters">Réinitialiser les filtres</button>
-        </div>
-      </div>
-    </div>
-
-    {% comment %} {% if messages %}
-    <div class="messages space-y-4">
-      {% for message in messages %}
-      <div
-        class="message {{ message.tags }} bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 border-l-4 border-l-blue-500 text-gray-900 dark:text-white transform hover:scale-[1.01] transition-all duration-300"
-      >
-        {{ message }}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %} {% endcomment %}
-
-    <!-- Updated Exams Grid Section -->
-    <div class="exam-grid">
-      {% for exam in exams %}
-      <div class="exam-card">
-        <div class="exam-header">
-          <div class="exam-status">
-            <span class="status-dot"></span>
-            <span>En cours</span>
-          </div>
-          <h2 class="exam-title">{{ exam.title }}</h2>
-          <div class="exam-course">
-            {% include 'components/icons.html' with icon="academic-cap"
-            class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
-            <span class="text-gray-600 dark:text-gray-400"
-              >{{ exam.course.title }}</span
-            >
-          </div>
-        </div>
-
-        <div class="exam-info">
-          <div class="info-item mx-auto">
-            {% include 'components/icons.html' with icon="users" class="w-4 h-4
-            text-blue-600 dark:text-blue-400" %}
-            <span class="text-gray-600 dark:text-gray-400"
-              >{{ exam.group }}</span
-            >
-          </div>
-        </div>
-
-        <div class="exam-times">
-          <div class="time-item">
-            <div class="time-meta">
-              {% include 'components/icons.html' with icon="clock" class="w-3.5
-              h-3.5 text-gray-900 dark:text-white" %}
-              <span class="text-gray-900 dark:text-white"
-                >{{ exam.start_date|date:"d/m/Y H:i" }}</span
-              >
-            </div>
-          </div>
-          <div class="time-item time-end">
-            <div class="time-meta">
-              {% include 'components/icons.html' with icon="clock" class="w-3.5
-              h-3.5 text-gray-900 dark:text-white" %}
-              <span class="text-gray-900 dark:text-white"
-                >{{ exam.end_date|date:"d/m/Y H:i" }}</span
-              >
-            </div>
-          </div>
-        </div>
-
-        <div class="exam-actions">
-          <div class="action-group">
-            <a
-              href="{% url 'exam_attempts' exam.id %}"
-              class="action-btn correct"
-              title="Corriger"
-            >
-              {% include 'components/icons.html' with icon="clipboard-check"
-              class="w-4 h-4" %}
+        <!-- Add Exam Button -->
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+            <a href="{% url 'create_exam' %}" 
+               class="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
+                <div class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg">
+                    {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
+                </div>
+                <span class="font-medium">Ajouter un Examen</span>
             </a>
-            <a
-              href="{% url 'rattrapage_exam' exam.id %}"
-              class="action-btn retry"
-              title="Rattrapage"
-            >
-              {% include 'components/icons.html' with icon="refresh" class="w-4
-              h-4" %}
-            </a>
-            <a
-              href="{% url 'edit_exam' exam.id %}"
-              class="action-btn edit"
-              title="Modifier"
-            >
-              {% include 'components/icons.html' with icon="pencil" class="w-4
-              h-4 text-gray-600 dark:text-gray-400" %}
-            </a>
-          </div>
-          <form
-            method="post"
-            action="{% url 'delete_exam' exam.id %}"
-            class="inline"
-          >
-            {% csrf_token %}
-            <button
-              type="submit"
-              class="action-btn delete"
-              title="Supprimer"
-              onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet examen ?')"
-            >
-              {% include 'components/icons.html' with icon="trash" class="w-4
-              h-4" %}
-            </button>
-          </form>
         </div>
-      </div>
-      {% empty %}
-      <div
-        class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-8"
-      >
-        <div
-          class="flex flex-col items-center justify-center text-center space-y-4"
-        >
-          <div
-            class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 flex items-center justify-center"
-          >
-            {% include 'components/icons.html' with icon="information"
-            class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
-          </div>
-          <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-            Aucun examen trouvé
-          </h3>
-          <p class="text-gray-600 dark:text-gray-400">
-            Commencez par créer votre premier examen
-          </p>
+
+        <!-- Replace the filter section -->
+        <div class="filter-container">
+            <div class="filter-header">
+                <div class="icon-wrapper">
+                    {% include 'components/icons.html' with icon="funnel" class="w-5 h-5" %}
+                </div>
+                <h2>Filtres</h2>
+            </div>
+
+            <div class="filter-content">
+                <!-- Search Bar -->
+                <div class="search-wrapper">
+                    <div class="search-icon">
+                        {% include 'components/icons.html' with icon="search" class="w-5 h-5" %}
+                    </div>
+                    <input type="text" 
+                           class="search-input"
+                           placeholder="Rechercher par titre, cours, groupe...">
+                </div>
+
+                <!-- Filter Options -->
+                <div class="filter-grid">
+                    <!-- Group Filter -->
+                    <div class="filter-group">
+                        <label>Groupe</label>
+                        <div class="select-wrapper">
+                            <select>
+                                <option value="">Tous les groupes</option>
+                                <option value="DD201">DD201</option>
+                                <option value="DD202">DD202</option>
+                                <option value="DD203">DD203</option>
+                            </select>
+                            {% include 'components/icons.html' with icon="chevron-down" class="select-icon" %}
+                        </div>
+                    </div>
+
+                    <!-- Exam Type Filter -->
+                    <div class="filter-group">
+                        <label>Type d'examen</label>
+                        <div class="select-wrapper">
+                            <select>
+                                <option value="">Tous les types</option>
+                                <option value="normal">Normal</option>
+                                <option value="rattrapage">Rattrapage</option>
+                            </select>
+                            {% include 'components/icons.html' with icon="chevron-down" class="select-icon" %}
+                        </div>
+                    </div>
+
+                    <!-- Course Filter -->
+                    <div class="filter-group">
+                        <label>Cours</label>
+                        <div class="select-wrapper">
+                            <select>
+                                <option value="">Tous les cours</option>
+                                <option value="python">Python</option>
+                                <option value="java">Java</option>
+                                <option value="web">Web Development</option>
+                            </select>
+                            {% include 'components/icons.html' with icon="chevron-down" class="select-icon" %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Filters -->
+                <div class="active-filters">
+                    <span class="filter-label">Filtres actifs:</span>
+                    <div class="filter-tags">
+                        <div class="filter-tag">
+                            <span>DD201</span>
+                            {% include 'components/icons.html' with icon="x" class="tag-remove" %}
+                        </div>
+                        <div class="filter-tag">
+                            <span>Normal</span>
+                            {% include 'components/icons.html' with icon="x" class="tag-remove" %}
+                        </div>
+                    </div>
+                    <button class="reset-filters">Réinitialiser les filtres</button>
+                </div>
+            </div>
         </div>
-      </div>
-      {% endfor %}
+
+        {% comment %} {% if messages %}
+            <div class="messages space-y-4">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }} bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg p-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 border-l-4 border-l-blue-500 text-gray-900 dark:text-white transform hover:scale-[1.01] transition-all duration-300">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %} {% endcomment %}
+
+        <!-- Updated Exams Grid Section -->
+        <div class="exam-grid">
+            {% for exam in exams %}
+                <div class="exam-card">
+                    <div class="exam-header">
+                        <div class="exam-status">
+                            <span class="status-dot"></span>
+                            <span>En cours</span>
+                        </div>
+                        <h2 class="exam-title">{{ exam.title }}</h2>
+                        <div class="exam-course">
+                            {% include 'components/icons.html' with icon="academic-cap" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
+                            <span class="text-gray-600 dark:text-gray-400">{{ exam.course.title }}</span>
+                        </div>
+                    </div>
+
+                    <div class="exam-info">
+                        <div class="info-item mx-auto">
+                            {% include 'components/icons.html' with icon="users" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
+                            <span class="text-gray-600 dark:text-gray-400">{{ exam.group }}</span>
+                        </div>
+                    </div>
+
+                    <div class="exam-times">
+                        <div class="time-item">
+                            <div class="time-meta">
+                                {% include 'components/icons.html' with icon="clock" class="w-3.5 h-3.5 text-gray-900 dark:text-white" %}
+                                <span class="text-gray-900 dark:text-white">{{ exam.start_date|date:"d/m/Y H:i" }}</span>
+                            </div>
+                        </div>
+                        <div class="time-item time-end">
+                            <div class="time-meta">
+                                {% include 'components/icons.html' with icon="clock" class="w-3.5 h-3.5 text-gray-900 dark:text-white" %}
+                                <span class="text-gray-900 dark:text-white">{{ exam.end_date|date:"d/m/Y H:i" }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="exam-actions">
+                        <div class="action-group">
+                            <a href="{% url 'exam_attempts' exam.id %}" class="action-btn correct" title="Corriger">
+                                {% include 'components/icons.html' with icon="clipboard-check" class="w-4 h-4" %}
+                            </a>
+                            <a href="{% url 'rattrapage_exam' exam.id %}" class="action-btn retry" title="Rattrapage">
+                                {% include 'components/icons.html' with icon="refresh" class="w-4 h-4" %}
+                            </a>
+                            <a href="{% url 'edit_exam' exam.id %}" class="action-btn edit" title="Modifier">
+                                {% include 'components/icons.html' with icon="pencil" class="w-4 h-4 text-gray-600 dark:text-gray-400" %}
+                            </a>
+                        </div>
+                        <form method="post" action="{% url 'delete_exam' exam.id %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="action-btn delete" title="Supprimer"
+                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet examen ?')">
+                                {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
+                    <div class="flex flex-col items-center justify-center text-center space-y-4">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 flex items-center justify-center">
+                            {% include 'components/icons.html' with icon="information" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Aucun examen trouvé</h3>
+                        <p class="text-gray-600 dark:text-gray-400">Commencez par créer votre premier examen</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
-  </div>
 </div>
 
 <style>
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 0.6;
-    }
-    50% {
-      opacity: 1;
-    }
-  }
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
 
-  .animate-pulse {
+.animate-pulse {
     animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
+}
 
-  .delay-1000 {
+.delay-1000 {
     animation-delay: 1s;
-  }
+}
 
-  .exam-grid {
+.exam-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.25rem;
     padding: 0.5rem;
-  }
+}
 
-  .exam-card {
+.exam-card {
     position: relative;
-    background: linear-gradient(
-      145deg,
-      rgba(255, 255, 255, 0.9),
-      rgba(255, 255, 255, 0.8)
-    );
+    background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8));
     border-radius: 16px;
     backdrop-filter: blur(8px);
     border: 1px solid rgba(229, 231, 235, 0.5);
     transition: all 0.3s ease;
     overflow: hidden;
-  }
+}
 
-  .dark .exam-card {
-    background: linear-gradient(
-      145deg,
-      rgba(31, 41, 55, 0.9),
-      rgba(31, 41, 55, 0.8)
-    );
+.dark .exam-card {
+    background: linear-gradient(145deg, rgba(31,41,55,0.9), rgba(31,41,55,0.8));
     border-color: rgba(75, 85, 99, 0.5);
-  }
+}
 
-  .exam-card:hover {
+.exam-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     border-color: rgba(59, 130, 246, 0.5);
-  }
+}
 
-  .exam-header {
+.exam-header {
     padding: 1rem 1.25rem;
     border-bottom: 1px solid rgba(229, 231, 235, 0.5);
     position: relative;
-  }
+}
 
-  .dark .exam-header {
+.dark .exam-header {
     border-color: rgba(75, 85, 99, 0.5);
-  }
+}
 
-  .exam-status {
+.exam-status {
     position: absolute;
     top: 1rem;
     right: 1.25rem;
@@ -351,185 +262,163 @@
     gap: 0.5rem;
     font-size: 0.75rem;
     color: #22c55e;
-  }
+}
 
-  .status-dot {
+.status-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
     background-color: currentColor;
     animation: pulse 2s infinite;
-  }
+}
 
-  .exam-title {
+.exam-title {
     font-size: 1.125rem;
     font-weight: 600;
     color: #1f2937;
     margin-right: 4rem;
     line-height: 1.4;
-  }
+}
 
-  .dark .exam-title {
+.dark .exam-title {
     color: #f3f4f6;
-  }
+}
 
-  .exam-course {
+.exam-course {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     margin-top: 0.5rem;
     color: #6b7280;
     font-size: 0.875rem;
-  }
+}
 
-  .exam-info,
-  .exam-times {
+.exam-info, .exam-times {
     padding: 0.75rem 1.25rem;
     border-top: 1px solid rgba(229, 231, 235, 0.5);
     background: rgba(243, 244, 246, 0.3);
-  }
+}
 
-  .dark .exam-info,
-  .dark .exam-times {
+.dark .exam-info, .dark .exam-times {
     border-color: rgba(75, 85, 99, 0.5);
     background: rgba(31, 41, 55, 0.2);
-  }
+}
 
-  .info-item {
+.info-item {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-size: 0.875rem;
-  }
+}
 
-  .exam-times {
+.exam-times {
     display: flex;
     justify-content: space-between;
-  }
+}
 
-  .time-meta {
+.time-meta {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-size: 0.75rem;
-  }
+}
 
-  .time-item.time-end {
+.time-item.time-end {
     text-align: right;
-  }
+}
 
-  .exam-actions {
+.exam-actions {
     display: flex;
     justify-content: space-between;
     padding: 0.75rem 1.25rem;
     background: rgba(243, 244, 246, 0.3);
     border-top: 1px solid rgba(229, 231, 235, 0.5);
-  }
+}
 
-  .dark .exam-actions {
+.dark .exam-actions {
     background: rgba(31, 41, 55, 0.2);
     border-color: rgba(75, 85, 99, 0.5);
-  }
+}
 
-  .action-group {
+.action-group {
     display: flex;
     gap: 0.5rem;
-  }
+}
 
-  .action-btn {
+.action-btn {
     padding: 0.5rem;
     border-radius: 8px;
     transition: all 0.2s ease;
-  }
+}
 
-  .action-btn:hover {
+.action-btn:hover {
     transform: translateY(-1px);
     background: rgba(243, 244, 246, 0.9);
-  }
+}
 
-  .dark .action-btn:hover {
+.dark .action-btn:hover {
     background: rgba(31, 41, 55, 0.9);
-  }
+}
 
-  .action-btn.correct {
-    color: #059669;
-  }
-  .dark .action-btn.correct {
-    color: #34d399;
-  }
+.action-btn.correct { color: #059669; }
+.dark .action-btn.correct { color: #34d399; }
 
-  .action-btn.retry {
-    color: #3b82f6;
-  }
-  .dark .action-btn.retry {
-    color: #60a5fa;
-  }
+.action-btn.retry { color: #3b82f6; }
+.dark .action-btn.retry { color: #60a5fa; }
 
-  .action-btn.edit {
-    color: #6b7280;
-  }
-  .dark .action-btn.edit {
-    color: #9ca3af;
-  }
+.action-btn.edit { color: #6b7280; }
+.dark .action-btn.edit { color: #9ca3af; }
 
-  .action-btn.delete {
-    color: #dc2626;
-  }
-  .dark .action-btn.delete {
-    color: #f87171;
-  }
+.action-btn.delete { color: #dc2626; }
+.dark .action-btn.delete { color: #f87171; }
 
-  /* Filter Container */
-  .filter-container {
+/* Filter Container */
+.filter-container {
     background: var(--surface-color);
     border-radius: 1rem;
     border: 1px solid var(--border-color);
     padding: 1.5rem;
     backdrop-filter: blur(8px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  }
+}
 
-  /* Filter Header */
-  .filter-header {
+/* Filter Header */
+.filter-header {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     margin-bottom: 1rem;
-  }
+}
 
-  .icon-wrapper {
+.icon-wrapper {
     padding: 0.5rem;
     border-radius: 0.5rem;
-    background: linear-gradient(
-      135deg,
-      rgba(59, 130, 246, 0.1),
-      rgba(147, 51, 234, 0.1)
-    );
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
     color: var(--primary-color);
-  }
+}
 
-  .filter-header h2 {
+.filter-header h2 {
     font-size: 1.125rem;
     font-weight: 600;
     color: var(--text-primary);
-  }
+}
 
-  /* Search Bar */
-  .search-wrapper {
+/* Search Bar */
+.search-wrapper {
     position: relative;
     margin-bottom: 1.5rem;
-  }
+}
 
-  .search-icon {
+.search-icon {
     position: absolute;
     left: 0.75rem;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-secondary);
     pointer-events: none;
-  }
+}
 
-  .search-input {
+.search-input {
     width: 100%;
     padding: 0.75rem 1rem 0.75rem 2.5rem;
     border-radius: 0.75rem;
@@ -537,40 +426,40 @@
     background: var(--input-bg);
     color: var(--text-primary);
     transition: all 0.2s ease;
-  }
+}
 
-  .search-input:focus {
+.search-input:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 4px var(--primary-color-alpha);
     outline: none;
-  }
+}
 
-  /* Filter Grid */
-  .filter-grid {
+/* Filter Grid */
+.filter-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
     margin-bottom: 1.5rem;
-  }
+}
 
-  /* Filter Groups */
-  .filter-group {
+/* Filter Groups */
+.filter-group {
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
-  }
+}
 
-  .filter-group label {
+.filter-group label {
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--text-secondary);
-  }
+}
 
-  .select-wrapper {
+.select-wrapper {
     position: relative;
-  }
+}
 
-  .select-wrapper select {
+.select-wrapper select {
     width: 100%;
     padding: 0.625rem 2rem 0.625rem 1rem;
     border-radius: 0.75rem;
@@ -580,15 +469,15 @@
     appearance: none;
     cursor: pointer;
     transition: all 0.2s ease;
-  }
+}
 
-  .select-wrapper select:focus {
+.select-wrapper select:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 4px var(--primary-color-alpha);
     outline: none;
-  }
+}
 
-  .select-icon {
+.select-icon {
     position: absolute;
     right: 0.75rem;
     top: 50%;
@@ -597,31 +486,31 @@
     height: 1rem;
     color: var(--text-secondary);
     pointer-events: none;
-  }
+}
 
-  /* Active Filters */
-  .active-filters {
+/* Active Filters */
+.active-filters {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem;
     padding-top: 1rem;
     border-top: 1px solid var(--border-color);
-  }
+}
 
-  .filter-label {
+.filter-label {
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--text-secondary);
-  }
+}
 
-  .filter-tags {
+.filter-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-  }
+}
 
-  .filter-tag {
+.filter-tag {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
@@ -633,37 +522,37 @@
     font-size: 0.875rem;
     font-weight: 500;
     transition: all 0.2s ease;
-  }
+}
 
-  .filter-tag:hover {
+.filter-tag:hover {
     background: var(--primary-color-light-hover);
-  }
+}
 
-  .tag-remove {
+.tag-remove {
     width: 1rem;
     height: 1rem;
     opacity: 0.75;
     cursor: pointer;
     transition: opacity 0.2s ease;
-  }
+}
 
-  .tag-remove:hover {
+.tag-remove:hover {
     opacity: 1;
-  }
+}
 
-  .reset-filters {
+.reset-filters {
     margin-left: auto;
     font-size: 0.875rem;
     color: var(--text-secondary);
     transition: color 0.2s ease;
-  }
+}
 
-  .reset-filters:hover {
+.reset-filters:hover {
     color: var(--primary-color);
-  }
+}
 
-  /* CSS Variables */
-  :root {
+/* CSS Variables */
+:root {
     --surface-color: rgba(255, 255, 255, 0.8);
     --border-color: rgba(229, 231, 235, 0.5);
     --text-primary: #1f2937;
@@ -674,10 +563,10 @@
     --primary-color-light-hover: rgba(59, 130, 246, 0.15);
     --primary-color-border: rgba(59, 130, 246, 0.25);
     --input-bg: rgba(249, 250, 251, 0.5);
-  }
+}
 
-  /* Dark Mode */
-  .dark {
+/* Dark Mode */
+.dark {
     --surface-color: rgba(31, 41, 55, 0.8);
     --border-color: rgba(75, 85, 99, 0.5);
     --text-primary: #f3f4f6;
@@ -688,23 +577,23 @@
     --primary-color-light-hover: rgba(96, 165, 250, 0.15);
     --primary-color-border: rgba(96, 165, 250, 0.25);
     --input-bg: rgba(55, 65, 81, 0.5);
-  }
+}
 
-  /* Responsive Design */
-  @media (max-width: 768px) {
+/* Responsive Design */
+@media (max-width: 768px) {
     .filter-grid {
-      grid-template-columns: 1fr;
+        grid-template-columns: 1fr;
     }
-
+    
     .active-filters {
-      flex-direction: column;
-      align-items: flex-start;
+        flex-direction: column;
+        align-items: flex-start;
     }
-
+    
     .reset-filters {
-      margin-left: 0;
-      margin-top: 0.5rem;
+        margin-left: 0;
+        margin-top: 0.5rem;
     }
-  }
+}
 </style>
 {% endblock %}
