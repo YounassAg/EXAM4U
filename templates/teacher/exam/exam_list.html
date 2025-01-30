@@ -43,7 +43,7 @@
                 </div>
                 <h2>Filtres</h2>
             </div>
-
+            <form method="get" class="filter-content">
             <div class="filter-content">
                 <!-- Search Bar -->
                 <div class="search-wrapper">
@@ -51,8 +51,10 @@
                         {% include 'components/icons.html' with icon="search" class="w-5 h-5" %}
                     </div>
                     <input type="text" 
-                           class="search-input"
-                           placeholder="Rechercher par titre, cours, groupe...">
+                    name="search"
+                    class="search-input"
+                    value="{{ search_query }}"
+                    placeholder="Rechercher par titre, cours, groupe...">
                 </div>
 
                 <!-- Filter Options -->
@@ -61,11 +63,13 @@
                     <div class="filter-group">
                         <label>Groupe</label>
                         <div class="select-wrapper">
-                            <select>
+                            <select name="group">
                                 <option value="">Tous les groupes</option>
-                                <option value="DD201">DD201</option>
-                                <option value="DD202">DD202</option>
-                                <option value="DD203">DD203</option>
+                                {% for group in groups %}
+                                    <option value="{{ group.group_code }}" {% if selected_group == group.group_code %}selected{% endif %}>
+                                        {{ group.group_code }}
+                                    </option>
+                                {% endfor %}
                             </select>
                             {% include 'components/icons.html' with icon="chevron-down" class="select-icon" %}
                         </div>
@@ -75,10 +79,13 @@
                     <div class="filter-group">
                         <label>Type d'examen</label>
                         <div class="select-wrapper">
-                            <select>
+                            <select name="exam_type">
                                 <option value="">Tous les types</option>
-                                <option value="normal">Normal</option>
-                                <option value="rattrapage">Rattrapage</option>
+                                {% for type_code, type_label in exam_types %}
+                                    <option value="{{ type_code }}" {% if selected_exam_type == type_code %}selected{% endif %}>
+                                        {{ type_label }}
+                                    </option>
+                                {% endfor %}
                             </select>
                             {% include 'components/icons.html' with icon="chevron-down" class="select-icon" %}
                         </div>
@@ -88,11 +95,13 @@
                     <div class="filter-group">
                         <label>Cours</label>
                         <div class="select-wrapper">
-                            <select>
+                            <select name="course">
                                 <option value="">Tous les cours</option>
-                                <option value="python">Python</option>
-                                <option value="java">Java</option>
-                                <option value="web">Web Development</option>
+                                {% for course in courses %}
+                                    <option value="{{ course.id }}" {% if selected_course == course.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ course.title }}
+                                    </option>
+                                {% endfor %}
                             </select>
                             {% include 'components/icons.html' with icon="chevron-down" class="select-icon" %}
                         </div>
@@ -104,25 +113,30 @@
                     <div class="active-filters-content">
                         <span class="filter-label">Filtres actifs:</span>
                         <div class="filter-tags">
-                            <div class="filter-tag">
-                                <span>DD201</span>
-                                {% include 'components/icons.html' with icon="x" class="tag-remove" %}
-                            </div>
-                            <div class="filter-tag">
-                                <span>Normal</span>
-                                {% include 'components/icons.html' with icon="x" class="tag-remove" %}
-                            </div>
+                            {% for filter in active_filters %}
+                                <div class="filter-tag">
+                                    <span>{{ filter.display }}</span>
+                                    <a href="?{% for f in active_filters %}{% if f.type != filter.type %}{{ f.type }}={{ f.value }}&{% endif %}{% endfor %}"
+                                       class="tag-remove">
+                                        {% include 'components/icons.html' with icon="x" class="tag-remove" %}
+                                    </a>
+                                </div>
+                            {% endfor %}
                         </div>
                     </div>
-                    <div class="filter-buttons">
-                        <button class="reset-filters">Réinitialiser</button>
-                        <button type="submit" class="filter-submit">
-                            {% include 'components/icons.html' with icon="filter" class="w-4 h-4" %}
-                            <span>Appliquer</span>
-                        </button>
-                    </div>
+                    
+                        <!-- All your filter controls here -->
+                        <div class="filter-buttons">
+                            <a href="{% url 'teacher_exam_list' %}" class="reset-filters">Réinitialiser</a>
+                            <button type="submit" class="filter-submit">
+                                {% include 'components/icons.html' with icon="filter" class="w-4 h-4" %}
+                                <span>Appliquer</span>
+                            </button>
+                        </div>
+                    
                 </div>
             </div>
+        </form>
         </div>
 
         {% comment %} {% if messages %}

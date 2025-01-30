@@ -2,14 +2,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction, IntegrityError
 from django.core.exceptions import PermissionDenied
 from django.utils.timezone import now
-from django.db.models import Avg, Count, F, DurationField, ExpressionWrapper, DecimalField
+from django.db.models import Avg, Count, F, Q, DurationField, ExpressionWrapper, DecimalField
 from django.db.models.functions import Cast
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth.decorators import login_required
-from .forms import UserRegistrationForm, LoginForm, ExamForm, QuizForm, QuizQuestionForm, QuizChoiceFormSet
+from .forms import UserRegistrationForm, LoginForm, ExamForm, QuizChoiceFormSet
 from .models import Course, Group, Exam, Question, MCQChoice, UserProfile, Specialty, ExamAttempt, Response, StudentActionLog, Quiz, QuizQuestion, QuizChoice, QuizAttempt, QuizResponse
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -466,11 +466,91 @@ def student_exam_list(request):
 
 
 @login_required
-@role_required('teacher')
 def teacher_exam_list(request):
     teacher_profile = request.user.userprofile
-    exams = Exam.objects.filter(course__teacher=teacher_profile).order_by('-start_date')
-    return render(request, 'teacher/exam/exam_list.html', {'exams': exams})
+    
+    # Base queryset
+    exams = Exam.objects.filter(course__teacher=teacher_profile)
+    
+    # Get filter parameters from request
+    search_query = request.GET.get('search', '').strip()
+    group_filter = request.GET.get('group', '')
+    exam_type = request.GET.get('exam_type', '')
+    course_filter = request.GET.get('course', '')
+    
+    # Apply search filter
+    if search_query:
+        exams = exams.filter(
+            Q(title__icontains=search_query) |
+            Q(course__title__icontains=search_query) |
+            Q(group__group_code__icontains=search_query)
+        )
+    
+    # Apply group filter
+    if group_filter:
+        exams = exams.filter(group__group_code=group_filter)
+    
+    # Apply exam type filter based on ExamAttempt types
+    if exam_type:
+        exams = exams.filter(examattempt__type=exam_type).distinct()
+    
+    # Apply course filter
+    if course_filter:
+        exams = exams.filter(course__id=course_filter)
+    
+    # Order by start date
+    exams = exams.order_by('-start_date')
+    
+    # Get unique values for filter dropdowns
+    groups = Group.objects.filter(
+        id__in=Exam.objects.filter(
+            course__teacher=teacher_profile
+        ).values_list('group', flat=True)
+    ).distinct()
+    
+    courses = Course.objects.filter(teacher=teacher_profile)
+    
+    # Get active filters for display
+    active_filters = []
+    if group_filter:
+        group_obj = groups.filter(group_code=group_filter).first()
+        if group_obj:
+            active_filters.append({
+                'type': 'group',
+                'value': group_filter,
+                'display': group_obj.group_code
+            })
+    
+    if exam_type:
+        exam_type_display = dict(ExamAttempt.EXAM_TYPE_CHOICES).get(exam_type, exam_type)
+        active_filters.append({
+            'type': 'exam_type',
+            'value': exam_type,
+            'display': exam_type_display
+        })
+    
+    if course_filter:
+        course_obj = courses.filter(id=course_filter).first()
+        if course_obj:
+            active_filters.append({
+                'type': 'course',
+                'value': course_filter,
+                'display': course_obj.title
+            })
+
+    context = {
+        'exams': exams,
+        'groups': groups,
+        'courses': courses,
+        'exam_types': ExamAttempt.EXAM_TYPE_CHOICES,
+        'active_filters': active_filters,
+        'search_query': search_query,
+        'selected_group': group_filter,
+        'selected_exam_type': exam_type,
+        'selected_course': course_filter
+    }
+    
+    return render(request, 'teacher/exam/exam_list.html', context)
 
 
 @login_required
