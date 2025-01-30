@@ -45,100 +45,65 @@
             </div>
         {% endif %} {% endcomment %}
 
-        <!-- Exams List Section -->
-        <div class="grid grid-cols-1 gap-6">
+        <!-- Updated Exams Grid Section -->
+        <div class="exam-grid">
             {% for exam in exams %}
-                <div class="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300 overflow-hidden">
-                    <div class="p-6">
-                        <!-- Header Section -->
-                        <div class="flex items-center space-x-3 mb-4">
-                            <div class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg">
-                                {% include 'components/icons.html' with icon="certificate" class="w-6 h-6 text-blue-600 dark:text-blue-400" %}
-                            </div>
-                            <h2 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{{ exam.title }}</h2>
+                <div class="exam-card">
+                    <div class="exam-header">
+                        <div class="exam-status">
+                            <span class="status-dot"></span>
+                            <span>En cours</span>
                         </div>
+                        <h2 class="exam-title">{{ exam.title }}</h2>
+                        <div class="exam-course">
+                            {% include 'components/icons.html' with icon="academic-cap" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
+                            <span class="text-gray-600 dark:text-gray-400">{{ exam.course.title }}</span>
+                        </div>
+                    </div>
 
-                        <!-- Description -->
-                        <p class="text-gray-600 dark:text-gray-400 mb-6">{{ exam.description }}</p>
+                    <div class="exam-info">
+                        <div class="info-item mx-auto">
+                            {% include 'components/icons.html' with icon="users" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
+                            <span class="text-gray-600 dark:text-gray-400">{{ exam.group }}</span>
+                        </div>
+                    </div>
 
-                        <!-- Details Grid -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                            <div class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600 p-4">
-                                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400 mb-1">
-                                    {% include 'components/icons.html' with icon="academic-cap" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
-                                    <span class="font-medium">Cours</span>
-                                </div>
-                                <p class="text-gray-900 dark:text-white">{{ exam.course.title }}</p>
-                            </div>
-
-                            <div class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600 p-4">
-                                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400 mb-1">
-                                    {% include 'components/icons.html' with icon="users" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
-                                    <span class="font-medium">Groupe</span>
-                                </div>
-                                <p class="text-gray-900 dark:text-white">{{ exam.group }}</p>
-                            </div>
-
-                            <div class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600 p-4">
-                                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400 mb-1">
-                                    {% include 'components/icons.html' with icon="clock-alert" class="w-4 h-4 text-green-600 dark:text-green-400" %}
-                                    <span class="font-medium">Début</span>
-                                </div>
-                                <p class="text-gray-900 dark:text-white">{{ exam.start_date|date:"d/m/Y H:i" }}</p>
-                            </div>
-
-                            <div class="bg-gray-50/80 dark:bg-gray-700/50 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-600 p-4">
-                                <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400 mb-1">
-                                    {% include 'components/icons.html' with icon="clock-alert" class="w-4 h-4 text-red-600 dark:text-red-400" %}
-                                    <span class="font-medium">Fin</span>
-                                </div>
-                                <p class="text-gray-900 dark:text-white">{{ exam.end_date|date:"d/m/Y H:i" }}</p>
+                    <div class="exam-times">
+                        <div class="time-item">
+                            <div class="time-meta">
+                                {% include 'components/icons.html' with icon="clock" class="w-3.5 h-3.5 text-gray-900 dark:text-white" %}
+                                <span class="text-gray-900 dark:text-white">{{ exam.start_date|date:"d/m/Y H:i" }}</span>
                             </div>
                         </div>
-
-                        <!-- Action Buttons -->
-                        <div class="flex flex-col sm:flex-row items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
-                                <a href="{% url 'exam_attempts' exam.id %}" 
-                                   class="inline-flex items-center justify-center space-x-2 text-green-600 dark:text-green-400 hover:shadow-[0_0_15px_rgba(34,197,94,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5 w-full sm:w-auto">
-                                    <div class="p-2 bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-400/5 dark:to-emerald-400/5 rounded-lg">
-                                        {% include 'components/icons.html' with icon="clipboard-check" class="w-4 h-4" %}
-                                    </div>
-                                    <span class="font-medium">Corriger</span>
-                                </a>
-
-                                <a href="{% url 'rattrapage_exam' exam.id %}" 
-                                   class="inline-flex items-center justify-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5 w-full sm:w-auto">
-                                    <div class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg">
-                                        {% include 'components/icons.html' with icon="refresh" class="w-4 h-4" %}
-                                    </div>
-                                    <span class="font-medium">Rattrapage</span>
-                                </a>
-
-                                <a href="{% url 'edit_exam' exam.id %}" 
-                                   class="inline-flex items-center justify-center space-x-2 text-gray-600 dark:text-gray-400 hover:shadow-[0_0_15px_rgba(75,85,99,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5 w-full sm:w-auto">
-                                    <div class="p-2 bg-gradient-to-br from-gray-500/10 to-gray-600/10 dark:from-gray-400/5 dark:to-gray-500/5 rounded-lg">
-                                        {% include 'components/icons.html' with icon="pencil" class="w-4 h-4" %}
-                                    </div>
-                                    <span class="font-medium">Modifier</span>
-                                </a>
-
-                                <form method="post" action="{% url 'delete_exam' exam.id %}" class="w-full sm:w-auto">
-                                    {% csrf_token %}
-                                    <button type="submit" 
-                                            class="w-full inline-flex items-center justify-center space-x-2 text-red-600 dark:text-red-400 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5"
-                                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet examen?')">
-                                        <div class="p-2 bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5 rounded-lg">
-                                            {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
-                                        </div>
-                                        <span class="font-medium">Supprimer</span>
-                                    </button>
-                                </form>
+                        <div class="time-item time-end">
+                            <div class="time-meta">
+                                {% include 'components/icons.html' with icon="clock" class="w-3.5 h-3.5 text-gray-900 dark:text-white" %}
+                                <span class="text-gray-900 dark:text-white">{{ exam.end_date|date:"d/m/Y H:i" }}</span>
                             </div>
                         </div>
                     </div>
-                </div> 
-                
+
+                    <div class="exam-actions">
+                        <div class="action-group">
+                            <a href="{% url 'exam_attempts' exam.id %}" class="action-btn correct" title="Corriger">
+                                {% include 'components/icons.html' with icon="clipboard-check" class="w-4 h-4" %}
+                            </a>
+                            <a href="{% url 'rattrapage_exam' exam.id %}" class="action-btn retry" title="Rattrapage">
+                                {% include 'components/icons.html' with icon="refresh" class="w-4 h-4" %}
+                            </a>
+                            <a href="{% url 'edit_exam' exam.id %}" class="action-btn edit" title="Modifier">
+                                {% include 'components/icons.html' with icon="pencil" class="w-4 h-4 text-gray-600 dark:text-gray-400" %}
+                            </a>
+                        </div>
+                        <form method="post" action="{% url 'delete_exam' exam.id %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="action-btn delete" title="Supprimer"
+                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet examen ?')">
+                                {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
             {% empty %}
                 <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
                     <div class="flex flex-col items-center justify-center text-center space-y-4">
@@ -167,5 +132,162 @@
 .delay-1000 {
     animation-delay: 1s;
 }
+
+.exam-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+    padding: 0.5rem;
+}
+
+.exam-card {
+    position: relative;
+    background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8));
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.dark .exam-card {
+    background: linear-gradient(145deg, rgba(31,41,55,0.9), rgba(31,41,55,0.8));
+    border-color: rgba(75, 85, 99, 0.5);
+}
+
+.exam-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+.exam-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+    position: relative;
+}
+
+.dark .exam-header {
+    border-color: rgba(75, 85, 99, 0.5);
+}
+
+.exam-status {
+    position: absolute;
+    top: 1rem;
+    right: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: #22c55e;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: currentColor;
+    animation: pulse 2s infinite;
+}
+
+.exam-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-right: 4rem;
+    line-height: 1.4;
+}
+
+.dark .exam-title {
+    color: #f3f4f6;
+}
+
+.exam-course {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.exam-info, .exam-times {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid rgba(229, 231, 235, 0.5);
+    background: rgba(243, 244, 246, 0.3);
+}
+
+.dark .exam-info, .dark .exam-times {
+    border-color: rgba(75, 85, 99, 0.5);
+    background: rgba(31, 41, 55, 0.2);
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.exam-times {
+    display: flex;
+    justify-content: space-between;
+}
+
+.time-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.time-item.time-end {
+    text-align: right;
+}
+
+.exam-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 1.25rem;
+    background: rgba(243, 244, 246, 0.3);
+    border-top: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.dark .exam-actions {
+    background: rgba(31, 41, 55, 0.2);
+    border-color: rgba(75, 85, 99, 0.5);
+}
+
+.action-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    background: rgba(243, 244, 246, 0.9);
+}
+
+.dark .action-btn:hover {
+    background: rgba(31, 41, 55, 0.9);
+}
+
+.action-btn.correct { color: #059669; }
+.dark .action-btn.correct { color: #34d399; }
+
+.action-btn.retry { color: #3b82f6; }
+.dark .action-btn.retry { color: #60a5fa; }
+
+.action-btn.edit { color: #6b7280; }
+.dark .action-btn.edit { color: #9ca3af; }
+
+.action-btn.delete { color: #dc2626; }
+.dark .action-btn.delete { color: #f87171; }
 </style>
 {% endblock %}
