@@ -101,18 +101,26 @@
 
                 <!-- Active Filters -->
                 <div class="active-filters">
-                    <span class="filter-label">Filtres actifs:</span>
-                    <div class="filter-tags">
-                        <div class="filter-tag">
-                            <span>DD201</span>
-                            {% include 'components/icons.html' with icon="x" class="tag-remove" %}
-                        </div>
-                        <div class="filter-tag">
-                            <span>Normal</span>
-                            {% include 'components/icons.html' with icon="x" class="tag-remove" %}
+                    <div class="active-filters-content">
+                        <span class="filter-label">Filtres actifs:</span>
+                        <div class="filter-tags">
+                            <div class="filter-tag">
+                                <span>DD201</span>
+                                {% include 'components/icons.html' with icon="x" class="tag-remove" %}
+                            </div>
+                            <div class="filter-tag">
+                                <span>Normal</span>
+                                {% include 'components/icons.html' with icon="x" class="tag-remove" %}
+                            </div>
                         </div>
                     </div>
-                    <button class="reset-filters">Réinitialiser les filtres</button>
+                    <div class="filter-buttons">
+                        <button class="reset-filters">Réinitialiser</button>
+                        <button type="submit" class="filter-submit">
+                            {% include 'components/icons.html' with icon="filter" class="w-4 h-4" %}
+                            <span>Appliquer</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -223,24 +231,20 @@
 }
 
 .exam-card {
-    position: relative;
-    background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.8));
-    border-radius: 16px;
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(229, 231, 235, 0.5);
-    transition: all 0.3s ease;
+    background: var(--surface-color);
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
     overflow: hidden;
-}
-
-.dark .exam-card {
-    background: linear-gradient(145deg, rgba(31,41,55,0.9), rgba(31,41,55,0.8));
-    border-color: rgba(75, 85, 99, 0.5);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
 }
 
 .exam-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    border-color: rgba(59, 130, 246, 0.5);
+    border-color: var(--primary-color);
+    box-shadow: 0 8px 16px -2px rgba(59, 130, 246, 0.15);
 }
 
 .exam-header {
@@ -491,17 +495,26 @@
 /* Active Filters */
 .active-filters {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: space-between;
     padding-top: 1rem;
     border-top: 1px solid var(--border-color);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.active-filters-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .filter-label {
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--text-secondary);
+    white-space: nowrap;
 }
 
 .filter-tags {
@@ -540,21 +553,46 @@
     opacity: 1;
 }
 
-.reset-filters {
+.filter-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     margin-left: auto;
+}
+
+.filter-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-color-gradient));
+    color: white;
+    border-radius: 0.75rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    order: 2;
+}
+
+.reset-filters {
     font-size: 0.875rem;
     color: var(--text-secondary);
     transition: color 0.2s ease;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-color);
+    order: 1;
 }
 
 .reset-filters:hover {
     color: var(--primary-color);
+    background: var(--primary-color-light);
 }
 
 /* CSS Variables */
 :root {
     --surface-color: rgba(255, 255, 255, 0.8);
-    --border-color: rgba(229, 231, 235, 0.5);
+    --border-color: rgba(229, 231, 235, 0.8);
     --text-primary: #1f2937;
     --text-secondary: #6b7280;
     --primary-color: #3b82f6;
@@ -563,12 +601,13 @@
     --primary-color-light-hover: rgba(59, 130, 246, 0.15);
     --primary-color-border: rgba(59, 130, 246, 0.25);
     --input-bg: rgba(249, 250, 251, 0.5);
+    --primary-color-gradient: #6366f1;
 }
 
 /* Dark Mode */
 .dark {
     --surface-color: rgba(31, 41, 55, 0.8);
-    --border-color: rgba(75, 85, 99, 0.5);
+    --border-color: rgba(75, 85, 99, 0.8);
     --text-primary: #f3f4f6;
     --text-secondary: #9ca3af;
     --primary-color: #60a5fa;
@@ -577,6 +616,7 @@
     --primary-color-light-hover: rgba(96, 165, 250, 0.15);
     --primary-color-border: rgba(96, 165, 250, 0.25);
     --input-bg: rgba(55, 65, 81, 0.5);
+    --primary-color-gradient: #818cf8;
 }
 
 /* Responsive Design */
@@ -587,12 +627,17 @@
     
     .active-filters {
         flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .active-filters-content {
+        flex-direction: column;
         align-items: flex-start;
     }
     
-    .reset-filters {
+    .filter-buttons {
         margin-left: 0;
-        margin-top: 0.5rem;
+        width: 100%;
     }
 }
 </style>
