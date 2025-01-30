@@ -60,6 +60,28 @@ class Exam(models.Model):
     end_date = models.DateTimeField()
     max_attempts = models.IntegerField(default=1)
 
+    def get_status(self):
+        now = timezone.now()
+        
+        if now < self.start_date:
+            return {
+                'status': 'upcoming',
+                'label': 'À venir',
+                'color': 'bg-yellow-500'
+            }
+        elif self.start_date <= now <= self.end_date:
+            return {
+                'status': 'in_progress',
+                'label': 'En cours',
+                'color': 'bg-green-500'
+            }
+        else:
+            return {
+                'status': 'completed',
+                'label': 'Terminé',
+                'color': 'bg-gray-500'
+            }
+        
     def __str__(self):
         return self.title
 

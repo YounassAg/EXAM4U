@@ -155,8 +155,8 @@
                 <div class="exam-card">
                     <div class="exam-header">
                         <div class="exam-status">
-                            <span class="status-dot"></span>
-                            <span>En cours</span>
+                            <span class="status-dot {{ exam.get_status.color }}"></span>
+                            <span>{{ exam.get_status.label }}</span>
                         </div>
                         <h2 class="exam-title">{{ exam.title }}</h2>
                         <div class="exam-course">
@@ -279,7 +279,7 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.75rem;
-    color: #22c55e;
+    color:rgb(52, 0, 72);
 }
 
 .status-dot {
@@ -653,6 +653,13 @@
         margin-left: 0;
         width: 100%;
     }
+}
+.status-dot {
+    @apply w-2 h-2 rounded-full mr-2 !important;
+}
+
+.exam-status {
+    @apply flex items-center text-sm font-medium !important;
 }
 </style>
 {% endblock %}

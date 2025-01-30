@@ -477,6 +477,7 @@ def teacher_exam_list(request):
     group_filter = request.GET.get('group', '')
     exam_type = request.GET.get('exam_type', '')
     course_filter = request.GET.get('course', '')
+    status_filter = request.GET.get('status', '')
     
     # Apply search filter
     if search_query:
@@ -490,13 +491,23 @@ def teacher_exam_list(request):
     if group_filter:
         exams = exams.filter(group__group_code=group_filter)
     
-    # Apply exam type filter based on ExamAttempt types
+    # Apply exam type filter
     if exam_type:
         exams = exams.filter(examattempt__type=exam_type).distinct()
     
     # Apply course filter
     if course_filter:
         exams = exams.filter(course__id=course_filter)
+    
+    # Apply status filter
+    now = timezone.now()
+    if status_filter:
+        if status_filter == 'upcoming':
+            exams = exams.filter(start_date__gt=now)
+        elif status_filter == 'in_progress':
+            exams = exams.filter(start_date__lte=now, end_date__gte=now)
+        elif status_filter == 'completed':
+            exams = exams.filter(end_date__lt=now)
     
     # Order by start date
     exams = exams.order_by('-start_date')
@@ -509,6 +520,13 @@ def teacher_exam_list(request):
     ).distinct()
     
     courses = Course.objects.filter(teacher=teacher_profile)
+    
+    # Status choices for filter
+    status_choices = [
+        ('upcoming', 'À venir'),
+        ('in_progress', 'En cours'),
+        ('completed', 'Terminé')
+    ]
     
     # Get active filters for display
     active_filters = []
@@ -537,21 +555,30 @@ def teacher_exam_list(request):
                 'value': course_filter,
                 'display': course_obj.title
             })
+            
+    if status_filter:
+        status_display = dict(status_choices).get(status_filter, status_filter)
+        active_filters.append({
+            'type': 'status',
+            'value': status_filter,
+            'display': status_display
+        })
 
     context = {
         'exams': exams,
         'groups': groups,
         'courses': courses,
         'exam_types': ExamAttempt.EXAM_TYPE_CHOICES,
+        'status_choices': status_choices,
         'active_filters': active_filters,
         'search_query': search_query,
         'selected_group': group_filter,
         'selected_exam_type': exam_type,
-        'selected_course': course_filter
+        'selected_course': course_filter,
+        'selected_status': status_filter
     }
     
     return render(request, 'teacher/exam/exam_list.html', context)
-
 
 @login_required
 @csrf_exempt
