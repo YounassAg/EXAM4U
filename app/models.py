@@ -67,19 +67,19 @@ class Exam(models.Model):
             return {
                 'status': 'upcoming',
                 'label': 'À venir',
-                'color': 'bg-yellow-500'
+                'color': 'bg-blue-500'
             }
         elif self.start_date <= now <= self.end_date:
             return {
                 'status': 'in_progress',
                 'label': 'En cours',
-                'color': 'bg-green-500'
+                'color': 'bg-yellow-500'
             }
         else:
             return {
                 'status': 'completed',
                 'label': 'Terminé',
-                'color': 'bg-gray-500'
+                'color': 'bg-green-500'
             }
         
     def __str__(self):
@@ -118,13 +118,19 @@ class ExamAttempt(models.Model):
         ('rattrapage', 'Rattrapage'),
     ]
 
+    STATUS_CHOICES = [
+        ('in_progress', 'En cours'),
+        ('completed', 'Terminé'),
+        ('abandoned', 'Abandonné')
+    ]
+
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
     student = models.ForeignKey(UserProfile, on_delete=models.CASCADE, limit_choices_to={'role': 'student'})
     start_date = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField(null=True, blank=True)
     status = models.CharField(
         max_length=11,
-        choices=[('in_progress', 'In Progress'), ('completed', 'Completed'), ('abandoned', 'Abandoned')],
+        choices=STATUS_CHOICES,
         default='in_progress'
     )
     grade = models.FloatField(null=True, blank=True)
@@ -136,7 +142,7 @@ class ExamAttempt(models.Model):
     modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.exam.title} - {self.student.user.first_name} {self.student.user.last_name} ({self.type}) - {self.status}"
+        return f"{self.exam.title} - {self.student.user.first_name} {self.student.user.last_name} ({self.type}) - {self.get_status_display()}"
 
 
 

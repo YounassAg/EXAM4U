@@ -810,20 +810,27 @@ def exam_attempts(request, exam_id):
 @role_required('teacher')
 def get_exam_attempts_json(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
-    attempts = ExamAttempt.objects.filter(exam=exam).order_by('-modified_at')  # Order by modified_at to get the latest updates first
+    attempts = ExamAttempt.objects.filter(exam=exam).order_by('-modified_at')
     attempts_data = []
 
     for attempt in attempts:
-        attempts_data.append({
+        print(f"Processing attempt {attempt.id}:")
+        print(f"- Raw status: {attempt.status}")
+        print(f"- Status display: {attempt.get_status_display()}")
+        
+        attempt_data = {
             'id': attempt.id,
             'student_name': attempt.student.user.get_full_name(),
             'username': attempt.student.user.username,
             'start_date': attempt.start_date.strftime("%d/%m/%Y"),
-            'status': attempt.get_status_display(),
+            'status': attempt.status,  # Raw status value for conditional logic
+            'status_display': attempt.get_status_display(),  # Translated status text
             'type': attempt.get_type_display(),
             'grade': attempt.grade if attempt.grade else "Non noté",
             'time_taken': (attempt.end_date - attempt.start_date).total_seconds() / 60 if attempt.end_date and attempt.start_date else None,
-        })
+        }
+        print(f"- Data being sent: {attempt_data}")
+        attempts_data.append(attempt_data)
 
     return JsonResponse({'attempts': attempts_data})
 
