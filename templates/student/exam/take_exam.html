@@ -474,26 +474,24 @@
         },
 
         // Detect browser developer tools
-        detectDevTools() {
-            const devToolsCheck = () => {
-                const widthThreshold = window.outerWidth - window.innerWidth > 160;
-                const heightThreshold = window.outerHeight - window.innerHeight > 160;
-
-                if (widthThreshold || heightThreshold) {
-                    logFraudAction("Dev tools", "Outils développeur potentiellement ouverts");
-                    return true;
-                }
-                return false;
-            };
-
-            setInterval(devToolsCheck, 1000);
-
-            window.addEventListener('devtoolschange', function (e) {
-                if (e.detail.open) {
-                    logFraudAction("Dev tools", "Outils développeur ouverts");
-                }
-            });
-        },
+        //detectDevTools() {
+        //    const devToolsCheck = () => {
+        //        const widthThreshold = window.outerWidth - window.innerWidth > 160;
+        //        const heightThreshold = window.outerHeight - window.innerHeight > 160;
+        //
+        //        if (widthThreshold || heightThreshold) {
+        //            logFraudAction("Dev tools", "Outils développeur potentiellement ouverts");
+        //            return true;
+        //        }
+        //        return false;
+        //    };
+        //    setInterval(devToolsCheck, 1000);
+        //    window.addEventListener('devtoolschange', function (e) {
+        //        if (e.detail.open) {
+        //            logFraudAction("Dev tools", "Outils développeur ouverts");
+        //        }
+        //    });
+        //},
 
         // Prevent right-click context menu
         disableContextMenu() {
@@ -515,11 +513,11 @@
         setupTextProtection() {
             document.addEventListener('copy', (event) => {
                 logFraudAction("Copy attempt", "Texte copié.");
-                event.preventDefault();
+                // event.preventDefault();
             });
 
             document.addEventListener('selectstart', (e) => {
-                e.preventDefault();
+                // e.preventDefault();
                 logFraudAction("Text selection", "Tentative de sélection de texte");
             });
         },
@@ -549,7 +547,7 @@
                 if (isCtrlPressed && forbiddenShortcuts.includes(event.key.toLowerCase())) {
                     logFraudAction("Suspicious shortcut",
                         `Raccourci utilisé: Ctrl+${event.key.toUpperCase()}`);
-                    event.preventDefault();
+                    // event.preventDefault();
                 }
             });
         },
@@ -557,7 +555,7 @@
         // Initialize all security measures
         init() {
             this.setupMouseTracking();
-            this.detectDevTools();
+            // this.detectDevTools();
             this.disableContextMenu();
             this.trackWindowFocus();
             this.setupTextProtection();
