@@ -628,6 +628,7 @@ def take_exam(request, exam_id):
         form = ExamForm(request.POST, questions=questions)
         if form.is_valid():
             for question in questions:
+                # Prepare the response text based on question type
                 if question.question_type == 'MCQ':
                     response_data = form.cleaned_data[f'question_{question.id}']
                     if question.allow_multiple_answers:
@@ -640,16 +641,22 @@ def take_exam(request, exam_id):
                     response_text = form.cleaned_data[f'question_{question.id}']
                     if not response_text or not response_text.strip():
                         response_text = "Not Answered"
-                Response.objects.create(
+                
+                # Update existing response or create new one
+                Response.objects.update_or_create(
                     attempt=attempt,
                     question=question,
-                    response_text=response_text
+                    defaults={'response_text': response_text}
                 )
+            
+            # Mark attempt as completed
             attempt.status = 'completed'
             attempt.end_date = timezone.now()
             attempt.save()
+            
             return redirect('exam_completed')
     else:
+        # Load existing responses for initial form data
         initial_responses = {
             f'question_{response.question.id}': response.response_text
             for response in attempt.response_set.all()
