@@ -191,17 +191,19 @@ class Response(models.Model):
 
 class StudentActionLog(models.Model):
     ACTION_CHOICES = [
-        ('page_load', 'Page Loaded'),
-        ('page_unload', 'Page Unloaded'),
-        ('tab_switch', 'Tab Switched'),
-        ('navigation_attempt', 'Navigation Attempt'),
+        ('Suspicious shortcut', 'Suspicious Shortcut Used'),
+        ('Copy attempt', 'Copy Attempt'),
+        ('Network disconnect', 'Network Disconnected'),
+        ('Screen resize', 'Screen Resized'),
+        ('Context menu', 'Context Menu Opened'),
+        ('Dev tools', 'Developer Tools Opened'),
+        ('Extended disconnect', 'Extended Network Disconnect'),
+        ('Mouse leave', 'Mouse Left Window'),
+        ('Focus lost', 'Window Focus Lost'),
+        ('Text selection', 'Text Selection Attempted'),
+        ('Network reconnect', 'Network Reconnected'),
         ('question_answered', 'Question Answered'),
         ('inactivity_detected', 'Inactivity Detected'),
-        ('copy_attempt', 'Copy Attempt'),
-        ('screen_resize', 'Screen Resized'),
-        ('network_disconnect', 'Network disconnect'),
-        ('network_reconnect', 'Network reconnect'),
-        ('suspicious_shortcut', 'Suspicious Shortcut Used'),
     ]
 
     attempt = models.ForeignKey(ExamAttempt, on_delete=models.CASCADE)

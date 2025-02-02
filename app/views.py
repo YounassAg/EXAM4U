@@ -739,10 +739,58 @@ def log_student_action(request):
 def view_exam_logs(request, attempt_id):
     attempt = get_object_or_404(ExamAttempt, id=attempt_id)
     logs = StudentActionLog.objects.filter(attempt=attempt).order_by('timestamp')
-
+    
+    # Pre-filter logs by category with exact action types from JavaScript
+    suspicious_logs = logs.filter(action__in=[
+        'Focus lost',  # Window/tab focus changes
+        'Network disconnect',  # Network issues
+        'Network reconnect',
+        'Extended disconnect'
+    ])
+    
+    # Calculate durations for suspicious activities
+    suspicious_logs_with_duration = []
+    focus_lost_start = None
+    network_disconnect_start = None
+    
+    for log in suspicious_logs:
+        if log.action == 'Focus lost':
+            focus_lost_start = log.timestamp
+            # Find the next focus gain by looking at the next log entry
+            next_focus = logs.filter(timestamp__gt=log.timestamp).first()
+            if next_focus:
+                duration = (next_focus.timestamp - log.timestamp).total_seconds()
+                log.duration = int(duration)
+                suspicious_logs_with_duration.append(log)
+        elif log.action == 'Network disconnect':
+            network_disconnect_start = log.timestamp
+        elif log.action == 'Network reconnect' and network_disconnect_start:
+            duration = (log.timestamp - network_disconnect_start).total_seconds()
+            log.duration = int(duration)
+            network_disconnect_start = None
+            suspicious_logs_with_duration.append(log)
+        elif log.action == 'Extended disconnect':
+            # Extended disconnect already includes duration in its details
+            suspicious_logs_with_duration.append(log)
+    
+    # Other activities (everything else)
+    other_logs = logs.filter(action__in=[
+        'Suspicious shortcut',
+        'Copy attempt',
+        'Screen resize',
+        'Context menu',
+        'Dev tools',
+        'Mouse leave',
+        'Text selection',
+        'question_answered',
+        'inactivity_detected'
+    ])
+    
     return render(request, 'teacher/exam/exam_logs.html', {
         'attempt': attempt,
         'logs': logs,
+        'suspicious_logs': suspicious_logs_with_duration,
+        'other_logs': other_logs,
     })
 
 
