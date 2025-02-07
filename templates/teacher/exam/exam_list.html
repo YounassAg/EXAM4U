@@ -199,13 +199,14 @@
                                 {% include 'components/icons.html' with icon="pencil" class="w-4 h-4 text-gray-600 dark:text-gray-400" %}
                             </a>
                         </div>
-                        <form method="post" action="{% url 'delete_exam' exam.id %}" class="inline">
+                        {% comment %} Delete Exam button {% endcomment %}
+                        {% comment %} <form method="post" action="{% url 'delete_exam' exam.id %}" class="inline">
                             {% csrf_token %}
                             <button type="submit" class="action-btn delete" title="Supprimer"
                                     onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet examen ?')">
                                 {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
                             </button>
-                        </form>
+                        </form> {% endcomment %}
                     </div>
                 </div>
             {% empty %}
