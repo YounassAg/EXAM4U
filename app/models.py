@@ -35,6 +35,7 @@ class UserProfile(models.Model):
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     specialty = models.ForeignKey(Specialty, on_delete=models.SET_NULL, null=True, blank=True)
     creation_date = models.DateTimeField(auto_now_add=True)
+    is_taking_exam = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.role})"
@@ -58,7 +59,7 @@ class Exam(models.Model):
     duration = models.IntegerField()
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    max_attempts = models.IntegerField(default=1)
+    # max_attempts = models.IntegerField(default=1)
 
     def get_status(self):
         now = timezone.now()
@@ -204,6 +205,7 @@ class StudentActionLog(models.Model):
         ('Network reconnect', 'Network Reconnected'),
         ('question_answered', 'Question Answered'),
         ('inactivity_detected', 'Inactivity Detected'),
+        ('login_attempt', 'Login Attempt from Another Device'),  # New action type
     ]
 
     attempt = models.ForeignKey(ExamAttempt, on_delete=models.CASCADE)
@@ -213,7 +215,7 @@ class StudentActionLog(models.Model):
 
     def __str__(self):
         return f"{self.action} - {self.attempt.student} - {self.timestamp}"
-
+    
 class Quiz(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)

@@ -83,8 +83,19 @@ def user_login(request):
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user is not None:
-                login(request, user)
                 user_profile = UserProfile.objects.get(user=user)
+                if user_profile.role == 'student' and user_profile.is_taking_exam:
+                    # Log the login attempt with device info
+                    device_info = request.META.get('HTTP_USER_AGENT', 'Unknown')
+                    ip_address = request.META.get('REMOTE_ADDR', 'Unknown')
+                    StudentActionLog.objects.create(
+                        attempt=ExamAttempt.objects.filter(student=user_profile, status='in_progress').first(),
+                        action='login_attempt',
+                        details=f"Login attempt from another device. Device: {device_info}, IP: {ip_address}"
+                    )
+                    messages.error(request, 'Vous ne pouvez pas vous connecter depuis un autre appareil pendant un examen.')
+                    return redirect('index')
+                login(request, user)
                 if user_profile.role == 'teacher':
                     return redirect('teacher_dashboard')
                 else:
@@ -95,6 +106,10 @@ def user_login(request):
 
 
 def user_logout(request):
+    user_profile = request.user.userprofile
+    if user_profile.role == 'student' and user_profile.is_taking_exam:
+        user_profile.is_taking_exam = False  # Reset the flag on logout
+        user_profile.save()
     logout(request)
     return redirect('index')
 
@@ -231,7 +246,7 @@ def create_exam(request):
                 course_id = request.POST.get('course')
                 group_id = request.POST.get('group')
                 duration = request.POST.get('duration')
-                max_attempts = request.POST.get('max_attempts')
+                # max_attempts = request.POST.get('max_attempts')
                 start_date = request.POST.get('start_date')
                 end_date = request.POST.get('end_date')
                 course = Course.objects.get(id=course_id)
@@ -242,7 +257,7 @@ def create_exam(request):
                     course=course,
                     group=group,
                     duration=duration,
-                    max_attempts=max_attempts,
+                    # max_attempts=max_attempts,
                     start_date=start_date,
                     end_date=end_date,
                 )
@@ -298,7 +313,7 @@ def create_exam(request):
                 course_id = request.POST.get('course')
                 group_id = request.POST.get('group')
                 duration = request.POST.get('duration')
-                max_attempts = request.POST.get('max_attempts')
+                # max_attempts = request.POST.get('max_attempts')
                 start_date = request.POST.get('start_date')
                 end_date = request.POST.get('end_date')
                 course = Course.objects.get(id=course_id)
@@ -308,7 +323,7 @@ def create_exam(request):
                 exam.course = course
                 exam.group = group
                 exam.duration = duration
-                exam.max_attempts = max_attempts
+                # exam.max_attempts = max_attempts
                 exam.start_date = start_date
                 exam.end_date = end_date
                 exam.save()
@@ -375,7 +390,7 @@ def edit_exam(request, exam_id):
                 exam.course = Course.objects.get(id=request.POST.get('course'))
                 exam.group = Group.objects.get(id=request.POST.get('group'))
                 exam.duration = request.POST.get('duration')
-                exam.max_attempts = request.POST.get('max_attempts')
+                # exam.max_attempts = request.POST.get('max_attempts')
                 exam.start_date = request.POST.get('start_date')
                 exam.end_date = request.POST.get('end_date')
                 exam.save()
@@ -590,6 +605,10 @@ def update_attempt_status(request):
             attempt = ExamAttempt.objects.get(id=attempt_id, student=request.user.userprofile)
             attempt.status = status
             attempt.save()
+            if status == 'abandoned':
+                student = request.user.userprofile
+                student.is_taking_exam = False  # Reset the flag if the exam is abandoned
+                student.save()
             return JsonResponse({'success': True, 'message': 'Attempt status updated successfully.'})
         except ExamAttempt.DoesNotExist:
             return JsonResponse({'success': False, 'message': 'Attempt not found.'}, status=404)
@@ -611,16 +630,33 @@ def take_exam(request, exam_id):
         return redirect('student_exam_list')
 
     student = request.user.userprofile
-    attempt = ExamAttempt.objects.filter(exam=exam, student=student, status__in=['in_progress', 'abandoned']).first()
+
+    # Check if the student has any completed or abandoned attempts
+    existing_completed_or_abandoned_attempts = ExamAttempt.objects.filter(
+        exam=exam, 
+        student=student, 
+        status__in=['completed', 'abandoned']
+    ).exists()
+
+    if existing_completed_or_abandoned_attempts:
+        messages.error(request, "Vous avez déjà terminé ou abandonné cet examen.")
+        return redirect('student_exam_list')
+
+    # Check if there's an in-progress attempt
+    attempt = ExamAttempt.objects.filter(
+        exam=exam, 
+        student=student, 
+        status__in=['in_progress']
+    ).first()
 
     if not attempt:
-        completed_or_abandoned_attempts = ExamAttempt.objects.filter(
-            exam=exam, student=student, status__in=['completed']
-        ).count()
-        if completed_or_abandoned_attempts >= exam.max_attempts:
-            messages.error(request, f"Vous avez déjà atteint le nombre maximum de tentatives {exam.max_attempts} pour l'examen '{exam.title}'.")
-            return redirect('student_exam_list')
-        attempt = ExamAttempt.objects.create(exam=exam, student=student, status='in_progress', start_date=timezone.now())
+        # Create a new attempt if there's no in-progress attempt
+        attempt = ExamAttempt.objects.create(
+            exam=exam, 
+            student=student, 
+            status='in_progress', 
+            start_date=timezone.now()
+        )
 
     questions = Question.objects.filter(exam=exam).prefetch_related('mcqchoice_set')
 
@@ -745,7 +781,8 @@ def view_exam_logs(request, attempt_id):
         'Focus lost',  # Window/tab focus changes
         'Network disconnect',  # Network issues
         'Network reconnect',
-        'Extended disconnect'
+        'Extended disconnect',
+        'login_attempt',  # Login attempts from other devices
     ])
     
     # Calculate durations for suspicious activities
@@ -771,6 +808,8 @@ def view_exam_logs(request, attempt_id):
             suspicious_logs_with_duration.append(log)
         elif log.action == 'Extended disconnect':
             # Extended disconnect already includes duration in its details
+            suspicious_logs_with_duration.append(log)
+        elif log.action == 'login_attempt':
             suspicious_logs_with_duration.append(log)
     
     # Other activities (everything else)
