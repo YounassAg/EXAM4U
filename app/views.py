@@ -700,7 +700,7 @@ def take_exam(request, exam_id):
             student.is_taking_exam = False
             student.save()
             
-            return redirect('exam_completed')
+            return render(request, 'student/exam/exam_completed.html')
     else:
         # Load existing responses for initial form data
         initial_responses = {
@@ -715,6 +715,8 @@ def take_exam(request, exam_id):
         'questions': questions,
         'attempt': attempt,
     })
+
+
 
 @login_required
 @role_required('student')
@@ -842,26 +844,26 @@ def view_exam_logs(request, attempt_id):
     })
 
 
-@login_required
-@role_required('teacher')
-def rattrapage_exam(request, exam_id):
-    exam = get_object_or_404(Exam, id=exam_id)
-    students = UserProfile.objects.filter(group=exam.group, role='student')
-    if request.method == 'POST':
-        selected_students = request.POST.getlist('students')
-        for student_id in selected_students:
-            student = UserProfile.objects.get(id=student_id)
-            ExamAttempt.objects.create(
-                exam=exam,
-                student=student,
-                type='rattrapage'
-            )
-            messages.success(request, f"Exam attempt created for {student.first_name} {student.last_name}.")
-        return redirect('teacher_exam_list')
-    return render(request, 'teacher/exam/rattrapage_exam.html', {
-        'exam': exam,
-        'students': students
-    })
+# @login_required
+# @role_required('teacher')
+# def rattrapage_exam(request, exam_id):
+#     exam = get_object_or_404(Exam, id=exam_id)
+#     students = UserProfile.objects.filter(group=exam.group, role='student')
+#     if request.method == 'POST':
+#         selected_students = request.POST.getlist('students')
+#         for student_id in selected_students:
+#             student = UserProfile.objects.get(id=student_id)
+#             ExamAttempt.objects.create(
+#                 exam=exam,
+#                 student=student,
+#                 type='rattrapage'
+#             )
+#             messages.success(request, f"Exam attempt created for {student.first_name} {student.last_name}.")
+#         return redirect('teacher_exam_list')
+#     return render(request, 'teacher/exam/rattrapage_exam.html', {
+#         'exam': exam,
+#         'students': students
+#     })
 
 
 @login_required

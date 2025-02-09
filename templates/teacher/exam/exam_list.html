@@ -192,9 +192,9 @@
                             <a href="{% url 'exam_attempts' exam.id %}" class="action-btn correct" title="Corriger">
                                 {% include 'components/icons.html' with icon="clipboard-check" class="w-4 h-4" %}
                             </a>
-                            <a href="{% url 'rattrapage_exam' exam.id %}" class="action-btn retry" title="Rattrapage">
+                            {% comment %} <a href="{% url 'rattrapage_exam' exam.id %}" class="action-btn retry" title="Rattrapage">
                                 {% include 'components/icons.html' with icon="refresh" class="w-4 h-4" %}
-                            </a>
+                            </a> {% endcomment %}
                             <a href="{% url 'edit_exam' exam.id %}" class="action-btn edit" title="Modifier">
                                 {% include 'components/icons.html' with icon="pencil" class="w-4 h-4 text-gray-600 dark:text-gray-400" %}
                             </a>
