@@ -88,6 +88,8 @@ def user_login(request):
                     # Log the login attempt with device info
                     device_info = request.META.get('HTTP_USER_AGENT', 'Unknown')
                     ip_address = request.META.get('REMOTE_ADDR', 'Unknown')
+                    print(device_info)
+                    print(ip_address)
                     StudentActionLog.objects.create(
                         attempt=ExamAttempt.objects.filter(student=user_profile, status='in_progress').first(),
                         action='login_attempt',

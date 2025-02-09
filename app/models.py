@@ -35,7 +35,7 @@ class UserProfile(models.Model):
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     specialty = models.ForeignKey(Specialty, on_delete=models.SET_NULL, null=True, blank=True)
     creation_date = models.DateTimeField(auto_now_add=True)
-    is_taking_exam = models.BooleanField(default=False)
+    is_taking_exam = models.BooleanField(default=False)  # New field to track if the student is taking an exam
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.role})"
