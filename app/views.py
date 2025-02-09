@@ -88,15 +88,17 @@ def user_login(request):
                     # Log the login attempt with device info
                     device_info = request.META.get('HTTP_USER_AGENT', 'Unknown')
                     ip_address = request.META.get('REMOTE_ADDR', 'Unknown')
-                    print(device_info)
-                    print(ip_address)
+                    
+                    # Log the login attempt from another device
                     StudentActionLog.objects.create(
                         attempt=ExamAttempt.objects.filter(student=user_profile, status='in_progress').first(),
                         action='login_attempt',
                         details=f"Login attempt from another device. Device: {device_info}, IP: {ip_address}"
                     )
+                    
                     messages.error(request, 'Vous ne pouvez pas vous connecter depuis un autre appareil pendant un examen.')
                     return redirect('index')
+                
                 login(request, user)
                 if user_profile.role == 'teacher':
                     return redirect('teacher_dashboard')
@@ -105,7 +107,6 @@ def user_login(request):
     else:
         form = LoginForm()
     return render(request, 'auth/login.html', {'form': form})
-
 
 def user_logout(request):
     user_profile = request.user.userprofile
@@ -659,6 +660,9 @@ def take_exam(request, exam_id):
             status='in_progress', 
             start_date=timezone.now()
         )
+        # Set the is_taking_exam flag to True
+        student.is_taking_exam = True
+        student.save()
 
     questions = Question.objects.filter(exam=exam).prefetch_related('mcqchoice_set')
 
@@ -692,6 +696,10 @@ def take_exam(request, exam_id):
             attempt.end_date = timezone.now()
             attempt.save()
             
+            # Reset the is_taking_exam flag
+            student.is_taking_exam = False
+            student.save()
+            
             return redirect('exam_completed')
     else:
         # Load existing responses for initial form data
@@ -707,7 +715,6 @@ def take_exam(request, exam_id):
         'questions': questions,
         'attempt': attempt,
     })
-
 
 @login_required
 @role_required('student')
