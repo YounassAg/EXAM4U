@@ -62,7 +62,7 @@ DATABASES = {
         'USER': 'examen_online',
         'PASSWORD': 'examen_online',
         'HOST': 'localhost',
-        'PORT': '3305',
+        'PORT': '3306',
     }
 }
 

@@ -37,106 +37,112 @@
 
         <!-- Replace the filter section -->
         <div class="filter-container">
-            <div class="filter-header">
-                <div class="icon-wrapper">
-                    {% include 'components/icons.html' with icon="funnel" class="w-5 h-5" %}
+            <!-- Filter Toggle Button -->
+            <button type="button" id="filterToggle" class="filter-toggle">
+                <div class="flex items-center gap-2">
+                    <div class="icon-wrapper">
+                        {% include 'components/icons.html' with icon="funnel" class="w-5 h-5" %}
+                    </div>
+                    <span>Filtres</span>
                 </div>
-                <h2>Filtres</h2>
+                {% include 'components/icons.html' with icon="chevron-down" class="w-4 h-4 transform transition-transform duration-300" id="filterChevron" %}
+            </button>
+
+            <!-- Collapsible Filter Content -->
+            <div id="filterContent" class="filter-content hidden">
+                <form method="get" class="filter-form">
+                    <!-- Search Bar -->
+                    <div class="search-wrapper">
+                        <div class="search-icon">
+                            {% include 'components/icons.html' with icon="search" class="w-5 h-5" %}
+                        </div>
+                        <input type="text" 
+                        name="search"
+                        class="search-input"
+                        value="{{ search_query }}"
+                        placeholder="Rechercher par titre, cours, groupe...">
+                    </div>
+
+                    <!-- Filter Options -->
+                    <div class="filter-grid">
+                        <!-- Group Filter -->
+                        <div class="filter-group">
+                            <label>Groupe</label>
+                            <div class="select-wrapper">
+                                <select name="group">
+                                    <option value="">Tous les groupes</option>
+                                    {% for group in groups %}
+                                        <option value="{{ group.group_code }}" {% if selected_group == group.group_code %}selected{% endif %}>
+                                            {{ group.group_code }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                {% include 'components/icons.html' with icon="chevron-down" class="select-icon" %}
+                            </div>
+                        </div>
+
+                        <!-- Exam Type Filter -->
+                        <div class="filter-group">
+                            <label>Type d'examen</label>
+                            <div class="select-wrapper">
+                                <select name="exam_type">
+                                    <option value="">Tous les types</option>
+                                    {% for type_code, type_label in exam_types %}
+                                        <option value="{{ type_code }}" {% if selected_exam_type == type_code %}selected{% endif %}>
+                                            {{ type_label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                {% include 'components/icons.html' with icon="chevron-down" class="select-icon" %}
+                            </div>
+                        </div>
+
+                        <!-- Course Filter -->
+                        <div class="filter-group">
+                            <label>Cours</label>
+                            <div class="select-wrapper">
+                                <select name="course">
+                                    <option value="">Tous les cours</option>
+                                    {% for course in courses %}
+                                        <option value="{{ course.id }}" {% if selected_course == course.id|stringformat:"s" %}selected{% endif %}>
+                                            {{ course.title }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                {% include 'components/icons.html' with icon="chevron-down" class="select-icon" %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Filters -->
+                    <div class="active-filters">
+                        <div class="active-filters-content">
+                            <span class="filter-label">Filtres actifs:</span>
+                            <div class="filter-tags">
+                                {% for filter in active_filters %}
+                                    <div class="filter-tag">
+                                        <span>{{ filter.display }}</span>
+                                        <a href="?{% for f in active_filters %}{% if f.type != filter.type %}{{ f.type }}={{ f.value }}&{% endif %}{% endfor %}"
+                                           class="tag-remove">
+                                            {% include 'components/icons.html' with icon="x" class="tag-remove" %}
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                            <!-- All your filter controls here -->
+                            <div class="filter-buttons">
+                                <a href="{% url 'teacher_exam_list' %}" class="reset-filters">Réinitialiser</a>
+                                <button type="submit" class="filter-submit">
+                                    {% include 'components/icons.html' with icon="filter" class="w-4 h-4" %}
+                                    <span>Appliquer</span>
+                                </button>
+                            </div>
+                        
+                    </div>
+                </form>
             </div>
-            <form method="get" class="filter-content">
-            <div class="filter-content">
-                <!-- Search Bar -->
-                <div class="search-wrapper">
-                    <div class="search-icon">
-                        {% include 'components/icons.html' with icon="search" class="w-5 h-5" %}
-                    </div>
-                    <input type="text" 
-                    name="search"
-                    class="search-input"
-                    value="{{ search_query }}"
-                    placeholder="Rechercher par titre, cours, groupe...">
-                </div>
-
-                <!-- Filter Options -->
-                <div class="filter-grid">
-                    <!-- Group Filter -->
-                    <div class="filter-group">
-                        <label>Groupe</label>
-                        <div class="select-wrapper">
-                            <select name="group">
-                                <option value="">Tous les groupes</option>
-                                {% for group in groups %}
-                                    <option value="{{ group.group_code }}" {% if selected_group == group.group_code %}selected{% endif %}>
-                                        {{ group.group_code }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            {% include 'components/icons.html' with icon="chevron-down" class="select-icon" %}
-                        </div>
-                    </div>
-
-                    <!-- Exam Type Filter -->
-                    <div class="filter-group">
-                        <label>Type d'examen</label>
-                        <div class="select-wrapper">
-                            <select name="exam_type">
-                                <option value="">Tous les types</option>
-                                {% for type_code, type_label in exam_types %}
-                                    <option value="{{ type_code }}" {% if selected_exam_type == type_code %}selected{% endif %}>
-                                        {{ type_label }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            {% include 'components/icons.html' with icon="chevron-down" class="select-icon" %}
-                        </div>
-                    </div>
-
-                    <!-- Course Filter -->
-                    <div class="filter-group">
-                        <label>Cours</label>
-                        <div class="select-wrapper">
-                            <select name="course">
-                                <option value="">Tous les cours</option>
-                                {% for course in courses %}
-                                    <option value="{{ course.id }}" {% if selected_course == course.id|stringformat:"s" %}selected{% endif %}>
-                                        {{ course.title }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            {% include 'components/icons.html' with icon="chevron-down" class="select-icon" %}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Active Filters -->
-                <div class="active-filters">
-                    <div class="active-filters-content">
-                        <span class="filter-label">Filtres actifs:</span>
-                        <div class="filter-tags">
-                            {% for filter in active_filters %}
-                                <div class="filter-tag">
-                                    <span>{{ filter.display }}</span>
-                                    <a href="?{% for f in active_filters %}{% if f.type != filter.type %}{{ f.type }}={{ f.value }}&{% endif %}{% endfor %}"
-                                       class="tag-remove">
-                                        {% include 'components/icons.html' with icon="x" class="tag-remove" %}
-                                    </a>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    
-                        <!-- All your filter controls here -->
-                        <div class="filter-buttons">
-                            <a href="{% url 'teacher_exam_list' %}" class="reset-filters">Réinitialiser</a>
-                            <button type="submit" class="filter-submit">
-                                {% include 'components/icons.html' with icon="filter" class="w-4 h-4" %}
-                                <span>Appliquer</span>
-                            </button>
-                        </div>
-                    
-                </div>
-            </div>
-        </form>
         </div>
 
         {% comment %} {% if messages %}
@@ -154,14 +160,16 @@
             {% for exam in exams %}
                 <div class="exam-card">
                     <div class="exam-header">
+                        <div class="flex flex-col space-y-2">
+                            <h2 class="exam-title">{{ exam.title }}</h2>
+                            <div class="exam-course">
+                                {% include 'components/icons.html' with icon="academic-cap" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
+                                <span class="text-gray-600 dark:text-gray-400">{{ exam.course.title }}</span>
+                            </div>
+                        </div>
                         <div class="exam-status">
                             <span class="status-dot {{ exam.get_status.color }}"></span>
                             <span>{{ exam.get_status.label }}</span>
-                        </div>
-                        <h2 class="exam-title">{{ exam.title }}</h2>
-                        <div class="exam-course">
-                            {% include 'components/icons.html' with icon="academic-cap" class="w-4 h-4 text-blue-600 dark:text-blue-400" %}
-                            <span class="text-gray-600 dark:text-gray-400">{{ exam.course.title }}</span>
                         </div>
                     </div>
 
@@ -264,42 +272,23 @@
     padding: 1rem 1.25rem;
     border-bottom: 1px solid rgba(229, 231, 235, 0.5);
     position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
 }
 
 .dark .exam-header {
     border-color: rgba(75, 85, 99, 0.5);
 }
 
-.exam-status {
-    position: absolute;
-    top: 1rem;
-    right: 1.25rem;
-    display: inline-flex;
-    align-items: center;
-    padding: 0.5rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.025em;
-    backdrop-filter: blur(8px);
-    transition: all 0.3s ease;
-}
-
-.status-dot {
-    width: 8px !important;
-    height: 8px !important;
-    border-radius: 50% !important;
-    margin-right: 0.5rem !important;
-    box-shadow: 0 0 12px currentColor;
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
 .exam-title {
     font-size: 1.125rem;
     font-weight: 600;
     color: #1f2937;
-    margin-right: 4rem;
     line-height: 1.4;
+    word-wrap: break-word;
+    padding-right: 0.5rem;
 }
 
 .dark .exam-title {
@@ -310,7 +299,6 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-top: 0.5rem;
     color: #6b7280;
     font-size: 0.875rem;
 }
@@ -397,9 +385,10 @@
 /* Filter Container */
 .filter-container {
     background: var(--surface-color);
-    border-radius: 1rem;
     border: 1px solid var(--border-color);
-    padding: 1.5rem;
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
     backdrop-filter: blur(8px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
@@ -660,7 +649,26 @@
 }
 
 .exam-status {
-    @apply flex items-center text-sm font-medium !important;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.025em;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.status-dot {
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50% !important;
+    margin-right: 0.5rem !important;
+    box-shadow: 0 0 12px currentColor;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* Status Colors */
@@ -763,5 +771,66 @@
         transform: scale(1.1);
     }
 }
+
+/* Update/Add these styles to your existing CSS */
+.filter-toggle {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-primary);
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.filter-toggle:hover {
+    background: var(--primary-color-light);
+}
+
+.filter-content {
+    border-top: 1px solid var(--border-color);
+    padding: 1.5rem;
+}
+
+.filter-content.hidden {
+    display: none;
+}
+
+/* Add animation for the chevron */
+.rotate-180 {
+    transform: rotate(180deg);
+}
 </style>
+
+<!-- Add this script section at the end of your template -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterToggle = document.getElementById('filterToggle');
+    const filterContent = document.getElementById('filterContent');
+    const filterChevron = document.getElementById('filterChevron');
+    
+    // Check if there are any active filters
+    const hasActiveFilters = {{ active_filters|length }} > 0 || "{{ search_query }}" !== "";
+    
+    // If there are active filters, show the filter content by default
+    if (hasActiveFilters) {
+        filterContent.classList.remove('hidden');
+        filterChevron.classList.add('rotate-180');
+    }
+
+    filterToggle.addEventListener('click', function() {
+        filterContent.classList.toggle('hidden');
+        filterChevron.classList.toggle('rotate-180');
+        
+        // Optional: Smooth scroll to show the full filter content when opened
+        if (!filterContent.classList.contains('hidden')) {
+            filterContent.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    });
+});
+</script>
 {% endblock %}

@@ -110,67 +110,67 @@
                             <p class="section-description">Changements de focus, déconnexions réseau et autres activités suspectes</p>
                         </div>
                         <div class="suspicious-count">{{ suspicious_logs|length }}</div>
-                </div>
+                    </div>
 
-                    {% if suspicious_logs %}
-                    <div class="logs-table-wrapper">
-                        <table class="logs-table">
-                            <thead>
-                                <tr>
-                                    <th class="w-1/3">Action</th>
-                                    <th class="w-1/3">Détails</th>
-                                    <th class="w-1/6">Durée</th>
-                                    <th class="w-1/6">Horodatage</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for log in suspicious_logs %}
-                                <tr class="{% if log.duration and log.duration > 30 %}high-risk{% elif log.duration and log.duration > 10 %}medium-risk{% else %}low-risk{% endif %}">
-                                    <td>
-                                        <div class="action-cell">
-                                            <div class="action-info">
-                                                <span class="action-name">{{ log.get_action_display }}</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="details-cell">
-                                            <span class="details-text">{{ log.details|truncatechars:50 }}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {% if log.duration %}
-                                            <div class="duration-badge {% if log.duration > 30 %}critical{% elif log.duration > 10 %}warning{% else %}info{% endif %}">
-                                                {% if log.duration >= 60 %}
-                                                    {{ log.duration|divisibleby:60 }}m {{ log.duration|modulo:60 }}s
-                                                {% else %}
-                                                    {{ log.duration }}s
-                                                {% endif %}
-                                            </div>
-                                        {% else %}
-                                            <span class="no-duration">-</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div class="timestamp-cell">
-                                            <span class="timestamp">{{ log.timestamp|date:"H:i:s" }}</span>
-                                            <span class="date-hint">{{ log.timestamp|date:"d/m/Y" }}</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            {% include 'components/icons.html' with icon="check-circle" class="w-12 h-12" %}
+                    <div class="logs-container">
+                        <div class="logs-header" id="suspiciousLogsHeader">
+                            <h2 class="logs-title">Suspicious Logs</h2>
+                            <div class="logs-count suspicious-count">
+                                <span class="count-value">{{ suspicious_logs|length }}</span>
+                                <span class="count-label">suspicious actions</span>
+                            </div>
+                            {% include 'components/icons.html' with icon="chevron-down" class="w-4 h-4 transform transition-transform duration-300" id="suspiciousChevron" %}
                         </div>
-                        <p class="empty-text">Aucune activité suspecte détectée</p>
-                        <span class="empty-hint">L'étudiant n'a effectué aucune action suspecte pendant l'examen</span>
+                        <div class="logs-table-wrapper hidden" id="suspiciousLogsTable">
+                            <table class="logs-table">
+                                <thead>
+                                    <tr>
+                                        <th class="w-1/3">Action</th>
+                                        <th class="w-1/3">Détails</th>
+                                        <th class="w-1/6">Durée</th>
+                                        <th class="w-1/6">Horodatage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for log in suspicious_logs %}
+                                    <tr class="{% if log.duration and log.duration > 30 %}high-risk{% elif log.duration and log.duration > 10 %}medium-risk{% else %}low-risk{% endif %}">
+                                        <td>
+                                            <div class="action-cell">
+                                                <div class="action-info">
+                                                    <span class="action-name">{{ log.get_action_display }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="details-cell">
+                                                <span class="details-text">{{ log.details|truncatechars:50 }}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if log.duration %}
+                                                <div class="duration-badge {% if log.duration > 30 %}critical{% elif log.duration > 10 %}warning{% else %}info{% endif %}">
+                                                    {% if log.duration >= 60 %}
+                                                        {{ log.duration|divisibleby:60 }}m {{ log.duration|modulo:60 }}s
+                                                    {% else %}
+                                                        {{ log.duration }}s
+                                                    {% endif %}
+                                                </div>
+                                            {% else %}
+                                                <span class="no-duration">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="timestamp-cell">
+                                                <span class="timestamp">{{ log.timestamp|date:"H:i:s" }}</span>
+                                                <span class="date-hint">{{ log.timestamp|date:"d/m/Y" }}</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    {% endif %}
                 </div>
 
                 <!-- Other Activities Section -->
@@ -186,51 +186,51 @@
                         <div class="other-count">{{ other_logs|length }}</div>
                     </div>
                     
-                    {% if other_logs %}
-                    <div class="logs-table-wrapper">
-                        <table class="logs-table">
-                            <thead>
-                                <tr>
-                                    <th class="w-1/2">Action</th>
-                                    <th class="w-1/3">Détails</th>
-                                    <th class="w-1/6">Horodatage</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for log in other_logs %}
-                                <tr>
-                                    <td>
-                                        <div class="action-cell">
-                                            <div class="action-info">
-                                                <span class="action-name">{{ log.get_action_display }}</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="details-cell">
-                                            <span class="details-text">{{ log.details|truncatechars:50 }}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="timestamp-cell">
-                                            <span class="timestamp">{{ log.timestamp|date:"H:i:s" }}</span>
-                                            <span class="date-hint">{{ log.timestamp|date:"d/m/Y" }}</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            {% include 'components/icons.html' with icon="inbox" class="w-12 h-12" %}
+                    <div class="logs-container">
+                        <div class="logs-header" id="otherLogsHeader">
+                            <h2 class="logs-title">Other Logs</h2>
+                            <div class="logs-count other-count">
+                                <span class="count-value">{{ other_logs|length }}</span>
+                                <span class="count-label">other actions</span>
+                            </div>
+                            {% include 'components/icons.html' with icon="chevron-down" class="w-4 h-4 transform transition-transform duration-300" id="otherChevron" %}
                         </div>
-                        <p class="empty-text">Aucune autre activité enregistrée</p>
-                        <span class="empty-hint">Aucune action normale n'a été enregistrée pendant l'examen</span>
+                        <div class="logs-table-wrapper hidden" id="otherLogsTable">
+                            <table class="logs-table">
+                                <thead>
+                                    <tr>
+                                        <th class="w-1/2">Action</th>
+                                        <th class="w-1/3">Détails</th>
+                                        <th class="w-1/6">Horodatage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for log in other_logs %}
+                                    <tr>
+                                        <td>
+                                            <div class="action-cell">
+                                                <div class="action-info">
+                                                    <span class="action-name">{{ log.get_action_display }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="details-cell">
+                                                <span class="details-text">{{ log.details|truncatechars:50 }}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="timestamp-cell">
+                                                <span class="timestamp">{{ log.timestamp|date:"H:i:s" }}</span>
+                                                <span class="date-hint">{{ log.timestamp|date:"d/m/Y" }}</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -281,18 +281,27 @@
 
 /* Header Styles */
 .logs-header {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    border-radius: 1rem;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    color: white;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.logs-header:hover {
+    background: rgba(255, 255, 255, 0.9);
 }
 
 .dark .logs-header {
-    background: linear-gradient(135deg, #312e81 0%, #5b21b6 100%);
+    background: rgba(31, 41, 55, 0.8);
+    border-color: rgba(75, 85, 99, 0.5);
+}
+
+.dark .logs-header:hover {
+    background: rgba(31, 41, 55, 0.9);
 }
 
 .header-content {
@@ -972,4 +981,26 @@
     animation-delay: 0.2s;
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const suspiciousLogsHeader = document.getElementById('suspiciousLogsHeader');
+    const suspiciousLogsTable = document.getElementById('suspiciousLogsTable');
+    const suspiciousChevron = document.getElementById('suspiciousChevron');
+
+    const otherLogsHeader = document.getElementById('otherLogsHeader');
+    const otherLogsTable = document.getElementById('otherLogsTable');
+    const otherChevron = document.getElementById('otherChevron');
+
+    suspiciousLogsHeader.addEventListener('click', function() {
+        suspiciousLogsTable.classList.toggle('hidden');
+        suspiciousChevron.classList.toggle('rotate-180');
+    });
+
+    otherLogsHeader.addEventListener('click', function() {
+        otherLogsTable.classList.toggle('hidden');
+        otherChevron.classList.toggle('rotate-180');
+    });
+});
+</script>
 {% endblock %}
