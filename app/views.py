@@ -84,6 +84,7 @@ def user_login(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 user_profile = UserProfile.objects.get(user=user)
+                print(user_profile)
                 if user_profile.role == 'student' and user_profile.is_taking_exam:
                     # Log the login attempt with device info
                     device_info = request.META.get('HTTP_USER_AGENT', 'Unknown')
@@ -717,6 +718,27 @@ def take_exam(request, exam_id):
     })
 
 
+@login_required
+@role_required('teacher')
+def mark_all_attempts_completed(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    
+    # Get all in-progress attempts for this exam
+    in_progress_attempts = ExamAttempt.objects.filter(exam=exam, status='in_progress')
+    
+    # Mark all in-progress attempts as completed
+    for attempt in in_progress_attempts:
+        attempt.status = 'completed'
+        attempt.save()
+        
+        # Reset the is_taking_exam flag for the student
+        student = attempt.student
+        student.is_taking_exam = False
+        student.save()
+    
+    messages.success(request, "Toutes les tentatives en cours ont été marquées comme terminées.")
+    return redirect('exam_attempts', exam_id=exam.id)
+
 
 @login_required
 @role_required('student')
@@ -900,15 +922,20 @@ def get_exam_status(request, exam_id):
 def exam_attempts(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     attempts = ExamAttempt.objects.filter(exam=exam)
-    for attempt in attempts:
-        if attempt.end_date and attempt.start_date:
-            attempt.time_taken = (attempt.end_date - attempt.start_date).total_seconds() / 60
-        else:
-            attempt.time_taken = None
+    
+    # Calculate statistics
+    total_students = exam.group.userprofile_set.filter(role='student').count()
+    completed_attempts = attempts.filter(status='completed').count()
+    in_progress_attempts = attempts.filter(status='in_progress').count()
+    
     context = {
         'exam': exam,
         'attempts': attempts,
+        'total_students': total_students,
+        'completed_attempts': completed_attempts,
+        'in_progress_attempts': in_progress_attempts,
     }
+    
     return render(request, 'teacher/exam/exam_attempts.html', context)
 
 @login_required
