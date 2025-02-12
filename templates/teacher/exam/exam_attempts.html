@@ -145,6 +145,13 @@
                                 </td>
                                 <td class="px-6 py-4 text-right whitespace-nowrap">
                                     <div class="flex justify-end items-center space-x-2">
+                                        <!-- Reset Icon -->
+                                        <button onclick="resetIsTakingExam('{{ attempt.student.user.username }}')" class="inline-flex items-center space-x-2 text-yellow-600 dark:text-yellow-400 hover:shadow-[0_0_15px_rgba(234,179,8,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
+                                            <div class="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+                                                {% include 'components/icons.html' with icon="refresh" class="w-4 h-4" %}
+                                            </div>
+                                            <span class="font-medium">Réinitialiser</span>
+                                        </button>
                                         <a href="{% url 'exam_logs' attempt.id %}" class="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:shadow-[0_0_15px_rgba(107,114,128,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
                                             <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                                                 {% include 'components/icons.html' with icon="document" class="w-4 h-4" %}
@@ -186,6 +193,34 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this modal at the bottom of the template, before the closing </body> tag -->
+<div id="custom-confirm-modal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 w-full max-w-md p-6 space-y-6">
+            <!-- Modal Header -->
+            <div class="flex items-center space-x-4">
+                <div class="p-3 rounded-full bg-gradient-to-br from-yellow-500/10 to-orange-500/10 dark:from-yellow-400/5 dark:to-orange-400/5">
+                    {% include 'components/icons.html' with icon="exclamation" class="w-6 h-6 text-yellow-600 dark:text-yellow-400" %}
+                </div>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Confirmation</h2>
+            </div>
+
+            <!-- Modal Body -->
+            <p class="text-gray-600 dark:text-gray-400">Êtes-vous sûr de vouloir réinitialiser l'état de cet étudiant ? Cela lui permettra de se reconnecter.</p>
+
+            <!-- Modal Footer -->
+            <div class="flex justify-end space-x-4">
+                <button id="confirm-cancel" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-700/80 rounded-xl transition-all duration-300">
+                    Annuler
+                </button>
+                <button id="confirm-ok" class="px-4 py-2 text-white bg-gradient-to-br from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 rounded-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(234,179,8,0.25)]">
+                    Confirmer
+                </button>
             </div>
         </div>
     </div>
@@ -297,6 +332,66 @@
 
     setInterval(fetchAttempts, 4000);
     fetchAttempts();
+</script>
+<script>
+    // Function to show the custom confirmation modal
+    function showCustomConfirmModal(username) {
+        const modal = document.getElementById('custom-confirm-modal');
+        const confirmOk = document.getElementById('confirm-ok');
+        const confirmCancel = document.getElementById('confirm-cancel');
+
+        // Show the modal
+        modal.classList.remove('hidden');
+
+        // Handle confirmation
+        confirmOk.onclick = () => {
+            modal.classList.add('hidden');
+            resetIsTakingExam(username);
+        };
+
+        // Handle cancellation
+        confirmCancel.onclick = () => {
+            modal.classList.add('hidden');
+        };
+    }
+
+    // Function to reset is_taking_exam
+    function resetIsTakingExam(username) {
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Send AJAX request to reset is_taking_exam
+        fetch(`/reset-is-taking-exam/${username}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                const modal = document.getElementById('custom-confirm-modal');
+                modal.classList.add('hidden');
+                alert('L\'état de l\'étudiant a été réinitialisé avec succès.');
+                window.location.reload();
+            } else {
+                alert('Une erreur s\'est produite lors de la réinitialisation.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Une erreur s\'est produite lors de la réinitialisation.');
+        });
+    }
+
+    // Attach the custom modal to the reset icon
+    document.querySelectorAll('.reset-icon').forEach(icon => {
+        icon.addEventListener('click', () => {
+            const username = icon.dataset.username;
+            showCustomConfirmModal(username);
+        });
+    });
 </script>
 <style>
 .status-badge {

@@ -5,6 +5,7 @@ from django.utils.timezone import now
 from django.db.models import Avg, Count, F, Q, DurationField, ExpressionWrapper, DecimalField
 from django.db.models.functions import Cast
 from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
@@ -937,6 +938,23 @@ def exam_attempts(request, exam_id):
     }
     
     return render(request, 'teacher/exam/exam_attempts.html', context)
+
+
+@csrf_exempt
+def reset_is_taking_exam(request, username):
+    if request.method == 'POST':
+        try:
+            user = User.objects.get(username=username)
+            user_profile = UserProfile.objects.get(user=user)
+            user_profile.is_taking_exam = False
+            user_profile.save()
+            return JsonResponse({'success': True})
+        except User.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'User not found'}, status=404)
+        except UserProfile.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'UserProfile not found'}, status=404)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
+
 
 @login_required
 @role_required('teacher')
