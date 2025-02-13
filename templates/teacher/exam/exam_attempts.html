@@ -1,400 +1,517 @@
-{% extends 'base.html' %}
-
-{% block title %}Tentatives d'Examen - {{ exam.title }} - Exam4U{% endblock %}
-
-{% block content %}
+{% extends 'base.html' %} {% block title %}Tentatives d'Examen - {{ exam.title
+}} - Exam4U{% endblock %} {% block content %}
 <div class="flex min-h-screen bg-white dark:bg-gray-900">
-    {% include 'components/teacher_sidebar.html' %}
-    
-    <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
-        <!-- Title Section -->
-        <div class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
-            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
-            <div class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-            <div class="relative z-10 p-6">
-                <div class="flex items-center space-x-4">
-                    <div class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
-                        {% include 'components/icons.html' with icon="document" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
-                    </div>
-                    <div>
-                        <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">{{ exam.title }}</h1>
-                        <p class="text-gray-600 dark:text-gray-400 mt-2">Tentatives des étudiants</p>
-                    </div>
-                </div>
+  {% include 'components/teacher_sidebar.html' %}
 
-                <!-- Statistics Section -->
-                <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Total des étudiants</p>
-                        <p class="text-xl font-bold text-gray-900 dark:text-white">{{ total_students }}</p>
-                    </div>
-                    <div class="bg-gradient-to-br from-green-500/10 to-teal-500/10 dark:from-green-400/5 dark:to-teal-400/5 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Tentatives terminées</p>
-                        <p class="text-xl font-bold text-gray-900 dark:text-white">{{ completed_attempts }}</p>
-                    </div>
-                    <div class="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 dark:from-yellow-400/5 dark:to-orange-400/5 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Tentatives en cours</p>
-                        <p class="text-xl font-bold text-gray-900 dark:text-white">{{ in_progress_attempts }}</p>
-                    </div>
-                </div>
-
-                <!-- Button to Mark All as Completed -->
-                <div class="mt-6">
-                    <form method="post" action="{% url 'mark_all_attempts_completed' exam.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="inline-flex items-center justify-center space-x-2 text-white bg-gradient-to-br from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 rounded-xl px-4 py-2 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(34,197,94,0.25)]">
-                            <div class="p-2 bg-green-100/20 rounded-lg">
-                                {% include 'components/icons.html' with icon="check" class="w-4 h-4" %}
-                            </div>
-                            <span class="font-medium">Marquer tous comme terminés</span>
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Download Results Form -->
-                <form method="get" action="{% url 'download_exam_results' exam.id %}" class="mt-6 space-y-4">
-                    <div class="flex flex-col space-y-2">
-                        <label for="format" class="text-sm font-medium text-gray-700 dark:text-gray-300">Format de téléchargement:</label>
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            <select name="format" id="format" class="flex-1 px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
-                                <option value="full">Résultats détaillés (détails complets)</option>
-                                <option value="generic">Résultats génériques (Question 1, Question 2, ...)</option>
-                                <option value="zip">Tous les résultats des étudiants (ZIP)</option>
-                            </select>
-                            <button type="submit" class="inline-flex items-center justify-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
-                                <div class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg">
-                                    {% include 'components/icons.html' with icon="download" class="w-4 h-4" %}
-                                </div>
-                                <span class="font-medium">Télécharger</span>
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+  <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
+    <!-- Title Section -->
+    <div
+      class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700"
+    >
+      <div
+        class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"
+      ></div>
+      <div
+        class="absolute bottom-0 left-0 -mb-4 -ml-4 w-32 h-32 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 dark:from-purple-400/10 dark:to-pink-400/10 rounded-full blur-3xl animate-pulse delay-1000"
+      ></div>
+      <div class="relative z-10 p-6">
+        <div class="flex items-center space-x-4">
+          <div
+            class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5"
+          >
+            {% include 'components/icons.html' with icon="document" class="w-8
+            h-8 text-blue-600 dark:text-blue-400" %}
+          </div>
+          <div>
+            <h1
+              class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent"
+            >
+              {{ exam.title }}
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">
+              Tentatives des étudiants
+            </p>
+          </div>
         </div>
 
-        <!-- Attempts Table -->
-        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-gray-50/80 dark:bg-gray-700/80">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Étudiant
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Date
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Statut
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Type d'Examen
-                            </th>                        
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Note
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="attempts-table-body">
-                        {% for attempt in attempts %}
-                            <tr data-attempt-id="{{ attempt.id }}" class="transition-all duration-300 hover:bg-gray-50/80 dark:hover:bg-gray-700/80">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 h-10 w-10">
-                                            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 flex items-center justify-center text-white font-semibold">
-                                                {{ attempt.student.user.first_name|make_list|first|upper }}
-                                            </div>
-                                        </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                {{ attempt.student.user.get_full_name }}
-                                            </div>
-                                            <div class="text-sm text-gray-500 dark:text-gray-400">
-                                                {{ attempt.student.user.username }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-500 dark:text-gray-400">
-                                        {{ attempt.start_date|date:"d/m/Y" }}
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="status-badge status-{{ attempt.status }}">
-                                        {{ attempt.get_status_display }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-500 dark:text-gray-400">
-                                        {{ attempt.get_type_display }}
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-500 dark:text-gray-400">
-                                        {% if attempt.grade %}
-                                            {{ attempt.grade|floatformat:1 }}/20
-                                        {% else %}
-                                            Non noté
-                                        {% endif %}
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 text-right whitespace-nowrap">
-                                    <div class="flex justify-end items-center space-x-2">
-                                        <!-- Reset Icon -->
-                                        <button onclick="resetIsTakingExam('{{ attempt.student.user.username }}')" class="inline-flex items-center space-x-2 text-yellow-600 dark:text-yellow-400 hover:shadow-[0_0_15px_rgba(234,179,8,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
-                                            <div class="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-                                                {% include 'components/icons.html' with icon="refresh" class="w-4 h-4" %}
-                                            </div>
-                                            <span class="font-medium">Réinitialiser</span>
-                                        </button>
-                                        <a href="{% url 'exam_logs' attempt.id %}" class="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:shadow-[0_0_15px_rgba(107,114,128,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
-                                            <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                                                {% include 'components/icons.html' with icon="document" class="w-4 h-4" %}
-                                            </div>
-                                            <span class="font-medium">Logs</span>
-                                        </a>
-                                        <a href="{% url 'download_student_result' attempt.id %}" class="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
-                                            <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                                                {% include 'components/icons.html' with icon="download" class="w-4 h-4" %}
-                                            </div>
-                                            <span class="font-medium">Télécharger</span>
-                                        </a>
-                                        <a href="{% url 'grade_attempt' attempt.id %}" class="inline-flex items-center space-x-2 text-green-600 dark:text-green-400 hover:shadow-[0_0_15px_rgba(34,197,94,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
-                                            <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                                                {% include 'components/icons.html' with icon="clipboard-check" class="w-4 h-4" %}
-                                            </div>
-                                            <span class="font-medium">
-                                                {% if attempt.grade is not None %}
-                                                    Modifier
-                                                {% else %}
-                                                    Corriger
-                                                {% endif %}
-                                            </span>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="6" class="px-6 py-8 text-center">
-                                    <div class="flex flex-col items-center justify-center space-y-4">
-                                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 flex items-center justify-center">
-                                            {% include 'components/icons.html' with icon="information" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
-                                        </div>
-                                        <p class="text-gray-500 dark:text-gray-400">Aucune tentative d'examen trouvée</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <!-- Replace the Statistics Section -->
+        <div class="mt-6 flex flex-col sm:flex-row gap-4">
+          <div class="stat-card flex-1">
+            <div class="stat-icon students">
+              {% include 'components/icons.html' with icon="users" class="w-5
+              h-5" %}
             </div>
+            <div class="stat-content">
+              <span class="stat-value">{{ total_students }}</span>
+              <span class="stat-label">Total des étudiants</span>
+            </div>
+          </div>
+
+          <div class="stat-card flex-1">
+            <div class="stat-icon completed">
+              {% include 'components/icons.html' with icon="check-circle"
+              class="w-5 h-5" %}
+            </div>
+            <div class="stat-content">
+              <span class="stat-value">{{ completed_attempts }}</span>
+              <span class="stat-label">Tentatives terminées</span>
+            </div>
+          </div>
+
+          <div class="stat-card flex-1">
+            <div class="stat-icon in-progress">
+              {% include 'components/icons.html' with icon="clock" class="w-5
+              h-5" %}
+            </div>
+            <div class="stat-content">
+              <span class="stat-value">{{ in_progress_attempts }}</span>
+              <span class="stat-label">Tentatives en cours</span>
+            </div>
+          </div>
         </div>
+
+        <!-- Update the "Mark All as Completed" button -->
+        <div class="mt-6">
+          <form
+            method="post"
+            action="{% url 'mark_all_attempts_completed' exam.id %}"
+          >
+            {% csrf_token %}
+            <button type="submit" class="mark-all-btn">
+              <div class="icon-wrapper">
+                {% include 'components/icons.html' with icon="check" class="w-5
+                h-5" %}
+              </div>
+              <span>Marquer tous comme terminés</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Download Results Form -->
+        <form
+          method="get"
+          action="{% url 'download_exam_results' exam.id %}"
+          class="mt-6 space-y-4"
+        >
+          <div class="flex flex-col space-y-2">
+            <label
+              for="format"
+              class="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >Format de téléchargement:</label
+            >
+            <div class="flex flex-col sm:flex-row gap-4">
+              <select
+                name="format"
+                id="format"
+                class="flex-1 px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300"
+              >
+                <option value="full">
+                  Résultats détaillés (détails complets)
+                </option>
+                <option value="generic">
+                  Résultats génériques (Question 1, Question 2, ...)
+                </option>
+                <option value="zip">
+                  Tous les résultats des étudiants (ZIP)
+                </option>
+              </select>
+              <button
+                type="submit"
+                class="inline-flex items-center justify-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5"
+              >
+                <div
+                  class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg"
+                >
+                  {% include 'components/icons.html' with icon="download"
+                  class="w-4 h-4" %}
+                </div>
+                <span class="font-medium">Télécharger</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
+
+    <!-- Attempts Table -->
+    <div
+      class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+    >
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50/80 dark:bg-gray-700/80">
+            <tr>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
+                Étudiant
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
+                Date
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
+                Statut
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
+                Type d'Examen
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
+                Note
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody
+            class="divide-y divide-gray-200 dark:divide-gray-700"
+            id="attempts-table-body"
+          >
+            {% for attempt in attempts %}
+            <tr
+              data-attempt-id="{{ attempt.id }}"
+              class="transition-all duration-300 hover:bg-gray-50/80 dark:hover:bg-gray-700/80"
+            >
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10">
+                    <div
+                      class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 flex items-center justify-center text-white font-semibold"
+                    >
+                      {{ attempt.student.user.first_name|make_list|first|upper
+                      }}
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <div
+                      class="text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      {{ attempt.student.user.get_full_name }}
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                      {{ attempt.student.user.username }}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ attempt.start_date|date:"d/m/Y" }}
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="status-badge status-{{ attempt.status }}">
+                  {{ attempt.get_status_display }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ attempt.get_type_display }}
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                  {% if attempt.grade %} {{ attempt.grade|floatformat:1 }}/20 {%
+                  else %} Non noté {% endif %}
+                </div>
+              </td>
+              <td class="px-6 py-4 text-right whitespace-nowrap">
+                <div class="flex justify-end items-center space-x-3">
+                  <button
+                    onclick="resetIsTakingExam('{{ attempt.student.user.username }}')"
+                    class="action-btn retry"
+                    title="Réinitialiser"
+                  >
+                    {% include 'components/icons.html' with icon="refresh"
+                    class="w-5 h-5" %}
+                  </button>
+                  <a
+                    href="{% url 'exam_logs' attempt.id %}"
+                    class="action-btn"
+                    title="Logs"
+                  >
+                    {% include 'components/icons.html' with icon="document"
+                    class="w-5 h-5 text-gray-600 dark:text-gray-400" %}
+                  </a>
+                  <a
+                    href="{% url 'download_student_result' attempt.id %}"
+                    class="action-btn"
+                    title="Télécharger"
+                  >
+                    {% include 'components/icons.html' with icon="download"
+                    class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
+                  </a>
+                  <a
+                    href="{% url 'grade_attempt' attempt.id %}"
+                    class="action-btn correct"
+                    title="{% if attempt.grade is not None %}Modifier{% else %}Corriger{% endif %}"
+                  >
+                    {% include 'components/icons.html' with
+                    icon="clipboard-check" class="w-5 h-5" %}
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="px-6 py-8 text-center">
+                <div
+                  class="flex flex-col items-center justify-center space-y-4"
+                >
+                  <div
+                    class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 flex items-center justify-center"
+                  >
+                    {% include 'components/icons.html' with icon="information"
+                    class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                  </div>
+                  <p class="text-gray-500 dark:text-gray-400">
+                    Aucune tentative d'examen trouvée
+                  </p>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Add this modal at the bottom of the template, before the closing </body> tag -->
-<div id="custom-confirm-modal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 w-full max-w-md p-6 space-y-6">
-            <!-- Modal Header -->
-            <div class="flex items-center space-x-4">
-                <div class="p-3 rounded-full bg-gradient-to-br from-yellow-500/10 to-orange-500/10 dark:from-yellow-400/5 dark:to-orange-400/5">
-                    {% include 'components/icons.html' with icon="exclamation" class="w-6 h-6 text-yellow-600 dark:text-yellow-400" %}
-                </div>
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Confirmation</h2>
-            </div>
-
-            <!-- Modal Body -->
-            <p class="text-gray-600 dark:text-gray-400">Êtes-vous sûr de vouloir réinitialiser l'état de cet étudiant ? Cela lui permettra de se reconnecter.</p>
-
-            <!-- Modal Footer -->
-            <div class="flex justify-end space-x-4">
-                <button id="confirm-cancel" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-700/80 rounded-xl transition-all duration-300">
-                    Annuler
-                </button>
-                <button id="confirm-ok" class="px-4 py-2 text-white bg-gradient-to-br from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 rounded-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(234,179,8,0.25)]">
-                    Confirmer
-                </button>
-            </div>
+<div
+  id="custom-confirm-modal"
+  class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm"
+>
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <div
+      class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 w-full max-w-md p-6 space-y-6"
+    >
+      <!-- Modal Header -->
+      <div class="flex items-center space-x-4">
+        <div
+          class="p-3 rounded-full bg-gradient-to-br from-yellow-500/10 to-orange-500/10 dark:from-yellow-400/5 dark:to-orange-400/5"
+        >
+          {% include 'components/icons.html' with icon="exclamation" class="w-6
+          h-6 text-yellow-600 dark:text-yellow-400" %}
         </div>
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+          Confirmation
+        </h2>
+      </div>
+
+      <!-- Modal Body -->
+      <p class="text-gray-600 dark:text-gray-400">
+        Êtes-vous sûr de vouloir réinitialiser l'état de cet étudiant ? Cela lui
+        permettra de se reconnecter.
+      </p>
+
+      <!-- Modal Footer -->
+      <div class="flex justify-end space-x-4">
+        <button
+          id="confirm-cancel"
+          class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100/80 dark:hover:bg-gray-700/80 rounded-xl transition-all duration-300"
+        >
+          Annuler
+        </button>
+        <button
+          id="confirm-ok"
+          class="px-4 py-2 text-white bg-gradient-to-br from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 rounded-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(234,179,8,0.25)]"
+        >
+          Confirmer
+        </button>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
-    function updateAttemptsTable(attempts) {
-        const tableBody = document.getElementById('attempts-table-body');
-        tableBody.innerHTML = '';
+  function updateAttemptsTable(attempts) {
+      const tableBody = document.getElementById('attempts-table-body');
+      tableBody.innerHTML = '';
 
-        if (attempts.length === 0) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="px-6 py-8 text-center">
-                        <div class="flex flex-col items-center justify-center space-y-4">
-                            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 flex items-center justify-center">
-                                {% include 'components/icons.html' with icon="information" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
-                            </div>
-                            <p class="text-gray-500 dark:text-gray-400">Aucune tentative d'examen trouvée</p>
-                        </div>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
+      if (attempts.length === 0) {
+          tableBody.innerHTML = `
+              <tr>
+                  <td colspan="6" class="px-6 py-8 text-center">
+                      <div class="flex flex-col items-center justify-center space-y-4">
+                          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 flex items-center justify-center">
+                              {% include 'components/icons.html' with icon="information" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                          </div>
+                          <p class="text-gray-500 dark:text-gray-400">Aucune tentative d'examen trouvée</p>
+                      </div>
+                  </td>
+              </tr>
+          `;
+          return;
+      }
 
-        attempts.forEach(attempt => {
-            const row = document.createElement('tr');
-            row.className = 'transition-all duration-300 hover:bg-gray-50/80 dark:hover:bg-gray-700/80';
-            row.dataset.attemptId = attempt.id;
-            
-            const statusClass = `status-badge status-${attempt.status.replace('_', '-')}`;
-            
-            row.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0 h-10 w-10">
-                            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 flex items-center justify-center text-white font-semibold">
-                                ${attempt.student_name.charAt(0).toUpperCase()}
-                            </div>
-                        </div>
-                        <div class="ml-4">
-                            <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                ${attempt.student_name.toUpperCase()}
-                            </div>
-                            <div class="text-sm text-gray-500 dark:text-gray-400">
-                                ${attempt.username}
-                            </div>
-                        </div>
-                    </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-500 dark:text-gray-400">
-                        ${attempt.start_date}
-                    </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="${statusClass}">
-                        ${attempt.status_display}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-500 dark:text-gray-400">
-                        ${attempt.type}
-                    </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-500 dark:text-gray-400">
-                        ${attempt.grade ? `${attempt.grade|floatformat:1}/20` : 'Non noté'}
-                    </div>
-                </td>
-                <td class="px-6 py-4 text-right whitespace-nowrap">
-                    <div class="flex justify-end items-center space-x-2">
-                        <a href="/exams/teacher/logs/${attempt.id}/" class="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:shadow-[0_0_15px_rgba(107,114,128,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
-                            <div class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                                {% include 'components/icons.html' with icon="document" class="w-4 h-4" %}
-                            </div>
-                            <span class="font-medium">Logs</span>
-                        </a>
-                        <a href="/exams/teacher/download-result/${attempt.id}/" class="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
-                            <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                                {% include 'components/icons.html' with icon="download" class="w-4 h-4" %}
-                            </div>
-                            <span class="font-medium">Télécharger</span>
-                        </a>
-                        <a href="/exams/teacher/attempt/${attempt.id}/grade/" class="inline-flex items-center space-x-2 text-green-600 dark:text-green-400 hover:shadow-[0_0_15px_rgba(34,197,94,0.25)] rounded-xl p-2 transition-all duration-300 hover:-translate-y-0.5">
-                            <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                                {% include 'components/icons.html' with icon="clipboard-check" class="w-4 h-4" %}
-                            </div>
-                            <span class="font-medium">
-                                ${attempt.grade === "Non noté" ? "Corriger" : "Modifier"}
-                            </span>
-                        </a>
-                    </div>
-                </td>
-            `;
-            tableBody.appendChild(row);
-        });
-    }
+      attempts.forEach(attempt => {
+          const row = document.createElement('tr');
+          row.className = 'transition-all duration-300 hover:bg-gray-50/80 dark:hover:bg-gray-700/80';
+          row.dataset.attemptId = attempt.id;
 
-    function fetchAttempts() {
-        fetch(`{% url 'get_exam_attempts_json' exam.id %}`)
-            .then(response => response.json())
-            .then(data => {
-                updateAttemptsTable(data.attempts);
-            })
-            .catch(error => console.error('Error fetching attempts:', error));
-    }
+          const statusClass = `status-badge status-${attempt.status.replace('_', '-')}`;
 
-    setInterval(fetchAttempts, 4000);
-    fetchAttempts();
+          row.innerHTML = `
+              <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                      <div class="flex-shrink-0 h-10 w-10">
+                          <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 flex items-center justify-center text-white font-semibold">
+                              ${attempt.student_name.charAt(0).toUpperCase()}
+                          </div>
+                      </div>
+                      <div class="ml-4">
+                          <div class="text-sm font-medium text-gray-900 dark:text-white">
+                              ${attempt.student_name.toUpperCase()}
+                          </div>
+                          <div class="text-sm text-gray-500 dark:text-gray-400">
+                              ${attempt.username}
+                          </div>
+                      </div>
+                  </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-500 dark:text-gray-400">
+                      ${attempt.start_date}
+                  </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="${statusClass}">
+                      ${attempt.status_display}
+                  </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-500 dark:text-gray-400">
+                      ${attempt.type}
+                  </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-500 dark:text-gray-400">
+                      ${attempt.grade ? `${attempt.grade|floatformat:1}/20` : 'Non noté'}
+                  </div>
+              </td>
+              <td class="px-6 py-4 text-right whitespace-nowrap">
+                  <div class="flex justify-end items-center space-x-3">
+                      <button onclick="resetIsTakingExam('${attempt.username}')"
+                              class="action-btn retry"
+                              title="Réinitialiser">
+                          {% include 'components/icons.html' with icon="refresh" class="w-5 h-5" %}
+                      </button>
+                      <a href="/exams/teacher/logs/${attempt.id}/"
+                         class="action-btn"
+                         title="Logs">
+                          {% include 'components/icons.html' with icon="document" class="w-5 h-5 text-gray-600 dark:text-gray-400" %}
+                      </a>
+                      <a href="/exams/teacher/download-result/${attempt.id}/"
+                         class="action-btn"
+                         title="Télécharger">
+                          {% include 'components/icons.html' with icon="download" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
+                      </a>
+                      <a href="/exams/teacher/attempt/${attempt.id}/grade/"
+                         class="action-btn correct"
+                         title="${attempt.grade === 'Non noté' ? 'Corriger' : 'Modifier'}">
+                          {% include 'components/icons.html' with icon="clipboard-check" class="w-5 h-5" %}
+                      </a>
+                  </div>
+              </td>
+          `;
+          tableBody.appendChild(row);
+      });
+  }
+
+  function fetchAttempts() {
+      fetch(`{% url 'get_exam_attempts_json' exam.id %}`)
+          .then(response => response.json())
+          .then(data => {
+              updateAttemptsTable(data.attempts);
+          })
+          .catch(error => console.error('Error fetching attempts:', error));
+  }
+
+  setInterval(fetchAttempts, 4000);
+  fetchAttempts();
 </script>
 <script>
-    // Function to show the custom confirmation modal
-    function showCustomConfirmModal(username) {
-        const modal = document.getElementById('custom-confirm-modal');
-        const confirmOk = document.getElementById('confirm-ok');
-        const confirmCancel = document.getElementById('confirm-cancel');
+  // Function to show the custom confirmation modal
+  function showCustomConfirmModal(username) {
+    const modal = document.getElementById("custom-confirm-modal");
+    const confirmOk = document.getElementById("confirm-ok");
+    const confirmCancel = document.getElementById("confirm-cancel");
 
-        // Show the modal
-        modal.classList.remove('hidden');
+    // Show the modal
+    modal.classList.remove("hidden");
 
-        // Handle confirmation
-        confirmOk.onclick = () => {
-            modal.classList.add('hidden');
-            resetIsTakingExam(username);
-        };
+    // Handle confirmation
+    confirmOk.onclick = () => {
+      modal.classList.add("hidden");
+      resetIsTakingExam(username);
+    };
 
-        // Handle cancellation
-        confirmCancel.onclick = () => {
-            modal.classList.add('hidden');
-        };
-    }
+    // Handle cancellation
+    confirmCancel.onclick = () => {
+      modal.classList.add("hidden");
+    };
+  }
 
-    // Function to reset is_taking_exam
-    function resetIsTakingExam(username) {
-        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  // Function to reset is_taking_exam
+  function resetIsTakingExam(username) {
+    const csrftoken = document.querySelector(
+      "[name=csrfmiddlewaretoken]"
+    ).value;
 
-        // Send AJAX request to reset is_taking_exam
-        fetch(`/reset-is-taking-exam/${username}/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken,
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Show success message
-                const modal = document.getElementById('custom-confirm-modal');
-                modal.classList.add('hidden');
-                alert('L\'état de l\'étudiant a été réinitialisé avec succès.');
-                window.location.reload();
-            } else {
-                alert('Une erreur s\'est produite lors de la réinitialisation.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Une erreur s\'est produite lors de la réinitialisation.');
-        });
-    }
+    // Send AJAX request to reset is_taking_exam
+    fetch(`/reset-is-taking-exam/${username}/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          // Show success message
+          const modal = document.getElementById("custom-confirm-modal");
+          modal.classList.add("hidden");
+          alert("L'état de l'étudiant a été réinitialisé avec succès.");
+          window.location.reload();
+        } else {
+          alert("Une erreur s'est produite lors de la réinitialisation.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Une erreur s'est produite lors de la réinitialisation.");
+      });
+  }
 
-    // Attach the custom modal to the reset icon
-    document.querySelectorAll('.reset-icon').forEach(icon => {
-        icon.addEventListener('click', () => {
-            const username = icon.dataset.username;
-            showCustomConfirmModal(username);
-        });
+  // Attach the custom modal to the reset icon
+  document.querySelectorAll(".reset-icon").forEach((icon) => {
+    icon.addEventListener("click", () => {
+      const username = icon.dataset.username;
+      showCustomConfirmModal(username);
     });
+  });
 </script>
 <style>
-.status-badge {
+  .status-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -405,41 +522,202 @@
     letter-spacing: 0.5px;
     border-radius: 8px;
     min-width: 100px;
-}
+  }
 
-.status-completed {
-    background: linear-gradient(to right, #22C55E, #16A34A);
+  .status-completed {
+    background: linear-gradient(to right, #22c55e, #16a34a);
     color: white;
-}
+  }
 
-.status-in-progress {
-    background: linear-gradient(to right, #F59E0B, #D97706);
+  .status-in-progress {
+    background: linear-gradient(to right, #f59e0b, #d97706);
     color: white;
-}
+  }
 
-.status-abandoned {
-    background: linear-gradient(to right, #6B7280, #4B5563);
+  .status-abandoned {
+    background: linear-gradient(to right, #6b7280, #4b5563);
     color: white;
-}
+  }
 
-@media (prefers-color-scheme: dark) {
+  @media (prefers-color-scheme: dark) {
     .status-completed {
-        background: linear-gradient(to right, rgba(34, 197, 94, 0.2), rgba(22, 163, 74, 0.2));
-        color: #4ADE80;
-        border: 1px solid rgba(74, 222, 128, 0.4);
+      background: linear-gradient(
+        to right,
+        rgba(34, 197, 94, 0.2),
+        rgba(22, 163, 74, 0.2)
+      );
+      color: #4ade80;
+      border: 1px solid rgba(74, 222, 128, 0.4);
     }
 
     .status-in-progress {
-        background: linear-gradient(to right, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2));
-        color: #FBBF24;
-        border: 1px solid rgba(251, 191, 36, 0.4);
+      background: linear-gradient(
+        to right,
+        rgba(245, 158, 11, 0.2),
+        rgba(217, 119, 6, 0.2)
+      );
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.4);
     }
 
     .status-abandoned {
-        background: linear-gradient(to right, rgba(107, 114, 128, 0.2), rgba(75, 85, 99, 0.2));
-        color: #9CA3AF;
-        border: 1px solid rgba(156, 163, 175, 0.4);
+      background: linear-gradient(
+        to right,
+        rgba(107, 114, 128, 0.2),
+        rgba(75, 85, 99, 0.2)
+      );
+      color: #9ca3af;
+      border: 1px solid rgba(156, 163, 175, 0.4);
     }
-}
+  }
+
+  .action-btn {
+    padding: 0.625rem;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(243, 244, 246, 0.5);
+  }
+
+  .action-btn svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .action-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(243, 244, 246, 0.9);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .dark .action-btn {
+    background: rgba(31, 41, 55, 0.5);
+  }
+
+  .dark .action-btn:hover {
+    background: rgba(31, 41, 55, 0.9);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .action-btn.correct {
+    color: #059669;
+  }
+  .dark .action-btn.correct {
+    color: #34d399;
+  }
+
+  .action-btn.retry {
+    color: #eab308;
+  }
+  .dark .action-btn.retry {
+    color: #facc15;
+  }
+
+  /* New streamlined styles */
+  .mark-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: rgba(34, 197, 94, 0.1);
+    color: #16a34a;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 10px;
+    transition: background-color 0.2s ease;
+  }
+
+  .mark-all-btn .icon-wrapper {
+    padding: 6px;
+    background: rgba(34, 197, 94, 0.15);
+    border-radius: 8px;
+  }
+
+  .mark-all-btn:hover {
+    background: #16a34a;
+    color: white;
+  }
+
+  .mark-all-btn:hover .icon-wrapper {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .mark-all-btn {
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+    }
+
+    .mark-all-btn:hover {
+      background: #22c55e;
+      color: white;
+    }
+  }
+
+  .stat-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid rgba(229, 231, 235, 0.8);
+  }
+
+  .stat-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+  }
+
+  .stat-icon.students {
+    background: #3b82f6;
+  }
+  .stat-icon.completed {
+    background: #10b981;
+  }
+  .stat-icon.in-progress {
+    background: #f59e0b;
+  }
+
+  .stat-icon {
+    color: white;
+  }
+
+  .stat-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  /* Dark mode */
+  .dark .stat-card {
+    background: #1f2937;
+    border-color: rgba(75, 85, 99, 0.8);
+  }
+
+  .dark .stat-value {
+    color: #f3f4f6;
+  }
+
+  .dark .stat-label {
+    color: #9ca3af;
+  }
 </style>
 {% endblock %}
