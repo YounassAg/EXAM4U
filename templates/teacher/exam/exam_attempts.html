@@ -1,13 +1,13 @@
-{% extends 'base.html' %} {% block title %}Tentatives d'Examen - {{ exam.title
-}} - Exam4U{% endblock %} {% block content %}
+{% extends 'base.html' %} 
+{% block title %}Tentatives d'Examen - {{ exam.title}} - Exam4U{% endblock %}
+{% block content %}
 <div class="flex min-h-screen bg-white dark:bg-gray-900">
   {% include 'components/teacher_sidebar.html' %}
 
   <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
     <!-- Title Section -->
     <div
-      class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700"
-    >
+      class="relative overflow-hidden bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
       <div
         class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 dark:from-blue-400/10 dark:to-purple-400/10 rounded-full blur-3xl animate-pulse"
       ></div>
@@ -19,8 +19,7 @@
           <div
             class="p-3 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5"
           >
-            {% include 'components/icons.html' with icon="document" class="w-8
-            h-8 text-blue-600 dark:text-blue-400" %}
+            {% include 'components/icons.html' with icon="document" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
           </div>
           <div>
             <h1
@@ -38,8 +37,7 @@
         <div class="mt-6 flex flex-col sm:flex-row gap-4">
           <div class="stat-card flex-1">
             <div class="stat-icon students">
-              {% include 'components/icons.html' with icon="users" class="w-5
-              h-5" %}
+              {% include 'components/icons.html' with icon="users" class="w-5 h-5" %}
             </div>
             <div class="stat-content">
               <span class="stat-value">{{ total_students }}</span>
@@ -49,8 +47,7 @@
 
           <div class="stat-card flex-1">
             <div class="stat-icon completed">
-              {% include 'components/icons.html' with icon="check-circle"
-              class="w-5 h-5" %}
+              {% include 'components/icons.html' with icon="check-circle" class="w-5 h-5" %}
             </div>
             <div class="stat-content">
               <span class="stat-value">{{ completed_attempts }}</span>
@@ -60,8 +57,7 @@
 
           <div class="stat-card flex-1">
             <div class="stat-icon in-progress">
-              {% include 'components/icons.html' with icon="clock" class="w-5
-              h-5" %}
+              {% include 'components/icons.html' with icon="clock" class="w-5 h-5" %}
             </div>
             <div class="stat-content">
               <span class="stat-value">{{ in_progress_attempts }}</span>
@@ -79,8 +75,7 @@
             {% csrf_token %}
             <button type="submit" class="mark-all-btn">
               <div class="icon-wrapper">
-                {% include 'components/icons.html' with icon="check" class="w-5
-                h-5" %}
+                {% include 'components/icons.html' with icon="check" class="w-5 h-5" %}
               </div>
               <span>Marquer tous comme terminés</span>
             </button>
@@ -122,8 +117,7 @@
                 <div
                   class="p-2 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 rounded-lg"
                 >
-                  {% include 'components/icons.html' with icon="download"
-                  class="w-4 h-4" %}
+                  {% include 'components/icons.html' with icon="download" class="w-4 h-4" %}
                 </div>
                 <span class="font-medium">Télécharger</span>
               </button>
@@ -194,8 +188,7 @@
                     <div
                       class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 flex items-center justify-center text-white font-semibold"
                     >
-                      {{ attempt.student.user.first_name|make_list|first|upper
-                      }}
+                      {{ attempt.student.user.first_name|make_list|first|upper }}
                     </div>
                   </div>
                   <div class="ml-4">
@@ -227,8 +220,8 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm text-gray-500 dark:text-gray-400">
-                  {% if attempt.grade %} {{ attempt.grade|floatformat:1 }}/20 {%
-                  else %} Non noté {% endif %}
+                  {% if attempt.grade %} {{ attempt.grade|floatformat:1 }}/20 
+                  {%else %} Non noté {% endif %}
                 </div>
               </td>
               <td class="px-6 py-4 text-right whitespace-nowrap">
@@ -238,32 +231,28 @@
                     class="action-btn retry"
                     title="Réinitialiser"
                   >
-                    {% include 'components/icons.html' with icon="refresh"
-                    class="w-5 h-5" %}
+                    {% include 'components/icons.html' with icon="refresh" class="w-5 h-5" %}
                   </button>
                   <a
                     href="{% url 'exam_logs' attempt.id %}"
                     class="action-btn"
                     title="Logs"
                   >
-                    {% include 'components/icons.html' with icon="document"
-                    class="w-5 h-5 text-gray-600 dark:text-gray-400" %}
+                    {% include 'components/icons.html' with icon="document" class="w-5 h-5 text-gray-600 dark:text-gray-400" %}
                   </a>
                   <a
                     href="{% url 'download_student_result' attempt.id %}"
                     class="action-btn"
                     title="Télécharger"
                   >
-                    {% include 'components/icons.html' with icon="download"
-                    class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
+                    {% include 'components/icons.html' with icon="download" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
                   </a>
                   <a
                     href="{% url 'grade_attempt' attempt.id %}"
                     class="action-btn correct"
                     title="{% if attempt.grade is not None %}Modifier{% else %}Corriger{% endif %}"
                   >
-                    {% include 'components/icons.html' with
-                    icon="clipboard-check" class="w-5 h-5" %}
+                    {% include 'components/icons.html' with icon="clipboard-check" class="w-5 h-5" %}
                   </a>
                 </div>
               </td>
@@ -277,8 +266,7 @@
                   <div
                     class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 flex items-center justify-center"
                   >
-                    {% include 'components/icons.html' with icon="information"
-                    class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                    {% include 'components/icons.html' with icon="information" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
                   </div>
                   <p class="text-gray-500 dark:text-gray-400">
                     Aucune tentative d'examen trouvée
