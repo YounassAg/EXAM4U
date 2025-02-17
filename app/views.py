@@ -1255,6 +1255,7 @@ def download_exam_results(request, exam_id):
                         elements.append(Paragraph(f"Réponse: {clean_text(response.response_text)}", styles['Normal']))
 
                     grade_text = f"★ Note: {response.response_grade}/{response.question.points}" if response.response_grade is not None else "☐ Non noté"
+                    
                     elements.append(Paragraph(grade_text, grade_style))
                     elements.append(Spacer(1, 15))
 
@@ -1286,7 +1287,7 @@ def download_exam_results(request, exam_id):
                 total_score = 0
                 for question in questions:
                     response_obj = responses.filter(question=question).first()
-                    question_score = response_obj.response_grade if response_obj else 0
+                    question_score = response_obj.response_grade if response_obj and response_obj.response_grade is not None else 0
                     row.append(question_score)
                     total_score += question_score
                 row.append(total_score)
@@ -1310,7 +1311,7 @@ def download_exam_results(request, exam_id):
                 total_score = 0
                 for question in questions:
                     response_obj = responses.filter(question=question).first()
-                    question_score = response_obj.response_grade if response_obj else 0
+                    question_score = response_obj.response_grade if response_obj and response_obj.response_grade is not None else 0
                     row.append(question_score)
                     total_score += question_score
                 row.append(total_score)
