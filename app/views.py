@@ -1011,6 +1011,9 @@ def grade_attempt(request, attempt_id):
             if response.question.question_type == 'MCQ':
                 # Auto-calculate MCQ score using denial logic
                 response_grade = response.calculate_mcq_score()
+                if f'grade_{response.id}' in request.POST and request.POST[f'grade_{response.id}']:
+                    response_grade = float(request.POST.get(f'grade_{response.id}', 0))
+
             else:
                 # Manual grading for non-MCQ questions
                 response_grade = float(request.POST.get(f'grade_{response.id}', 0))
@@ -1049,6 +1052,7 @@ def grade_attempt(request, attempt_id):
         'attempt': attempt,
         'responses_data': responses_data,
     })
+
 
 @login_required
 @role_required('student')
