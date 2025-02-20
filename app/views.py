@@ -1,34 +1,35 @@
+# Standard library imports
+import zipfile
+import json
+import csv
+import re
+from io import BytesIO
+from datetime import timedelta
+
+# Third-party imports
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction, IntegrityError
-from django.core.exceptions import PermissionDenied
-from django.utils.timezone import now
-from django.db.models import Avg, Count, F, Q, DurationField, ExpressionWrapper, DecimalField
-from django.db.models.functions import Cast
+from django.db.models import Avg, Count, F, Q, Value, CharField
+from django.db.models.functions import Concat
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.utils.timezone import now
 from django.utils import timezone
-from datetime import timedelta
 from django.contrib.auth.decorators import login_required
-from .forms import UserRegistrationForm, LoginForm, ExamForm, QuizChoiceFormSet
-from .models import Course, Group, Exam, Question, MCQChoice, UserProfile, Specialty, ExamAttempt, Response, StudentActionLog, Quiz, QuizQuestion, QuizChoice, QuizAttempt, QuizResponse
+from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from reportlab.lib.colors import HexColor
-from django.db.models import F, Value, CharField
-from django.db.models.functions import Concat
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, Preformatted
 from reportlab.lib.units import inch
-import zipfile
-import json
 from reportlab.pdfgen import canvas
-from io import BytesIO
-import csv
-import re
-import random
 
+# Local application imports
+from .forms import UserRegistrationForm, LoginForm, ExamForm
+from .models import Course, Group, Exam, Question, MCQChoice, UserProfile, Specialty, ExamAttempt, Response, StudentActionLog, Quiz, QuizQuestion, QuizChoice, QuizAttempt, QuizResponse
 
 
 def role_required(role):
@@ -1228,7 +1229,7 @@ def download_exam_results(request, exam_id):
 
                 responses = Response.objects.filter(attempt=best_attempt)
                 for i, response in enumerate(responses, 1):
-                    question_text = f"Question {i}: {response.question.wording}"
+                    question_text = f"Question {i}: \n {response.question.wording}"
                     elements.append(Paragraph(question_text, styles['Heading4']))
 
                     if response.question.question_type == 'MCQ':
@@ -1394,7 +1395,7 @@ def download_student_result(request, attempt_id):
         fontSize=12,
         fontName='Helvetica-Bold',
         textColor=HexColor('#2c3e50'),
-        spaceAfter=6,
+        spaceAfter=12,
         borderPadding=(10, 0, 10, 0),
         backColor=HexColor('#f8f9fa')
     )
