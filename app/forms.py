@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
-from .models import UserProfile, Group, Specialty, MCQChoice, Quiz, QuizQuestion, QuizChoice
+from .models import UserProfile, Group, Specialty, MCQChoice
 
 class UserRegistrationForm(forms.ModelForm):
     first_name = forms.CharField(max_length=100, required=True)
@@ -80,64 +80,3 @@ class ExamForm(forms.Form):
                     required=True,
                 )
 
-class QuizForm(forms.ModelForm):
-    class Meta:
-        model = Quiz
-        fields = [
-            'title', 'description', 'course', 'time_limit', 'passing_score', 
-            'is_published', 'randomize_questions'
-        ]
-        widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-input'}),
-            'description': forms.Textarea(attrs={'rows': 4, 'class': 'form-textarea'}),
-            'course': forms.Select(attrs={'class': 'form-select'}),
-            'time_limit': forms.NumberInput(attrs={'min': 1, 'max': 180, 'class': 'form-input'}),
-            'passing_score': forms.NumberInput(attrs={'min': 0, 'max': 100, 'step': '0.1', 'class': 'form-input'}),
-            'is_published': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
-            'randomize_questions': forms.CheckboxInput(attrs={'class': 'form-checkbox'}),
-        }
-        help_texts = {
-            'title': 'Le titre du quiz',
-            'description': 'Une description détaillée du quiz',
-            'course': 'Le cours auquel ce quiz est associé',
-            'time_limit': 'Durée en minutes (1-180)',
-            'passing_score': 'Score minimum requis pour réussir (0-100)',
-            'is_published': 'Rendre le quiz visible aux étudiants',
-            'randomize_questions': 'Mélanger l\'ordre des questions pour chaque tentative',
-        }
-
-class QuizQuestionForm(forms.ModelForm):
-    class Meta:
-        model = QuizQuestion
-        fields = ['question_text', 'points', 'explanation', 'is_required', 'allow_multiple_answers']
-        widgets = {
-            'question_text': forms.Textarea(attrs={'rows': 3}),
-            'explanation': forms.Textarea(attrs={'rows': 2}),
-            'points': forms.NumberInput(attrs={'min': 0.5, 'max': 100, 'step': '0.5'}),
-        }
-        help_texts = {
-            'points': 'Points awarded for correct answer (0.5-100)',
-            'explanation': 'Explanation shown after answering',
-            'is_required': 'Question must be answered to submit the quiz',
-            'allow_multiple_answers': 'Allow selecting multiple correct answers',
-        }
-
-class QuizChoiceForm(forms.ModelForm):
-    class Meta:
-        model = QuizChoice
-        fields = ['choice_text', 'is_correct', 'explanation']
-        widgets = {
-            'choice_text': forms.TextInput(attrs={'class': 'w-full'}),
-            'explanation': forms.Textarea(attrs={'rows': 2}),
-        }
-        
-QuizChoiceFormSet = forms.inlineformset_factory(
-    QuizQuestion,
-    QuizChoice,
-    form=QuizChoiceForm,
-    extra=4,
-    max_num=6,
-    min_num=2,
-    validate_min=True,
-    can_delete=True
-)
