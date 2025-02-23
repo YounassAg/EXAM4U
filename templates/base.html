@@ -1,6 +1,7 @@
 <!-- templates/base.html -->
 <!DOCTYPE html>
 <html lang="fr" class="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +15,7 @@
             .desktop-nav {
                 display: none;
             }
+
             .mobile-menu-button {
                 display: block;
             }
@@ -23,9 +25,11 @@
             .desktop-nav {
                 display: flex;
             }
+
             .mobile-menu-button {
                 display: none;
             }
+
             .mobile-menu {
                 display: none !important;
             }
@@ -48,67 +52,82 @@
         }
     </style>
 </head>
+
 <body class="min-h-screen theme-transition bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
     <!-- Navigation -->
-    <nav class="fixed w-full z-50 theme-transition bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
+    <nav
+        class="fixed w-full z-50 theme-transition bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
                 {% if user.is_authenticated and user.userprofile.role == 'teacher' %}
-                    <a href="{% url 'teacher_dashboard' %}" class="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300">
-                        Exam4U
-                    </a>
+                <a href="{% url 'teacher_dashboard' %}"
+                    class="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300">
+                    Exam4U
+                </a>
                 {% elif user.is_authenticated and user.userprofile.role == 'student'%}
-                    <a href="{% url 'student_dashboard' %}" class="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300">
-                        Exam4U
-                    </a>
+                <a href="{% url 'student_dashboard' %}"
+                    class="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300">
+                    Exam4U
+                </a>
                 {% else %}
-                    <a href="{% url 'index' %}" class="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300">
-                        Exam4U
-                    </a>
+                <a href="{% url 'index' %}"
+                    class="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300">
+                    Exam4U
+                </a>
                 {% endif %}
 
                 <!-- Navigation Links (Desktop) -->
                 <div class="desktop-nav items-center space-x-8">
                     {% if not user.is_authenticated %}
-                        {% if request.path == '/' %}
-                            <a href="{% url 'index' %}" class="nav-link">Accueil</a>
-                            <a href="#features" class="nav-link">Fonctionnalités</a>
-                            <a href="#contact" class="nav-link">Contact</a>
-                        {% endif %}
+                    {% if request.path == '/' %}
+                    <a href="{% url 'index' %}" class="nav-link">Accueil</a>
+                    <a href="#features" class="nav-link">Fonctionnalités</a>
+                    <a href="#contact" class="nav-link">Contact</a>
+                    {% endif %}
                     {% endif %}
                 </div>
 
                 <!-- Right Side -->
                 <div class="flex items-center">
                     <!-- Theme Toggle -->
-                    <button id="theme-toggle" class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 transition-all duration-300" aria-label="Toggle theme">
+                    <button id="theme-toggle"
+                        class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400 transition-all duration-300"
+                        aria-label="Toggle theme">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
                     </button>
 
                     <!-- Auth Buttons (Desktop) -->
                     <div class="desktop-nav items-center space-x-4 ml-6">
                         {% if not user.is_authenticated %}
-                            <a href="{% url 'register' %}" class="px-6 py-2.5 border-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 font-medium rounded-lg hover:bg-blue-600 hover:text-white dark:hover:bg-blue-400 dark:hover:text-gray-900 transform hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400">
-                                S'inscrire
-                            </a>
-                            <a href="{% url 'login' %}" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transform hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400">
-                                Se connecter
-                            </a>
+                        <a href="{% url 'register' %}"
+                            class="px-6 py-2.5 border-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 font-medium rounded-lg hover:bg-blue-600 hover:text-white dark:hover:bg-blue-400 dark:hover:text-gray-900 transform hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400">
+                            S'inscrire
+                        </a>
+                        <a href="{% url 'login' %}"
+                            class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transform hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400">
+                            Se connecter
+                        </a>
                         {% else %}
-                            <a href="{% url 'logout' %}" class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transform hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400">
-                                Se déconnecter
-                            </a>
+                        <a href="{% url 'logout' %}"
+                            class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transform hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400">
+                            Se déconnecter
+                        </a>
                         {% endif %}
                     </div>
 
                     <!-- Mobile Menu Button -->
-                    <button id="mobile-menu-button" class="mobile-menu-button p-2 ml-4 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400" aria-label="Toggle mobile menu">
+                    <button id="mobile-menu-button"
+                        class="mobile-menu-button p-2 ml-4 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-blue-400"
+                        aria-label="Toggle mobile menu">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path class="mobile-menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                            <path class="mobile-menu-close hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            <path class="mobile-menu-icon" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            <path class="mobile-menu-close hidden" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
@@ -116,104 +135,106 @@
         </div>
 
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="lg:hidden hidden theme-transition bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div id="mobile-menu"
+            class="lg:hidden hidden theme-transition bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
             <div class="container mx-auto px-4 py-4 space-y-4">
                 {% if not user.is_authenticated and request.path == '/' %}
-                    <a href="{% url 'index' %}" class="block py-2 nav-link">Accueil</a>
-                    <a href="#features" class="block py-2 nav-link">Fonctionnalités</a>
-                    <a href="#contact" class="block py-2 nav-link">Contact</a>
+                <a href="{% url 'index' %}" class="block py-2 nav-link">Accueil</a>
+                <a href="#features" class="block py-2 nav-link">Fonctionnalités</a>
+                <a href="#contact" class="block py-2 nav-link">Contact</a>
                 {% endif %}
 
                 {% if user.is_authenticated %}
-                    <!-- User Profile Section -->
-                    <div class="flex items-center space-x-3 px-3 py-2 border-b border-gray-200 dark:border-gray-700">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-                            <span class="text-white text-lg font-semibold">{{ user.username|make_list|first|upper }}</span>
-                        </div>
-                        <div>
-                            <h2 class="text-sm font-semibold text-gray-900 dark:text-white">{{ user.get_full_name }}</h2>
-                            <p class="text-xs bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-semibold">
-                                {% if user.userprofile.role == 'teacher' %}
-                                    Enseignant
-                                {% else %}
-                                    Étudiant
-                                {% endif %}
-                            </p>
-                        </div>
+                <!-- User Profile Section -->
+                <div class="flex items-center space-x-3 px-3 py-2 border-b border-gray-200 dark:border-gray-700">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+                        <span class="text-white text-lg font-semibold">{{ user.username|make_list|first|upper }}</span>
                     </div>
+                    <div>
+                        <h2 class="text-sm font-semibold text-gray-900 dark:text-white">{{ user.get_full_name }}</h2>
+                        <p
+                            class="text-xs bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-semibold">
+                            {% if user.userprofile.role == 'teacher' %}
+                            Enseignant
+                            {% else %}
+                            Étudiant
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
 
-                    <!-- Navigation Links -->
-                    <div class="space-y-2">
-                        {% if user.userprofile.role == 'teacher' %}
-                            <!-- Teacher Navigation -->
-                            <a href="{% url 'teacher_dashboard' %}" 
-                               class="flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 {% if request.resolver_match.url_name == 'teacher_dashboard' %}text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
-                                <div class="w-5 h-5 mr-3 text-gray-600 dark:text-gray-400">
-                                    {% include 'components/icons.html' with icon="home" class="w-5 h-5" %}
-                                </div>
-                                <span>Tableau de bord</span>
-                            </a>
-                            <a href="{% url 'teacher_courses' %}" 
-                               class="flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 {% if request.resolver_match.url_name == 'teacher_courses' %}text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
-                                <div class="w-5 h-5 mr-3 text-gray-600 dark:text-gray-400">
-                                    {% include 'components/icons.html' with icon="book" class="w-5 h-5" %}
-                                </div>
-                                <span>Mes Cours</span>
-                            </a>
-                            <a href="{% url 'teacher_exam_list' %}" 
-                               class="flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 {% if request.resolver_match.url_name == 'teacher_exam_list' %}text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
-                                <div class="w-5 h-5 mr-3 text-gray-600 dark:text-gray-400">
-                                    {% include 'components/icons.html' with icon="document" class="w-5 h-5" %}
-                                </div>
-                                <span>Examens</span>
-                            </a>
-                            <a href="{% url 'teacher_quiz_list' %}" 
-                               class="flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 {% if request.resolver_match.url_name == 'teacher_quiz_list' %}text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
-                                <div class="w-5 h-5 mr-3 text-gray-600 dark:text-gray-400">
-                                    {% include 'components/icons.html' with icon="quiz" class="w-5 h-5" %}
-                                </div>
-                                <span>Quiz</span>
-                            </a>
-                        {% else %}
-                            <!-- Student Navigation -->
-                            <a href="{% url 'student_dashboard' %}" 
-                               class="flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 {% if request.resolver_match.url_name == 'student_dashboard' %}text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
-                                <div class="w-5 h-5 mr-3 text-gray-600 dark:text-gray-400">
-                                    {% include 'components/icons.html' with icon="home" class="w-5 h-5" %}
-                                </div>
-                                <span>Tableau de bord</span>
-                            </a>
-                            <a href="{% url 'student_courses' %}" 
-                               class="flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 {% if request.resolver_match.url_name == 'student_courses' %}text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
-                                <div class="w-5 h-5 mr-3 text-gray-600 dark:text-gray-400">
-                                    {% include 'components/icons.html' with icon="book" class="w-5 h-5" %}
-                                </div>
-                                <span>Mes Cours</span>
-                            </a>
-                            <a href="{% url 'student_exam_list' %}" 
-                               class="flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 {% if request.resolver_match.url_name == 'student_exam_list' %}text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
-                                <div class="w-5 h-5 mr-3 text-gray-600 dark:text-gray-400">
-                                    {% include 'components/icons.html' with icon="document" class="w-5 h-5" %}
-                                </div>
-                                <span>Examens</span>
-                            </a>
-                        {% endif %}
+                <!-- Navigation Links -->
+                <div class="space-y-2">
+                    {% if user.userprofile.role == 'teacher' %}
+                    <!-- Teacher Navigation -->
+                    <a href="{% url 'teacher_dashboard' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 {% if request.resolver_match.url_name == 'teacher_dashboard' %}text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
+                        <div class="w-5 h-5 mr-3 text-gray-600 dark:text-gray-400">
+                            {% include 'components/icons.html' with icon="home" class="w-5 h-5" %}
+                        </div>
+                        <span>Tableau de bord</span>
+                    </a>
+                    <a href="{% url 'teacher_courses' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 {% if request.resolver_match.url_name == 'teacher_courses' %}text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
+                        <div class="w-5 h-5 mr-3 text-gray-600 dark:text-gray-400">
+                            {% include 'components/icons.html' with icon="book" class="w-5 h-5" %}
+                        </div>
+                        <span>Mes Cours</span>
+                    </a>
+                    <a href="{% url 'teacher_exam_list' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 {% if request.resolver_match.url_name == 'teacher_exam_list' %}text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
+                        <div class="w-5 h-5 mr-3 text-gray-600 dark:text-gray-400">
+                            {% include 'components/icons.html' with icon="document" class="w-5 h-5" %}
+                        </div>
+                        <span>Examens</span>
+                    </a>
+                        <div class="w-5 h-5 mr-3 text-gray-600 dark:text-gray-400">
+                            {% include 'components/icons.html' with icon="quiz" class="w-5 h-5" %}
+                        </div>
+                        <span>Quiz</span>
+                    </a>
+                    {% else %}
+                    <!-- Student Navigation -->
+                    <div class="w-5 h-5 mr-3 text-gray-600 dark:text-gray-400">
+                        {% include 'components/icons.html' with icon="home" class="w-5 h-5" %}
                     </div>
+                    <span>Tableau de bord</span>
+                    </a>
+                    <a href="{% url 'student_courses' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 {% if request.resolver_match.url_name == 'student_courses' %}text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
+                        <div class="w-5 h-5 mr-3 text-gray-600 dark:text-gray-400">
+                            {% include 'components/icons.html' with icon="book" class="w-5 h-5" %}
+                        </div>
+                        <span>Mes Cours</span>
+                    </a>
+                    <a href="{% url 'student_exam_list' %}"
+                        class="flex items-center px-3 py-2 text-sm font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 {% if request.resolver_match.url_name == 'student_exam_list' %}text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
+                        <div class="w-5 h-5 mr-3 text-gray-600 dark:text-gray-400">
+                            {% include 'components/icons.html' with icon="document" class="w-5 h-5" %}
+                        </div>
+                        <span>Examens</span>
+                    </a>
+                    {% endif %}
+                </div>
                 {% endif %}
-                
+
                 <!-- Auth Buttons -->
                 <div class="flex flex-col space-y-2 pt-4 border-t border-gray-200 dark:border-gray-700">
                     {% if not user.is_authenticated %}
-                        <a href="{% url 'register' %}" class="w-full text-center px-6 py-2.5 border-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 font-medium rounded-lg hover:bg-blue-600 hover:text-white dark:hover:bg-blue-400 dark:hover:text-gray-900 transition-all duration-300">
-                            S'inscrire
-                        </a>
-                        <a href="{% url 'login' %}" class="w-full text-center px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300">
-                            Se connecter
-                        </a>
+                    <a href="{% url 'register' %}"
+                        class="w-full text-center px-6 py-2.5 border-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 font-medium rounded-lg hover:bg-blue-600 hover:text-white dark:hover:bg-blue-400 dark:hover:text-gray-900 transition-all duration-300">
+                        S'inscrire
+                    </a>
+                    <a href="{% url 'login' %}"
+                        class="w-full text-center px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300">
+                        Se connecter
+                    </a>
                     {% else %}
-                        <a href="{% url 'logout' %}" class="w-full text-center px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300">
-                            Se déconnecter
-                        </a>
+                    <a href="{% url 'logout' %}"
+                        class="w-full text-center px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300">
+                        Se déconnecter
+                    </a>
                     {% endif %}
                 </div>
             </div>
@@ -230,7 +251,8 @@
         <div class="container mx-auto px-4 py-8">
             <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                 <div class="flex items-center space-x-2">
-                    <span class="font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Exam4U</span>
+                    <span
+                        class="font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Exam4U</span>
                     <span class="text-sm text-gray-600 dark:text-gray-400">© 2024 Tous droits réservés</span>
                 </div>
                 <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-8">
@@ -244,15 +266,15 @@
 
     <!-- Theme Toggle Script -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Theme Toggle Logic
             const themeToggle = document.getElementById('theme-toggle');
             const html = document.documentElement;
-            
+
             // Check system preference and saved theme
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
             const savedTheme = localStorage.getItem('theme');
-            
+
             // Set initial theme
             if (savedTheme) {
                 setTheme(savedTheme);
@@ -268,7 +290,7 @@
             });
 
             // Handle theme toggle click
-            themeToggle.addEventListener('click', function() {
+            themeToggle.addEventListener('click', function () {
                 const isDark = html.classList.contains('dark');
                 const newTheme = isDark ? 'light' : 'dark';
                 setTheme(newTheme);
@@ -278,14 +300,14 @@
             function setTheme(theme) {
                 const isDark = theme === 'dark';
                 html.classList.toggle('dark', isDark);
-                
+
                 // Update icon
                 const sunPath = "M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z";
                 const moonPath = "M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z";
-                
+
                 const iconPath = themeToggle.querySelector('path');
                 iconPath.setAttribute('d', isDark ? moonPath : sunPath);
-                
+
                 // Update aria-label
                 themeToggle.setAttribute('aria-label', isDark ? 'Activer le mode clair' : 'Activer le mode sombre');
             }
@@ -296,7 +318,7 @@
             const menuIcon = mobileMenuButton.querySelector('.mobile-menu-icon');
             const closeIcon = mobileMenuButton.querySelector('.mobile-menu-close');
 
-            mobileMenuButton.addEventListener('click', function() {
+            mobileMenuButton.addEventListener('click', function () {
                 mobileMenu.classList.toggle('hidden');
                 menuIcon.classList.toggle('hidden');
                 closeIcon.classList.toggle('hidden');
@@ -313,7 +335,7 @@
             });
 
             // Close mobile menu on window resize (if screen becomes larger)
-            window.addEventListener('resize', function() {
+            window.addEventListener('resize', function () {
                 if (window.innerWidth >= 768) { // md breakpoint
                     mobileMenu.classList.add('hidden');
                     menuIcon.classList.remove('hidden');
@@ -325,4 +347,5 @@
 
     {% block extra_js %}{% endblock %}
 </body>
+
 </html>
