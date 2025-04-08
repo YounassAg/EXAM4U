@@ -215,4 +215,36 @@ class StudentActionLog(models.Model):
 
     def __str__(self):
         return f"{self.action} - {self.attempt.student} - {self.timestamp}"
+
+
+class ExamAttachment(models.Model):
+    ATTACHMENT_TYPE_CHOICES = [
+        ('image', 'Image'),
+        ('video', 'Video'),
+        ('document', 'Document'),
+        ('other', 'Other'),
+    ]
+
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='attachments', null=True, blank=True)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='attachments', null=True, blank=True)
+    file = models.FileField(upload_to='exam_attachments/')
+    file_type = models.CharField(max_length=10, choices=ATTACHMENT_TYPE_CHOICES)
+    title = models.CharField(max_length=255, blank=True)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title or self.file.name} ({self.get_file_type_display()})"
+
+    def get_file_extension(self):
+        return self.file.name.split('.')[-1].lower()
+
+    def is_image(self):
+        return self.file_type == 'image' or self.get_file_extension() in ['jpg', 'jpeg', 'png', 'gif', 'webp']
+
+    def is_video(self):
+        return self.file_type == 'video' or self.get_file_extension() in ['mp4', 'webm', 'ogg']
+
+    def is_document(self):
+        return self.file_type == 'document' or self.get_file_extension() in ['pdf', 'doc', 'docx', 'txt']
     

@@ -29,7 +29,7 @@ from reportlab.pdfgen import canvas
 
 # Local application imports
 from .forms import UserRegistrationForm, LoginForm, ExamForm
-from .models import Course, Group, Exam, Question, MCQChoice, UserProfile, Specialty, ExamAttempt, Response, StudentActionLog
+from .models import Course, Group, Exam, Question, MCQChoice, UserProfile, Specialty, ExamAttempt, Response, StudentActionLog, ExamAttachment
 
 
 def role_required(role):
@@ -245,140 +245,113 @@ def student_dashboard(request):
 @role_required('teacher')
 def create_exam(request):
     if request.method == 'POST':
-        try:
-            with transaction.atomic():
-                title = request.POST.get('title')
-                description = request.POST.get('description')
-                course_id = request.POST.get('course')
-                group_id = request.POST.get('group')
-                duration = request.POST.get('duration')
-                # max_attempts = request.POST.get('max_attempts')
-                start_date = request.POST.get('start_date')
-                end_date = request.POST.get('end_date')
-                course = Course.objects.get(id=course_id)
-                group = Group.objects.get(id=group_id)
-                exam = Exam.objects.create(
-                    title=title,
-                    description=description,
-                    course=course,
-                    group=group,
-                    duration=duration,
-                    # max_attempts=max_attempts,
-                    start_date=start_date,
-                    end_date=end_date,
-                )
-                active_questions = []
-                question_count = int(request.POST.get('question_count', 0))
+        # Get form data for exam
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        course_id = request.POST.get('course')
+        group_id = request.POST.get('group')
+        duration = request.POST.get('duration')
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+
+        # Create exam instance
+        exam = Exam.objects.create(
+            title=title,
+            description=description,
+            course_id=course_id,
+            group_id=group_id,
+            duration=duration,
+            start_date=start_date,
+            end_date=end_date
+        )
+
+        # Handle exam attachments
+        if request.FILES:
+            exam_attachment_files = request.FILES.getlist('exam_attachment_file[]')
+            exam_attachment_types = request.POST.getlist('exam_attachment_type[]')
+            exam_attachment_titles = request.POST.getlist('exam_attachment_title[]')
+            exam_attachment_descriptions = request.POST.getlist('exam_attachment_description[]')
+
+            for i, file in enumerate(exam_attachment_files):
+                if file:  # Only process if a file was actually uploaded
+                    attachment_type = exam_attachment_types[i] if i < len(exam_attachment_types) else 'other'
+                    attachment_title = exam_attachment_titles[i] if i < len(exam_attachment_titles) else ''
+                    attachment_description = exam_attachment_descriptions[i] if i < len(exam_attachment_descriptions) else ''
+                    
+                    ExamAttachment.objects.create(
+                        exam=exam,
+                        file=file,
+                        file_type=attachment_type,
+                        title=attachment_title,
+                        description=attachment_description
+                    )
+
+        # Process questions
+        question_count = int(request.POST.get('question_count', 0))
+        for i in range(1, question_count + 1):
+            question_type = request.POST.get(f'question_type_{i}')
+            question_wording = request.POST.get(f'question_wording_{i}')
+            question_points = request.POST.get(f'question_points_{i}')
+            
+            # Create question
+            question = Question.objects.create(
+                exam=exam,
+                question_type=question_type,
+                wording=question_wording,
+                points=float(question_points)
+            )
+
+            # Handle question attachments
+            question_attachment_files = request.FILES.getlist(f'question_{i}_attachment_file[]')
+            question_attachment_types = request.POST.getlist(f'question_{i}_attachment_type[]')
+            question_attachment_titles = request.POST.getlist(f'question_{i}_attachment_title[]')
+            question_attachment_descriptions = request.POST.getlist(f'question_{i}_attachment_description[]')
+
+            for j, file in enumerate(question_attachment_files):
+                if file:  # Only process if a file was actually uploaded
+                    attachment_type = question_attachment_types[j] if j < len(question_attachment_types) else 'other'
+                    attachment_title = question_attachment_titles[j] if j < len(question_attachment_titles) else ''
+                    attachment_description = question_attachment_descriptions[j] if j < len(question_attachment_descriptions) else ''
+                    
+                    ExamAttachment.objects.create(
+                        question=question,
+                        file=file,
+                        file_type=attachment_type,
+                        title=attachment_title,
+                        description=attachment_description
+                    )
+            
+            # If MCQ question, create choices
+            if question_type == 'MCQ':
+                mcq_choice_count = int(request.POST.get(f'mcq_choice_count_{i}', 0))
+                has_correct_choice = False
                 
-                for i in range(1, question_count + 1):
-                    # Check if this question slot is actually being used
-                    if request.POST.get(f'question_wording_{i}'):
-                        question_type = request.POST.get(f'question_type_{i}')
-                        question_wording = request.POST.get(f'question_wording_{i}')
-                        question_points = request.POST.get(f'question_points_{i}')
-                        
-                        question = Question.objects.create(
-                            exam=exam,
-                            question_type=question_type,
-                            wording=question_wording,
-                            points=question_points,
-                            allow_multiple_answers=(question_type == 'MCQ')
-                        )
-                        active_questions.append(question.id)
-                    if question_type == 'MCQ':
-                        active_choices = []
-                        choice_count = int(request.POST.get(f'mcq_choice_count_{i}', 0))
-                        for j in range(1, choice_count + 1):
-                            if request.POST.get(f'mcq_choice_text_{i}_{j}'):
-                                choice_label = request.POST.get(f'mcq_choice_text_{i}_{j}')
-                                is_correct = request.POST.get(f'mcq_choice_correct_{i}_{j}') == 'on'
-                                choice = MCQChoice.objects.create(
-                                    question=question,
-                                    choice_label=choice_label,
-                                    is_correct=is_correct
-                                )
-                                active_choices.append(choice.id)
-                messages.success(request, 'Exam created successfully!')
-                return redirect('teacher_exam_list')
-        except IntegrityError:
-            messages.error(request, 'There was an error creating the exam. Please try again.')
-            return redirect('teacher_exam_list')
+                for j in range(1, mcq_choice_count + 1):
+                    choice_text = request.POST.get(f'mcq_choice_text_{i}_{j}')
+                    is_correct = request.POST.get(f'mcq_choice_correct_{i}_{j}') == 'on'
+                    
+                    if is_correct:
+                        has_correct_choice = True
+                    
+                    MCQChoice.objects.create(
+                        question=question,
+                        choice_label=choice_text,
+                        is_correct=is_correct
+                    )
+                
+                # If multiple choices are correct, set question to allow multiple answers
+                if mcq_choice_count > 0:
+                    correct_choices = MCQChoice.objects.filter(question=question, is_correct=True).count()
+                    if correct_choices > 1:
+                        question.allow_multiple_answers = True
+                        question.save()
+        
+        return redirect('teacher_exam_list')
+    
     else:
-        courses = Course.objects.filter(teacher__user=request.user)
+        courses = Course.objects.filter(teacher=request.user.userprofile)
         groups = Group.objects.all()
         return render(request, 'teacher/exam/create_exam.html', {
-            'courses': courses,
-            'groups': groups
-        })
-    exam = get_object_or_404(Exam, id=exam_id)
-    if request.method == 'POST':
-        try:
-            with transaction.atomic():
-                title = request.POST.get('title')
-                description = request.POST.get('description')
-                course_id = request.POST.get('course')
-                group_id = request.POST.get('group')
-                duration = request.POST.get('duration')
-                # max_attempts = request.POST.get('max_attempts')
-                start_date = request.POST.get('start_date')
-                end_date = request.POST.get('end_date')
-                course = Course.objects.get(id=course_id)
-                group = Group.objects.get(id=group_id)
-                exam.title = title
-                exam.description = description
-                exam.course = course
-                exam.group = group
-                exam.duration = duration
-                # exam.max_attempts = max_attempts
-                exam.start_date = start_date
-                exam.end_date = end_date
-                exam.save()
-                question_count = int(request.POST.get('question_count', 0))
-                for i in range(1, question_count + 1):
-                    question_id = request.POST.get(f'question_id_{i}')
-                    question_type = request.POST.get(f'question_type_{i}')
-                    question_wording = request.POST.get(f'question_wording_{i}')
-                    question_points = request.POST.get(f'question_points_{i}')
-                    if question_id:
-                        question = Question.objects.get(id=question_id)
-                        question.question_type = question_type
-                        question.wording = question_wording
-                        question.points = question_points
-                        question.save()
-                    else:
-                        question = Question.objects.create(
-                            exam=exam,
-                            question_type=question_type,
-                            wording=question_wording,
-                            points=question_points,
-                            allow_multiple_answers=(question_type == 'MCQ')
-                        )
-                    if question_type == 'MCQ':
-                        choice_count = int(request.POST.get(f'mcq_choice_count_{i}', 0))
-                        MCQChoice.objects.filter(question=question).delete()
-                        for j in range(1, choice_count + 1):
-                            choice_label = request.POST.get(f'mcq_choice_text_{i}_{j}')
-                            is_correct = request.POST.get(f'mcq_choice_correct_{i}_{j}') == 'on'
-                            MCQChoice.objects.create(
-                                question=question,
-                                choice_label=choice_label,
-                                is_correct=is_correct
-                            )
-                deleted_question_ids = request.POST.getlist('deleted_question_ids')
-                for question_id in deleted_question_ids:
-                    question = Question.objects.get(id=question_id)
-                    question.delete()
-                messages.success(request, 'Exam updated successfully!')
-                return redirect('teacher_exam_list')
-        except Exception as e:
-            messages.error(request, f'There was an error: {str(e)}')
-            return redirect('teacher_exam_list')
-    else:
-        courses = Course.objects.filter(teacher__user=request.user)
-        groups = Group.objects.all()
-
-        return render(request, 'teacher/exam/edit_exam.html', {
-            'exam': exam,
             'courses': courses,
             'groups': groups
         })
@@ -388,87 +361,228 @@ def create_exam(request):
 @role_required('teacher')
 def edit_exam(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
+    
+    # Ensure the teacher owns this exam
+    if exam.course.teacher != request.user.userprofile:
+        return redirect('teacher_exam_list')
+    
     if request.method == 'POST':
-        try:
-            with transaction.atomic():
-                exam.title = request.POST.get('title')
-                exam.description = request.POST.get('description')
-                exam.course = Course.objects.get(id=request.POST.get('course'))
-                exam.group = Group.objects.get(id=request.POST.get('group'))
-                exam.duration = request.POST.get('duration')
-                # exam.max_attempts = request.POST.get('max_attempts')
-                exam.start_date = request.POST.get('start_date')
-                exam.end_date = request.POST.get('end_date')
-                exam.save()
+        # Update exam data
+        exam.title = request.POST.get('title')
+        exam.description = request.POST.get('description')
+        exam.course_id = request.POST.get('course')
+        exam.group_id = request.POST.get('group')
+        exam.duration = request.POST.get('duration')
+        exam.start_date = request.POST.get('start_date')
+        exam.end_date = request.POST.get('end_date')
+        exam.save()
+        
+        # Handle attachment deletions first
+        # Delete exam attachments marked for deletion
+        for key in request.POST:
+            if key.startswith('delete_attachment_'):
+                attachment_id = key.split('_')[-1]
+                try:
+                    attachment = ExamAttachment.objects.get(id=attachment_id)
+                    if attachment.exam == exam and attachment.question is None:
+                        attachment.delete()
+                except ExamAttachment.DoesNotExist:
+                    pass
 
-                # Track existing and processed questions
-                existing_questions = set(exam.question_set.values_list('id', flat=True))
-                processed_questions = set()
+        # Delete question attachments marked for deletion
+        for key in request.POST:
+            if key.startswith('delete_question_attachment_'):
+                attachment_id = key.split('_')[-1]
+                try:
+                    attachment = ExamAttachment.objects.get(id=attachment_id)
+                    if attachment.question and attachment.question.exam == exam:
+                        attachment.delete()
+                except ExamAttachment.DoesNotExist:
+                    pass
+        
+        # Handle exam attachments
+        if request.FILES:
+            # Add new attachments
+            exam_attachment_files = request.FILES.getlist('exam_attachment_file[]')
+            exam_attachment_types = request.POST.getlist('exam_attachment_type[]')
+            exam_attachment_titles = request.POST.getlist('exam_attachment_title[]')
+            exam_attachment_descriptions = request.POST.getlist('exam_attachment_description[]')
 
-                # Get the updated question count
-                question_count = int(request.POST.get('question_count', 0))
+            for i, file in enumerate(exam_attachment_files):
+                if file:  # Only process if a file was actually uploaded
+                    attachment_type = exam_attachment_types[i] if i < len(exam_attachment_types) else 'other'
+                    attachment_title = exam_attachment_titles[i] if i < len(exam_attachment_titles) else ''
+                    attachment_description = exam_attachment_descriptions[i] if i < len(exam_attachment_descriptions) else ''
+                    
+                    ExamAttachment.objects.create(
+                        exam=exam,
+                        file=file,
+                        file_type=attachment_type,
+                        title=attachment_title,
+                        description=attachment_description
+                    )
+        
+        # Process existing questions to update
+        for question in exam.question_set.all():
+            question_id = f'question_{question.id}'
+            question_index = None
+            
+            # Find the index of this question in the form
+            for i in range(1, 100):  # Assuming there won't be more than 100 questions
+                if request.POST.get(f'question_id_{i}') == str(question.id):
+                    question_index = i
+                    break
+            
+            if question_index is None:
+                continue
+                
+            if request.POST.get(f'delete_{question_id}') == 'yes':
+                # Delete the question if marked for deletion
+                question.delete()
+                continue
+                
+            # Update question data
+            q_type = request.POST.get(f'question_type_{question_index}')
+            q_wording = request.POST.get(f'question_wording_{question_index}')
+            q_points = request.POST.get(f'question_points_{question_index}', 0)
+            
+            # Only update if we have valid data
+            if q_type and q_wording:
+                question.question_type = q_type
+                question.wording = q_wording
+                question.points = float(q_points)
+                question.save()
+            
+                # Handle question attachments
+                if request.FILES:
+                    # Add new attachments
+                    question_attachment_files = request.FILES.getlist(f'question_{question_index}_attachment_file[]')
+                    question_attachment_types = request.POST.getlist(f'question_{question_index}_attachment_type[]')
+                    question_attachment_titles = request.POST.getlist(f'question_{question_index}_attachment_title[]')
+                    question_attachment_descriptions = request.POST.getlist(f'question_{question_index}_attachment_description[]')
 
-                for i in range(1, question_count + 1):
-                    if all(request.POST.get(f'question_{field}_{i}') is not None 
-                        for field in ['type', 'wording', 'points']):
-                        question_id = request.POST.get(f'question_id_{i}')
-                        question_type = request.POST.get(f'question_type_{i}')
-                        question_wording = request.POST.get(f'question_wording_{i}')
-                        question_points = request.POST.get(f'question_points_{i}')
+                    for j, file in enumerate(question_attachment_files):
+                        if file:  # Only process if a file was actually uploaded
+                            attachment_type = question_attachment_types[j] if j < len(question_attachment_types) else 'other'
+                            attachment_title = question_attachment_titles[j] if j < len(question_attachment_titles) else ''
+                            attachment_description = question_attachment_descriptions[j] if j < len(question_attachment_descriptions) else ''
+                            
+                            ExamAttachment.objects.create(
+                                question=question,
+                                file=file,
+                                file_type=attachment_type,
+                                title=attachment_title,
+                                description=attachment_description
+                            )
+            
+                # If MCQ question, update choices
+                if question.question_type == 'MCQ':
+                    # Delete existing choices
+                    question.mcqchoice_set.all().delete()
+                    
+                    # Add new choices
+                    mcq_choice_count = int(request.POST.get(f'mcq_choice_count_{question_index}', 0))
+                    has_correct_choice = False
+                    
+                    for j in range(1, mcq_choice_count + 1):
+                        choice_text = request.POST.get(f'mcq_choice_text_{question_index}_{j}')
+                        is_correct = request.POST.get(f'mcq_choice_correct_{question_index}_{j}') == 'on'
+                        
+                        if choice_text:
+                            if is_correct:
+                                has_correct_choice = True
+                            
+                            MCQChoice.objects.create(
+                                question=question,
+                                choice_label=choice_text,
+                                is_correct=is_correct
+                            )
+                    
+                    # If multiple choices are correct, set question to allow multiple answers
+                    if mcq_choice_count > 0:
+                        correct_choices = MCQChoice.objects.filter(question=question, is_correct=True).count()
+                        if correct_choices > 1:
+                            question.allow_multiple_answers = True
+                            question.save()
+        
+        # Process new questions
+        new_question_count = int(request.POST.get('question_count', 0))
+        existing_question_count = exam.question_set.count()
+        
+        # Only process indices greater than the existing question count
+        for i in range(existing_question_count + 1, new_question_count + 1):
+            question_type = request.POST.get(f'question_type_{i}')
+            question_wording = request.POST.get(f'question_wording_{i}')
+            question_points = request.POST.get(f'question_points_{i}')
+            
+            # Create new question if we have valid data
+            if question_type and question_wording:
+                question = Question.objects.create(
+                    exam=exam,
+                    question_type=question_type,
+                    wording=question_wording,
+                    points=float(question_points or 0)
+                )
+                
+                # Handle question attachments
+                if request.FILES:
+                    # Add new attachments
+                    question_attachment_files = request.FILES.getlist(f'question_{i}_attachment_file[]')
+                    question_attachment_types = request.POST.getlist(f'question_{i}_attachment_type[]')
+                    question_attachment_titles = request.POST.getlist(f'question_{i}_attachment_title[]')
+                    question_attachment_descriptions = request.POST.getlist(f'question_{i}_attachment_description[]')
 
-                    if question_id:
-                        question = Question.objects.get(id=question_id)
-                        processed_questions.add(int(question_id))
-                        question.question_type = question_type
-                        question.wording = question_wording
-                        question.points = question_points
-                        question.allow_multiple_answers = (question_type == 'MCQ')
-                        question.save()
-                    else:
-                        question = Question(exam=exam)
-
-                    # Update question fields
-                    question.question_type = question_type
-                    question.wording = question_wording
-                    question.points = question_points
-                    question.allow_multiple_answers = (question_type == 'MCQ')
-                    question.save()
-
-                    if question_id:
-                        processed_questions.add(int(question_id))
-
-                    if question_type == 'MCQ':
-                        MCQChoice.objects.filter(question=question).delete()
-                        choice_count = int(request.POST.get(f'mcq_choice_count_{i}', 0))
-                        for j in range(1, choice_count + 1):
-                            choice_text = request.POST.get(f'mcq_choice_text_{i}_{j}')
-                            is_correct = request.POST.get(f'mcq_choice_correct_{i}_{j}') == 'on'
-                            if choice_text:
-                                MCQChoice.objects.create(
-                                    question=question,
-                                    choice_label=choice_text,
-                                    is_correct=is_correct
-                                )
-                                
-                questions_to_delete = existing_questions - processed_questions
-                Question.objects.filter(id__in=questions_to_delete).delete()
-                messages.success(request, 'Exam updated successfully!')
-                return redirect('teacher_exam_list')
-        except Exception as e:
-            messages.error(request, f'Error updating exam: {str(e)}')
-            return redirect('edit_exam', exam_id=exam_id)
+                    for j, file in enumerate(question_attachment_files):
+                        if file:  # Only process if a file was actually uploaded
+                            attachment_type = question_attachment_types[j] if j < len(question_attachment_types) else 'other'
+                            attachment_title = question_attachment_titles[j] if j < len(question_attachment_titles) else ''
+                            attachment_description = question_attachment_descriptions[j] if j < len(question_attachment_descriptions) else ''
+                            
+                            ExamAttachment.objects.create(
+                                question=question,
+                                file=file,
+                                file_type=attachment_type,
+                                title=attachment_title,
+                                description=attachment_description
+                            )
+                
+                # If MCQ question, create choices
+                if question_type == 'MCQ':
+                    mcq_choice_count = int(request.POST.get(f'mcq_choice_count_{i}', 0))
+                    has_correct_choice = False
+                    
+                    for j in range(1, mcq_choice_count + 1):
+                        choice_text = request.POST.get(f'mcq_choice_text_{i}_{j}')
+                        is_correct = request.POST.get(f'mcq_choice_correct_{i}_{j}') == 'on'
+                        
+                        if choice_text:
+                            if is_correct:
+                                has_correct_choice = True
+                            
+                            MCQChoice.objects.create(
+                                question=question,
+                                choice_label=choice_text,
+                                is_correct=is_correct
+                            )
+                    
+                    # If multiple choices are correct, set question to allow multiple answers
+                    if mcq_choice_count > 0:
+                        correct_choices = MCQChoice.objects.filter(question=question, is_correct=True).count()
+                        if correct_choices > 1:
+                            question.allow_multiple_answers = True
+                            question.save()
+        
+        return redirect('teacher_exam_list')
+    
     else:
-        courses = Course.objects.filter(teacher__user=request.user)
+        courses = Course.objects.filter(teacher=request.user.userprofile)
         groups = Group.objects.all()
-        questions = exam.question_set.all().prefetch_related('mcqchoice_set')
-        context = {
+        return render(request, 'teacher/exam/edit_exam.html', {
             'exam': exam,
             'courses': courses,
-            'groups': groups,
-            'questions': questions,
-        }
-        return render(request, 'teacher/exam/edit_exam.html', context)
-    
+            'groups': groups
+        })
+
 
 @login_required
 @role_required('student')
