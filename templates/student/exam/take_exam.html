@@ -87,6 +87,121 @@
     .dark .CodeMirror-activeline-background {
         background: #1f2937;
     }
+
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 1000;
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        height: 90%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .modal-content img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transform-origin: center;
+        transition: transform 0.3s ease;
+    }
+
+    .modal-content object {
+        width: 100%;
+        height: 100%;
+        transform-origin: center;
+        transition: transform 0.3s ease;
+    }
+
+    .modal-content .document-wrapper {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        cursor: grab;
+    }
+
+    .modal-content .document-wrapper:active {
+        cursor: grabbing;
+    }
+
+    .modal-content .document-wrapper.zoomed {
+        overflow: auto;
+    }
+
+    .zoom-controls {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 10px;
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+        z-index: 1001;
+    }
+
+    .zoom-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 18px;
+        transition: all 0.3s ease;
+    }
+
+    .zoom-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    .close-modal {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .close-modal:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+    }
+
+    .preview-wrapper {
+        cursor: zoom-in;
+    }
 </style>
 {% endblock %}
 {% block title %}{{ exam.title }} - Exam4U{% endblock %}
@@ -126,39 +241,55 @@
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Pièces jointes de l'examen</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {% for attachment in exam.attachments.all %}
-                        <div class="attachment-item bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                        <div class="attachment-item bg-white dark:bg-gray-700 rounded-xl p-5 border border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md transition-all duration-300">
                             {% if attachment.is_image %}
-                            <div class="aspect-w-16 aspect-h-9 mb-4">
+                            <div class="aspect-w-16 aspect-h-9 mb-4 preview-wrapper" onclick="openPreview('{{ attachment.file.url }}', 'image')">
                                 <img src="{{ attachment.file.url }}" alt="{{ attachment.title }}" 
-                                     class="w-full h-full object-cover rounded-lg">
+                                     class="w-full h-auto max-h-[400px] object-contain rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
                             </div>
                             {% elif attachment.is_video %}
                             <div class="aspect-w-16 aspect-h-9 mb-4">
-                                <video controls class="w-full h-full rounded-lg">
+                                <video controls class="w-full max-h-[400px] rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
                                     <source src="{{ attachment.file.url }}" type="video/{{ attachment.get_file_extension }}">
                                     Votre navigateur ne supporte pas la lecture de vidéos.
                                 </video>
                             </div>
                             {% else %}
-                            <div class="flex items-center justify-center h-32 bg-gray-100 dark:bg-gray-600 rounded-lg mb-4">
-                                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                                </svg>
+                            <div class="document-preview mb-4">
+                                {% if attachment.file.url|lower|slice:"-4:" == ".pdf" %}
+                                <div class="bg-gray-50 dark:bg-gray-600 rounded-lg overflow-hidden preview-wrapper" onclick="openPreview('{{ attachment.file.url }}', 'pdf')" style="height: 400px;">
+                                    <object data="{{ attachment.file.url }}" type="application/pdf" width="100%" height="400" class="rounded-lg">
+                                        <div class="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-600 p-4 text-center">
+                                            <p class="text-gray-600 dark:text-gray-300">Ce navigateur ne supporte pas la visualisation des PDF.</p>
+                                        </div>
+                                    </object>
+                                </div>
+                                {% elif attachment.file.url|lower|slice:"-4:" == ".doc" or attachment.file.url|lower|slice:"-5:" == ".docx" or attachment.file.url|lower|slice:"-4:" == ".xls" or attachment.file.url|lower|slice:"-5:" == ".xlsx" or attachment.file.url|lower|slice:"-4:" == ".ppt" or attachment.file.url|lower|slice:"-5:" == ".pptx" %}
+                                <div class="flex flex-col items-center justify-center h-48 bg-gray-50 dark:bg-gray-600 rounded-lg p-4 text-center">
+                                    <svg class="w-12 h-12 text-gray-400 dark:text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">{{attachment.file.name}}</p>
+                                </div>
+                                {% else %}
+                                <div class="flex flex-col items-center justify-center h-48 bg-gray-50 dark:bg-gray-600 rounded-lg p-4">
+                                    <svg class="w-12 h-12 text-gray-400 dark:text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">{{attachment.file.name}}</p>
+                                </div>
+                                {% endif %}
                             </div>
                             {% endif %}
-                            {% if attachment.title %}
-                            <h4 class="text-md font-medium text-gray-900 dark:text-white mb-2">{{ attachment.title }}</h4>
-                            {% endif %}
-                            {% if attachment.description %}
-                            <p class="text-sm text-gray-600 dark:text-gray-400">{{ attachment.description }}</p>
-                            {% endif %}
-                            <a href="{{ attachment.file.url }}" target="_blank" 
-                               class="mt-3 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                </svg>
-                                Télécharger
-                            </a>
+                            
+                            <div class="flex flex-col">
+                                {% if attachment.title %}
+                                <h4 class="text-md font-medium text-gray-900 dark:text-white mb-2">{{ attachment.title }}</h4>
+                                {% endif %}
+                                {% if attachment.description %}
+                                <p class="text-sm text-gray-600 dark:text-gray-400">{{ attachment.description }}</p>
+                                {% endif %}
+                            </div>
                         </div>
                         {% endfor %}
                     </div>
@@ -190,39 +321,55 @@
                     <div class="mt-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {% for attachment in question.attachments.all %}
-                            <div class="attachment-item bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                            <div class="attachment-item bg-white dark:bg-gray-700 rounded-xl p-5 border border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md transition-all duration-300">
                                 {% if attachment.is_image %}
-                                <div class="aspect-w-16 aspect-h-9 mb-4">
+                                <div class="aspect-w-16 aspect-h-9 mb-4 preview-wrapper" onclick="openPreview('{{ attachment.file.url }}', 'image')">
                                     <img src="{{ attachment.file.url }}" alt="{{ attachment.title }}" 
-                                         class="w-full h-full object-cover rounded-lg">
+                                         class="w-full h-auto max-h-[350px] object-contain rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
                                 </div>
                                 {% elif attachment.is_video %}
                                 <div class="aspect-w-16 aspect-h-9 mb-4">
-                                    <video controls class="w-full h-full rounded-lg">
+                                    <video controls class="w-full max-h-[350px] rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
                                         <source src="{{ attachment.file.url }}" type="video/{{ attachment.get_file_extension }}">
                                         Votre navigateur ne supporte pas la lecture de vidéos.
                                     </video>
                                 </div>
                                 {% else %}
-                                <div class="flex items-center justify-center h-32 bg-gray-100 dark:bg-gray-600 rounded-lg mb-4">
-                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                                    </svg>
+                                <div class="document-preview mb-4">
+                                    {% if attachment.file.url|lower|slice:"-4:" == ".pdf" %}
+                                    <div class="bg-gray-50 dark:bg-gray-600 rounded-lg overflow-hidden preview-wrapper" onclick="openPreview('{{ attachment.file.url }}', 'pdf')" style="height: 350px;">
+                                        <object data="{{ attachment.file.url }}" type="application/pdf" width="100%" height="350" class="rounded-lg">
+                                            <div class="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-600 p-4 text-center">
+                                                <p class="text-gray-600 dark:text-gray-300">Ce navigateur ne supporte pas la visualisation des PDF.</p>
+                                            </div>
+                                        </object>
+                                    </div>
+                                    {% elif attachment.file.url|lower|slice:"-4:" == ".doc" or attachment.file.url|lower|slice:"-5:" == ".docx" or attachment.file.url|lower|slice:"-4:" == ".xls" or attachment.file.url|lower|slice:"-5:" == ".xlsx" or attachment.file.url|lower|slice:"-4:" == ".ppt" or attachment.file.url|lower|slice:"-5:" == ".pptx" %}
+                                    <div class="flex flex-col items-center justify-center h-48 bg-gray-50 dark:bg-gray-600 rounded-lg p-4 text-center">
+                                        <svg class="w-12 h-12 text-gray-400 dark:text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300">{{attachment.file.name}}</p>
+                                    </div>
+                                    {% else %}
+                                    <div class="flex flex-col items-center justify-center h-48 bg-gray-50 dark:bg-gray-600 rounded-lg p-4">
+                                        <svg class="w-12 h-12 text-gray-400 dark:text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300">{{attachment.file.name}}</p>
+                                    </div>
+                                    {% endif %}
                                 </div>
                                 {% endif %}
-                                {% if attachment.title %}
-                                <h4 class="text-md font-medium text-gray-900 dark:text-white mb-2">{{ attachment.title }}</h4>
-                                {% endif %}
-                                {% if attachment.description %}
-                                <p class="text-sm text-gray-600 dark:text-gray-400">{{ attachment.description }}</p>
-                                {% endif %}
-                                <a href="{{ attachment.file.url }}" target="_blank" 
-                                   class="mt-3 inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                    </svg>
-                                    Télécharger
-                                </a>
+                                
+                                <div class="flex flex-col">
+                                    {% if attachment.title %}
+                                    <h4 class="text-md font-medium text-gray-900 dark:text-white mb-2">{{ attachment.title }}</h4>
+                                    {% endif %}
+                                    {% if attachment.description %}
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ attachment.description }}</p>
+                                    {% endif %}
+                                </div>
                             </div>
                             {% endfor %}
                         </div>
@@ -846,5 +993,161 @@ document.addEventListener('visibilitychange', () => {
     window.onpopstate = function () {
         history.go(1);
     };
+</script>
+
+<!-- Add this at the end of the body, just before the closing </div> of the main container -->
+<!-- Preview Modal -->
+<div id="previewModal" class="modal">
+    <button class="close-modal" onclick="closePreview()">×</button>
+    <div class="modal-content">
+        <!-- Content will be dynamically inserted here -->
+    </div>
+    <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomOut()">−</button>
+        <button class="zoom-btn" onclick="resetZoom()">100%</button>
+        <button class="zoom-btn" onclick="zoomIn()">+</button>
+    </div>
+</div>
+
+<script>
+let currentZoom = 1;
+const zoomStep = 0.25;
+const maxZoom = 3;
+const minZoom = 0.5;
+let isDragging = false;
+let startX, startY, scrollLeft, scrollTop;
+
+function openPreview(url, type) {
+    const modal = document.getElementById('previewModal');
+    const modalContent = modal.querySelector('.modal-content');
+    currentZoom = 1;
+
+    // Clear previous content
+    modalContent.innerHTML = '';
+
+    // Create wrapper for scrolling/panning
+    const wrapper = document.createElement('div');
+    wrapper.className = 'document-wrapper';
+
+    if (type === 'image') {
+        const img = document.createElement('img');
+        img.src = url;
+        img.style.transform = `scale(${currentZoom})`;
+        wrapper.appendChild(img);
+        modalContent.appendChild(wrapper);
+        
+        // Wait for image to load to get proper dimensions
+        img.onload = function() {
+            setupDragScroll(wrapper);
+        };
+    } else if (type === 'pdf') {
+        const obj = document.createElement('object');
+        obj.data = url;
+        obj.type = 'application/pdf';
+        obj.style.width = '100%';
+        obj.style.height = '100%';
+        obj.style.transform = `scale(${currentZoom})`;
+        wrapper.appendChild(obj);
+        modalContent.appendChild(wrapper);
+        setupDragScroll(wrapper);
+    }
+
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+
+    // Add keyboard controls
+    document.addEventListener('keydown', handleKeyPress);
+}
+
+function setupDragScroll(wrapper) {
+    wrapper.addEventListener('mousedown', startDragging);
+    wrapper.addEventListener('mousemove', drag);
+    wrapper.addEventListener('mouseup', stopDragging);
+    wrapper.addEventListener('mouseleave', stopDragging);
+}
+
+function startDragging(e) {
+    isDragging = true;
+    const wrapper = e.currentTarget;
+    startX = e.pageX - wrapper.offsetLeft;
+    startY = e.pageY - wrapper.offsetTop;
+    scrollLeft = wrapper.scrollLeft;
+    scrollTop = wrapper.scrollTop;
+    wrapper.style.cursor = 'grabbing';
+}
+
+function drag(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    const wrapper = e.currentTarget;
+    const x = e.pageX - wrapper.offsetLeft;
+    const y = e.pageY - wrapper.offsetTop;
+    const walkX = (x - startX) * 1.5;
+    const walkY = (y - startY) * 1.5;
+    wrapper.scrollLeft = scrollLeft - walkX;
+    wrapper.scrollTop = scrollTop - walkY;
+}
+
+function stopDragging(e) {
+    isDragging = false;
+    const wrapper = e.currentTarget;
+    wrapper.style.cursor = 'grab';
+}
+
+function updateZoom() {
+    const modalContent = document.querySelector('.modal-content');
+    const wrapper = modalContent.querySelector('.document-wrapper');
+    const content = wrapper.children[0];
+    
+    if (content) {
+        content.style.transform = `scale(${currentZoom})`;
+        wrapper.classList.toggle('zoomed', currentZoom > 1);
+    }
+}
+
+function closePreview() {
+    const modal = document.getElementById('previewModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    document.removeEventListener('keydown', handleKeyPress);
+}
+
+function zoomIn() {
+    if (currentZoom < maxZoom) {
+        currentZoom += zoomStep;
+        updateZoom();
+    }
+}
+
+function zoomOut() {
+    if (currentZoom > minZoom) {
+        currentZoom -= zoomStep;
+        updateZoom();
+    }
+}
+
+function resetZoom() {
+    currentZoom = 1;
+    updateZoom();
+}
+
+function handleKeyPress(e) {
+    if (e.key === 'Escape') {
+        closePreview();
+    } else if (e.key === '+' || e.key === '=') {
+        zoomIn();
+    } else if (e.key === '-') {
+        zoomOut();
+    } else if (e.key === '0') {
+        resetZoom();
+    }
+}
+
+// Close modal when clicking outside the content
+document.getElementById('previewModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePreview();
+    }
+});
 </script>
 {% endblock %}

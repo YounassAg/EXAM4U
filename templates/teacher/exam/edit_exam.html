@@ -90,7 +90,16 @@
 
                 <!-- Exam Attachments Section -->
                 <div class="mt-6">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Pièces jointes de l'examen</h3>
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Pièces jointes de l'examen</h3>
+                        <button type="button" id="add-exam-attachment" 
+                                class="flex items-center px-4 py-2.5 text-sm font-medium rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 text-white shadow-lg shadow-blue-500/20 dark:shadow-blue-700/30 hover:shadow-xl hover:shadow-blue-500/40 dark:hover:shadow-blue-700/50 transition-all duration-300">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Ajouter une pièce jointe
+                        </button>
+                    </div>
                     
                     <!-- Display existing attachments -->
                     {% if exam.attachments.all %}
@@ -171,13 +180,6 @@
                             </div>
                         </div>
                     </div>
-                    <button type="button" id="add-exam-attachment" 
-                            class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                        Ajouter une pièce jointe
-                    </button>
                 </div>
             </div>
 
@@ -223,30 +225,34 @@
 
                     <!-- Question Attachments Section -->
                     <div class="mt-4">
-                        <h4 class="text-md font-medium text-gray-900 dark:text-white mb-4">Pièces jointes de la question</h4>
+                        <button type="button" class="add-question-attachment mt-4 group inline-flex items-center px-4 py-2.5 text-sm font-medium rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 text-white shadow-lg shadow-blue-500/20 dark:shadow-blue-700/30 hover:shadow-xl hover:shadow-blue-500/40 dark:hover:shadow-blue-700/50 transition-all duration-300 mb-8" data-question-id="{{ forloop.counter }}">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Ajouter une pièce jointe
+                        </button>
                         
                         <!-- Display existing attachments -->
                         {% if question.attachments.all %}
                         <div class="mb-6">
-                            <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pièces jointes existantes</h5>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {% for attachment in question.attachments.all %}
-                                <div class="attachment-item bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                <div class="attachment-item bg-white dark:bg-gray-700 rounded-xl p-5 border border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md transition-all duration-300">
                                     {% if attachment.is_image %}
                                     <div class="aspect-w-16 aspect-h-9 mb-4">
                                         <img src="{{ attachment.file.url }}" alt="{{ attachment.title }}" 
-                                             class="w-full h-full object-cover rounded-lg">
+                                             class="w-full h-full object-cover rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
                                     </div>
                                     {% elif attachment.is_video %}
                                     <div class="aspect-w-16 aspect-h-9 mb-4">
-                                        <video controls class="w-full h-full rounded-lg">
+                                        <video controls class="w-full h-full rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
                                             <source src="{{ attachment.file.url }}" type="video/{{ attachment.get_file_extension }}">
                                             Votre navigateur ne supporte pas la lecture de vidéos.
                                         </video>
                                     </div>
                                     {% else %}
-                                    <div class="flex items-center justify-center h-32 bg-gray-100 dark:bg-gray-600 rounded-lg mb-4">
-                                        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="flex items-center justify-center h-32 bg-gray-50 dark:bg-gray-600 rounded-lg mb-4 shadow-sm hover:shadow-md transition-all duration-300">
+                                        <svg class="w-12 h-12 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                         </svg>
                                     </div>
@@ -254,9 +260,9 @@
                                     <h4 class="text-md font-medium text-gray-900 dark:text-white mb-2">{{ attachment.title|default:"Sans titre" }}</h4>
                                     <p class="text-sm text-gray-600 dark:text-gray-400">{{ attachment.description|default:"Aucune description" }}</p>
                                     <div class="mt-3 flex justify-between items-center">
-                                        <a href="{{ attachment.file.url }}" target="_blank" 
-                                           class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <a href="{{ attachment.file.url }}" target="_blank" download
+                                           class="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-lg text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-900/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300">
+                                            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                             </svg>
                                             Télécharger
@@ -273,43 +279,9 @@
                         {% endif %}
                         
                         <!-- Add new attachments -->
-                        <div id="question_attachments_{{ forloop.counter }}" class="space-y-4">
-                            <div class="attachment-item bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fichier</label>
-                                        <input type="file" name="question_{{ forloop.counter }}_attachment_file[]" 
-                                               class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type</label>
-                                        <select name="question_{{ forloop.counter }}_attachment_type[]" 
-                                                class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
-                                            <option value="image">Image</option>
-                                            <option value="video">Vidéo</option>
-                                            <option value="document">Document</option>
-                                            <option value="other">Autre</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="mt-4">
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titre (optionnel)</label>
-                                    <input type="text" name="question_{{ forloop.counter }}_attachment_title[]" 
-                                           class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
-                                </div>
-                                <div class="mt-4">
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description (optionnelle)</label>
-                                    <textarea name="question_{{ forloop.counter }}_attachment_description[]" rows="2"
-                                              class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300"></textarea>
-                                </div>
-                            </div>
+                        <div id="question_attachments_{{ forloop.counter }}" class="grid grid-cols-1 gap-6">
+                            <!-- Attachments will be dynamically added here -->
                         </div>
-                        <button type="button" class="add-question-attachment mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" data-question-id="{{ forloop.counter }}">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                            Ajouter une pièce jointe
-                        </button>
                     </div>
 
                     <!-- MCQ Choices Section -->
@@ -531,142 +503,322 @@
     
                 <!-- Question Attachments Section -->
                 <div class="mt-4">
-                    <h4 class="text-md font-medium text-gray-900 dark:text-white mb-4">Pièces jointes de la question</h4>
-                    
-                    <!-- Display existing attachments -->
-                    {% if question.attachments.all %}
-                    <div class="mb-6">
-                        <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pièces jointes existantes</h5>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {% for attachment in question.attachments.all %}
-                            <div class="attachment-item bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                                {% if attachment.is_image %}
-                                <div class="aspect-w-16 aspect-h-9 mb-4">
-                                    <img src="{{ attachment.file.url }}" alt="{{ attachment.title }}" 
-                                         class="w-full h-full object-cover rounded-lg">
-                                </div>
-                                {% elif attachment.is_video %}
-                                <div class="aspect-w-16 aspect-h-9 mb-4">
-                                    <video controls class="w-full h-full rounded-lg">
-                                        <source src="{{ attachment.file.url }}" type="video/{{ attachment.get_file_extension }}">
-                                        Votre navigateur ne supporte pas la lecture de vidéos.
-                                    </video>
-                                </div>
-                                {% else %}
-                                <div class="flex items-center justify-center h-32 bg-gray-100 dark:bg-gray-600 rounded-lg mb-4">
-                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                                    </svg>
-                                </div>
-                                {% endif %}
-                                <h4 class="text-md font-medium text-gray-900 dark:text-white mb-2">{{ attachment.title|default:"Sans titre" }}</h4>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">{{ attachment.description|default:"Aucune description" }}</p>
-                                <div class="mt-3 flex justify-between items-center">
-                                    <a href="{{ attachment.file.url }}" target="_blank" 
-                                       class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
-                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                                        </svg>
-                                        Télécharger
-                                    </a>
-                                    <div class="flex items-center">
-                                        <input type="checkbox" name="delete_question_attachment_{{ attachment.id }}" id="delete_question_attachment_{{ attachment.id }}" class="w-4 h-4 text-red-600 border-gray-300 dark:border-gray-600 rounded focus:ring-red-500">
-                                        <label for="delete_question_attachment_{{ attachment.id }}" class="ml-2 text-sm text-red-600 dark:text-red-400">Supprimer</label>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
-                    
-                    <!-- Add new attachments -->
-                    <div id="question_attachments_{{ forloop.counter }}" class="space-y-4">
-                        <div class="attachment-item bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fichier</label>
-                                    <input type="file" name="question_{{ forloop.counter }}_attachment_file[]" 
-                                           class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type</label>
-                                    <select name="question_{{ forloop.counter }}_attachment_type[]" 
-                                            class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
-                                        <option value="image">Image</option>
-                                        <option value="video">Vidéo</option>
-                                        <option value="document">Document</option>
-                                        <option value="other">Autre</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titre (optionnel)</label>
-                                <input type="text" name="question_{{ forloop.counter }}_attachment_title[]" 
-                                       class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
-                            </div>
-                            <div class="mt-4">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description (optionnelle)</label>
-                                <textarea name="question_{{ forloop.counter }}_attachment_description[]" rows="2"
-                                          class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    <button type="button" class="add-question-attachment mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" data-question-id="{{ forloop.counter }}">
+                    <button type="button" class="add-question-attachment mt-4 group inline-flex items-center px-4 py-2.5 text-sm font-medium rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 text-white shadow-lg shadow-blue-500/20 dark:shadow-blue-700/30 hover:shadow-xl hover:shadow-blue-500/40 dark:hover:shadow-blue-700/50 transition-all duration-300 mb-8" data-question-id="${questionCount}">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
                         Ajouter une pièce jointe
                     </button>
+                    
+                    <div id="question_attachments_${questionCount}" class="grid grid-cols-1 gap-6">
+                        <!-- Attachments will be dynamically added here -->
+                    </div>
                 </div>
-            </div>
+            `;
+            
+            // Add event listeners for the new question
+            const newQuestion = document.getElementById(`question_${questionCount}`);
+            
+            newQuestion.querySelector('.remove-question-btn').addEventListener('click', function() {
+                const questionId = this.getAttribute('data-question-id');
+                removeQuestion(questionId);
+            });
+            
+            newQuestion.querySelector('select[name^="question_type_"]').addEventListener('change', handleQuestionTypeChange);
+            
+            // Add event listener for the "add attachment" button in the new question
+            const addAttachmentBtn = newQuestion.querySelector('.add-question-attachment');
+            if (addAttachmentBtn) {
+                addAttachmentBtn.addEventListener('click', function() {
+                    const questionId = this.getAttribute('data-question-id');
+                    addQuestionAttachment(questionId);
+                });
+            }
+            
+            questionsContainer.appendChild(questionDiv);
+            document.getElementById('question_count').value = questionCount;
+        }
 
-            // MCQ Choices Section
-            <div class="mcq-choices-section {% if question.question_type != 'MCQ' %}hidden{% endif %}" id="mcq_section_{{ forloop.counter }}">
-                <div class="mcq-choices-container space-y-4" id="mcq_choices_{{ forloop.counter }}">
-                    <input type="hidden" name="mcq_choice_count_{{ forloop.counter }}" id="mcq_choice_count_{{ forloop.counter }}" value="{{ question.mcqchoice_set.all|length }}">
-                    {% for choice in question.mcqchoice_set.all %}
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-4 mb-4" id="mcq_choice_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
-                        <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
-                            <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix {{ forloop.counter }}</h3>
-                            <button type="button" class="remove-mcq-choice-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" 
-                                    data-question-id="{{ forloop.parentloop.counter }}" data-choice-id="{{ forloop.counter }}">
-                                <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
-                                    {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
-                                </div>
-                                <span class="font-medium">Supprimer</span>
-                            </button>
-                        </div>
-                        <div>
-                            <label for="mcq_choice_text_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Texte du Choix</label>
-                            <input type="text" 
-                                name="mcq_choice_text_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
-                                id="mcq_choice_text_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
-                                value="{{ choice.choice_label }}"
-                                required 
-                                class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <input type="checkbox" 
-                                name="mcq_choice_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" 
-                                id="mcq_choice_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}"
-                                {% if choice.is_correct %}checked{% endif %}
-                                class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
-                            <label for="mcq_choice_correct_{{ forloop.parentloop.counter }}_{{ forloop.counter }}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Réponse Correcte
-                            </label>
-                        </div>
-                    </div>
-                    {% endfor %}
+        function addQuestionAttachment(questionId) {
+            const container = document.getElementById(`question_attachments_${questionId}`);
+            
+            const newAttachment = document.createElement('div');
+            newAttachment.className = 'attachment-item bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-300';
+            
+            newAttachment.innerHTML = `
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-md font-semibold text-gray-900 dark:text-white flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                        </svg>
+                        Pièce jointe
+                    </h4>
+                    <button type="button" class="remove-attachment inline-flex items-center px-4 py-2 text-sm font-medium rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-300">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Supprimer
+                    </button>
                 </div>
-                <button type="button" class="add-mcq-choice-btn mt-4 sm:w-40 group inline-flex items-center justify-center px-3 py-1.5 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="{{ forloop.counter }}">
-                    <div class="p-1 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
-                        {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
+
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fichier</label>
+                        <div class="relative group">
+                            <input type="file" name="question_${questionId}_attachment_file[]" 
+                                class="w-full px-4 py-2 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-900/30 dark:file:text-blue-400 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/40 group-hover:border-blue-400 dark:group-hover:border-blue-500">
+                        </div>
                     </div>
-                    <span class="font-medium">Ajouter un Choix</span>
-                </button>
-            </div>
-        </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type</label>
+                        <div class="relative">
+                            <select name="question_${questionId}_attachment_type[]" 
+                                    class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 appearance-none">
+                                <option value="image">Image</option>
+                                <option value="video">Vidéo</option>
+                                <option value="document">Document</option>
+                                <option value="other">Autre</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titre (optionnel)</label>
+                        <input type="text" name="question_${questionId}_attachment_title[]" 
+                            class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description (optionnelle)</label>
+                        <textarea name="question_${questionId}_attachment_description[]" rows="2"
+                            class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"></textarea>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(newAttachment);
+            
+            // Add event listener for the new remove button
+            const removeButtons = newAttachment.querySelectorAll('.remove-attachment');
+            removeButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.attachment-item').remove();
+                });
+            });
+        }
+
+        // Add event listeners for attachment handling
+        document.querySelectorAll('.add-question-attachment').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const questionId = this.getAttribute('data-question-id');
+                console.log("Adding attachment to question:", questionId);
+                addQuestionAttachment(questionId);
+            });
+        });
+
+        document.querySelectorAll('.remove-attachment').forEach(btn => {
+            btn.addEventListener('click', function () {
+                this.closest('.attachment-item').remove();
+            });
+        });
+        
+        // Add event listeners for question type changes
+        document.querySelectorAll('select[name^="question_type_"]').forEach(select => {
+            select.addEventListener('change', handleQuestionTypeChange);
+        });
+        
+        // Add event listener for the add question button
+        document.getElementById('add-question-btn')?.addEventListener('click', addQuestion);
+        
+        // Add event listeners for the remove question button
+        document.querySelectorAll('.remove-question-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const questionId = this.getAttribute('data-question-id');
+                removeQuestion(questionId);
+            });
+        });
+        
+        // Add event listener to add MCQ choice buttons
+        document.querySelectorAll('.add-mcq-choice-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const questionId = this.getAttribute('data-question-id');
+                addMCQChoice(questionId);
+            });
+        });
+        
+        // Add event listeners to existing remove MCQ choice buttons
+        document.querySelectorAll('.remove-mcq-choice-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const questionId = this.getAttribute('data-question-id');
+                const choiceId = this.getAttribute('data-choice-id');
+                removeMCQChoice(questionId, choiceId);
+            });
+        });
+        
+        // Function to reindex questions
+        function reindexQuestions() {
+            const questions = document.querySelectorAll('#questions-container > div');
+            questions.forEach((question, index) => {
+                const newIndex = index + 1;
+                const questionId = question.id.replace('question_', '');
+                
+                // Update header
+                const header = question.querySelector('h2');
+                if (header) {
+                    header.textContent = `Question ${newIndex}`;
+                }
+                
+                // Update all form elements
+                question.querySelectorAll('[name*="_' + questionId + '"]').forEach(element => {
+                    const newName = element.name.replace('_' + questionId, '_' + newIndex);
+                    element.name = newName;
+                });
+                
+                question.querySelectorAll('[id*="_' + questionId + '"]').forEach(element => {
+                    const newId = element.id.replace('_' + questionId, '_' + newIndex);
+                    element.id = newId;
+                });
+                
+                // Update data attributes
+                question.querySelectorAll('[data-question-id="' + questionId + '"]').forEach(element => {
+                    element.setAttribute('data-question-id', newIndex);
+                });
+                
+                // Update question id
+                question.id = 'question_' + newIndex;
+            });
+        }
+        
+        // Add MCQ Choice function
+        function addMCQChoice(questionId) {
+            const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
+            if (!choicesContainer) return;
+            
+            // Get current choice count
+            const choiceCountInput = document.getElementById(`mcq_choice_count_${questionId}`);
+            if (!choiceCountInput) return;
+            
+            let choiceCount = parseInt(choiceCountInput.value || 0) + 1;
+            choiceCountInput.value = choiceCount;
+            
+            const choiceDiv = document.createElement('div');
+            choiceDiv.className = 'bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-4 mb-4';
+            choiceDiv.id = `mcq_choice_${questionId}_${choiceCount}`;
+            
+            choiceDiv.innerHTML = `
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                    <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix ${choiceCount}</h3>
+                    <button type="button" class="remove-mcq-choice-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${questionId}" data-choice-id="${choiceCount}">
+                        <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </div>
+                        <span class="font-medium">Supprimer</span>
+                    </button>
+                </div>
+                <div>
+                    <label for="mcq_choice_text_${questionId}_${choiceCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Texte du Choix</label>
+                    <input type="text" 
+                        name="mcq_choice_text_${questionId}_${choiceCount}" 
+                        id="mcq_choice_text_${questionId}_${choiceCount}" 
+                        required 
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" 
+                        name="mcq_choice_correct_${questionId}_${choiceCount}" 
+                        id="mcq_choice_correct_${questionId}_${choiceCount}"
+                        class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
+                    <label for="mcq_choice_correct_${questionId}_${choiceCount}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Réponse Correcte
+                    </label>
+                </div>
+            `;
+            
+            choicesContainer.appendChild(choiceDiv);
+            
+            // Add event listener to the remove button
+            const removeButton = choiceDiv.querySelector('.remove-mcq-choice-btn');
+            if (removeButton) {
+                removeButton.addEventListener('click', function() {
+                    const questionId = this.getAttribute('data-question-id');
+                    const choiceId = this.getAttribute('data-choice-id');
+                    removeMCQChoice(questionId, choiceId);
+                });
+            }
+        }
+
+        // Add event listener for exam attachments
+        document.getElementById('add-exam-attachment').addEventListener('click', function() {
+            const container = document.getElementById('exam-attachments-container');
+            
+            const newAttachment = document.createElement('div');
+            newAttachment.className = 'attachment-item bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-300';
+            
+            newAttachment.innerHTML = `
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-md font-semibold text-gray-900 dark:text-white flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                        </svg>
+                        Pièce jointe
+                    </h4>
+                    <button type="button" class="remove-attachment inline-flex items-center px-4 py-2 text-sm font-medium rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-300">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Supprimer
+                    </button>
+                </div>
+
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fichier</label>
+                        <div class="relative group">
+                            <input type="file" name="exam_attachment_file[]" 
+                                class="w-full px-4 py-2 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-900/30 dark:file:text-blue-400 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/40 group-hover:border-blue-400 dark:group-hover:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type</label>
+                        <div class="relative">
+                            <select name="exam_attachment_type[]" 
+                                    class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 appearance-none">
+                                <option value="image">Image</option>
+                                <option value="video">Vidéo</option>
+                                <option value="document">Document</option>
+                                <option value="other">Autre</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titre (optionnel)</label>
+                        <input type="text" name="exam_attachment_title[]" 
+                            class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description (optionnelle)</label>
+                        <textarea name="exam_attachment_description[]" rows="2"
+                                class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"></textarea>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(newAttachment);
+            
+            // Add event listener to the remove button
+            const removeButton = newAttachment.querySelector('.remove-attachment');
+            if (removeButton) {
+                removeButton.addEventListener('click', function() {
+                    newAttachment.remove();
+                });
+            }
+        });
     });
 </script>
 
