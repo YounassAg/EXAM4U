@@ -15,6 +15,65 @@
         min-width: 150px;
     }
 
+    /* Attachment container styles */
+    .attachment-item {
+        display: flex;
+        flex-direction: column;
+        max-width: 100%;
+        height: auto;
+    }
+
+    .attachment-preview-container {
+        position: relative;
+        width: 100%;
+        max-height: 350px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.03);
+        border-radius: 0.5rem;
+    }
+
+    .attachment-preview-container img,
+    .attachment-preview-container video {
+        max-width: 100%;
+        max-height: 350px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+    }
+
+    .attachment-preview-container object {
+        width: 100%;
+        height: 350px;
+    }
+
+    .document-preview {
+        width: 100%;
+        max-height: 350px;
+        overflow: hidden;
+    }
+
+    .document-icon-container {
+        height: 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.03);
+        border-radius: 0.5rem;
+    }
+
+    /* Dark mode adjustments */
+    .dark .attachment-preview-container {
+        background-color: rgba(255, 255, 255, 0.03);
+    }
+
+    .dark .document-icon-container {
+        background-color: rgba(255, 255, 255, 0.03);
+    }
+
     /* Ensure code editor is visible in both light and dark modes */
     .CodeMirror {
         height: 200px !important;
@@ -112,6 +171,8 @@
         align-items: center;
         justify-content: center;
         overflow: hidden;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 12px;
     }
 
     .modal-content img {
@@ -144,7 +205,7 @@
     }
 
     .modal-content .document-wrapper.zoomed {
-        overflow: auto;
+        overflow: hidden;
     }
 
     .zoom-controls {
@@ -154,11 +215,18 @@
         transform: translateX(-50%);
         display: flex;
         gap: 10px;
-        background: rgba(255, 255, 255, 0.1);
-        padding: 10px;
-        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 12px;
+        border-radius: 12px;
         backdrop-filter: blur(10px);
         z-index: 1001;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        opacity: 0.6;
+    }
+
+    .zoom-controls:hover {
+        opacity: 1;
+        transform: translateY(0);
     }
 
     .zoom-btn {
@@ -166,14 +234,35 @@
         border: none;
         color: white;
         padding: 8px 16px;
-        border-radius: 6px;
+        border-radius: 8px;
         cursor: pointer;
-        font-size: 18px;
+        font-size: 16px;
         transition: all 0.3s ease;
+        min-width: 44px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
     }
 
     .zoom-btn:hover {
         background: rgba(255, 255, 255, 0.3);
+    }
+
+    .zoom-btn::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: translate(-50%, -50%) scale(0);
+        border-radius: 50%;
+        transition: transform 0.3s ease;
+    }
+
+    .zoom-btn:active::after {
+        transform: translate(-50%, -50%) scale(1.5);
     }
 
     .close-modal {
@@ -201,6 +290,168 @@
 
     .preview-wrapper {
         cursor: zoom-in;
+    }
+
+    /* Add these styles to the existing style section */
+    .document-wrapper {
+        cursor: grab;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        position: relative;
+        touch-action: none;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 8px;
+    }
+
+    .document-wrapper.dragging {
+        cursor: grabbing;
+        user-select: none;
+    }
+
+    .document-wrapper img,
+    .document-wrapper object {
+        pointer-events: none;
+        transform-origin: 0 0;
+        position: relative;
+        transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform;
+    }
+
+    .document-wrapper.dragging img,
+    .document-wrapper.dragging object {
+        transition: none; /* Disable transition while dragging for responsiveness */
+    }
+
+    .document-wrapper.animating img,
+    .document-wrapper.animating object {
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        height: 90%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.02);
+        border-radius: 12px;
+    }
+
+    /* Dark mode adjustments */
+    .dark .document-wrapper {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .dark .modal-content {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Enhanced zoom controls */
+    .zoom-controls {
+        opacity: 0.6;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        transform: translateY(20px);
+    }
+
+    .zoom-controls:hover {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .zoom-btn {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .zoom-btn::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        transform: translate(-50%, -50%) scale(0);
+        border-radius: 50%;
+        transition: transform 0.3s ease;
+    }
+
+    .zoom-btn:active::after {
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+
+    /* Add loading state styles */
+    .document-wrapper.loading {
+        position: relative;
+    }
+
+    .document-wrapper.loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 40px;
+        height: 40px;
+        margin: -20px 0 0 -20px;
+        border: 3px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: #3b82f6;
+        animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .dark .document-wrapper.loading::after {
+        border-color: rgba(255, 255, 255, 0.1);
+        border-top-color: #60a5fa;
+    }
+
+    /* Error state styles */
+    .document-wrapper.error {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        text-align: center;
+        color: #ef4444;
+    }
+
+    .dark .document-wrapper.error {
+        color: #f87171;
+    }
+
+    /* Add keyboard navigation hint */
+    .navigation-hint {
+        position: fixed;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        white-space: nowrap;
+        backdrop-filter: blur(10px);
+    }
+
+    .navigation-hint.visible {
+        opacity: 0.8;
+    }
+
+    .dark .navigation-hint {
+        background: rgba(255, 255, 255, 0.2);
     }
 </style>
 {% endblock %}
@@ -323,13 +574,13 @@
                             {% for attachment in question.attachments.all %}
                             <div class="attachment-item bg-white dark:bg-gray-700 rounded-xl p-5 border border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md transition-all duration-300">
                                 {% if attachment.is_image %}
-                                <div class="aspect-w-16 aspect-h-9 mb-4 preview-wrapper" onclick="openPreview('{{ attachment.file.url }}', 'image')">
+                                <div class="attachment-preview-container mb-4 preview-wrapper" onclick="openPreview('{{ attachment.file.url }}', 'image')">
                                     <img src="{{ attachment.file.url }}" alt="{{ attachment.title }}" 
-                                         class="w-full h-auto max-h-[350px] object-contain rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
+                                         class="rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
                                 </div>
                                 {% elif attachment.is_video %}
-                                <div class="aspect-w-16 aspect-h-9 mb-4">
-                                    <video controls class="w-full max-h-[350px] rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
+                                <div class="attachment-preview-container mb-4">
+                                    <video controls class="rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
                                         <source src="{{ attachment.file.url }}" type="video/{{ attachment.get_file_extension }}">
                                         Votre navigateur ne supporte pas la lecture de vidéos.
                                     </video>
@@ -337,22 +588,15 @@
                                 {% else %}
                                 <div class="document-preview mb-4">
                                     {% if attachment.file.url|lower|slice:"-4:" == ".pdf" %}
-                                    <div class="bg-gray-50 dark:bg-gray-600 rounded-lg overflow-hidden preview-wrapper" onclick="openPreview('{{ attachment.file.url }}', 'pdf')" style="height: 350px;">
-                                        <object data="{{ attachment.file.url }}" type="application/pdf" width="100%" height="350" class="rounded-lg">
+                                    <div class="attachment-preview-container preview-wrapper" onclick="openPreview('{{ attachment.file.url }}', 'pdf')">
+                                        <object data="{{ attachment.file.url }}" type="application/pdf" class="rounded-lg">
                                             <div class="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-600 p-4 text-center">
                                                 <p class="text-gray-600 dark:text-gray-300">Ce navigateur ne supporte pas la visualisation des PDF.</p>
                                             </div>
                                         </object>
                                     </div>
-                                    {% elif attachment.file.url|lower|slice:"-4:" == ".doc" or attachment.file.url|lower|slice:"-5:" == ".docx" or attachment.file.url|lower|slice:"-4:" == ".xls" or attachment.file.url|lower|slice:"-5:" == ".xlsx" or attachment.file.url|lower|slice:"-4:" == ".ppt" or attachment.file.url|lower|slice:"-5:" == ".pptx" %}
-                                    <div class="flex flex-col items-center justify-center h-48 bg-gray-50 dark:bg-gray-600 rounded-lg p-4 text-center">
-                                        <svg class="w-12 h-12 text-gray-400 dark:text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                                        </svg>
-                                        <p class="text-sm text-gray-600 dark:text-gray-300">{{attachment.file.name}}</p>
-                                    </div>
                                     {% else %}
-                                    <div class="flex flex-col items-center justify-center h-48 bg-gray-50 dark:bg-gray-600 rounded-lg p-4">
+                                    <div class="document-icon-container">
                                         <svg class="w-12 h-12 text-gray-400 dark:text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                         </svg>
@@ -362,7 +606,7 @@
                                 </div>
                                 {% endif %}
                                 
-                                <div class="flex flex-col">
+                                <div class="flex flex-col mt-2">
                                     {% if attachment.title %}
                                     <h4 class="text-md font-medium text-gray-900 dark:text-white mb-2">{{ attachment.title }}</h4>
                                     {% endif %}
@@ -1011,97 +1255,487 @@ document.addEventListener('visibilitychange', () => {
 
 <script>
 let currentZoom = 1;
-const zoomStep = 0.25;
-const maxZoom = 3;
+const zoomStep = 0.1;
+const maxZoom = 5;
 const minZoom = 0.5;
 let isDragging = false;
-let startX, startY, scrollLeft, scrollTop;
+let startX, startY;
+let translateX = 0;
+let translateY = 0;
+let lastX, lastY;
+let velocityX = 0;
+let velocityY = 0;
+let lastTime = 0;
+let animationFrame = null;
+let boundaries = { left: 0, right: 0, top: 0, bottom: 0 };
+let pinchStartDistance = 0;
+let initialZoom = 1;
+let doubleTapTimer = null;
+let lastTapTime = 0;
+let errorRetries = 0;
+const MAX_RETRIES = 3;
 
 function openPreview(url, type) {
     const modal = document.getElementById('previewModal');
     const modalContent = modal.querySelector('.modal-content');
-    currentZoom = 1;
+    resetViewState();
 
-    // Clear previous content
     modalContent.innerHTML = '';
-
-    // Create wrapper for scrolling/panning
     const wrapper = document.createElement('div');
-    wrapper.className = 'document-wrapper';
+    wrapper.className = 'document-wrapper loading';
+
+    // Add navigation hint
+    const hint = document.createElement('div');
+    hint.className = 'navigation-hint';
+    hint.textContent = 'Use arrow keys to navigate • Double-click to zoom';
+    modalContent.appendChild(hint);
 
     if (type === 'image') {
         const img = document.createElement('img');
         img.src = url;
-        img.style.transform = `scale(${currentZoom})`;
-        wrapper.appendChild(img);
-        modalContent.appendChild(wrapper);
+        img.style.transform = getTransformStyle();
         
-        // Wait for image to load to get proper dimensions
         img.onload = function() {
-            setupDragScroll(wrapper);
+            wrapper.classList.remove('loading');
+            setupZoomAndDrag(wrapper, img);
+            calculateBoundaries(wrapper, img);
+            showNavigationHint();
         };
+
+        img.onerror = function() {
+            handleLoadError(wrapper, url, type);
+        };
+
+        wrapper.appendChild(img);
     } else if (type === 'pdf') {
         const obj = document.createElement('object');
         obj.data = url;
         obj.type = 'application/pdf';
         obj.style.width = '100%';
         obj.style.height = '100%';
-        obj.style.transform = `scale(${currentZoom})`;
+        obj.style.transform = getTransformStyle();
+        
+        obj.onload = function() {
+            wrapper.classList.remove('loading');
+            setupZoomAndDrag(wrapper, obj);
+            calculateBoundaries(wrapper, obj);
+            showNavigationHint();
+        };
+
+        obj.onerror = function() {
+            handleLoadError(wrapper, url, type);
+        };
+
         wrapper.appendChild(obj);
-        modalContent.appendChild(wrapper);
-        setupDragScroll(wrapper);
     }
 
+    modalContent.appendChild(wrapper);
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
-
-    // Add keyboard controls
     document.addEventListener('keydown', handleKeyPress);
 }
 
-function setupDragScroll(wrapper) {
-    wrapper.addEventListener('mousedown', startDragging);
-    wrapper.addEventListener('mousemove', drag);
-    wrapper.addEventListener('mouseup', stopDragging);
-    wrapper.addEventListener('mouseleave', stopDragging);
+function resetViewState() {
+    currentZoom = 1;
+    translateX = 0;
+    translateY = 0;
+    velocityX = 0;
+    velocityY = 0;
+    errorRetries = 0;
+    cancelAnimationFrame(animationFrame);
 }
 
-function startDragging(e) {
+function handleLoadError(wrapper, url, type) {
+    if (errorRetries < MAX_RETRIES) {
+        errorRetries++;
+        setTimeout(() => {
+            const content = wrapper.children[0];
+            content.src = url + '?retry=' + Date.now();
+        }, 1000 * errorRetries);
+    } else {
+        wrapper.classList.remove('loading');
+        wrapper.classList.add('error');
+        wrapper.innerHTML = `
+            <div>
+                <p>Failed to load ${type}.</p>
+                <button onclick="retryLoad('${url}', '${type}')" class="zoom-btn mt-4">
+                    Retry
+                </button>
+            </div>
+        `;
+    }
+}
+
+function retryLoad(url, type) {
+    errorRetries = 0;
+    openPreview(url, type);
+}
+
+function showNavigationHint() {
+    const hint = document.querySelector('.navigation-hint');
+    hint.classList.add('visible');
+    setTimeout(() => {
+        hint.classList.remove('visible');
+    }, 3000);
+}
+
+function setupZoomAndDrag(wrapper, content) {
+    wrapper.addEventListener('wheel', (e) => handleZoom(e, wrapper, content), { passive: false });
+    wrapper.addEventListener('mousedown', (e) => startDragging(e, wrapper, content));
+    wrapper.addEventListener('mousemove', (e) => drag(e, wrapper, content));
+    wrapper.addEventListener('mouseup', () => stopDragging(wrapper, content));
+    wrapper.addEventListener('mouseleave', () => stopDragging(wrapper, content));
+    
+    wrapper.addEventListener('mousemove', (e) => {
+        lastX = e.clientX;
+        lastY = e.clientY;
+    });
+
+    // Touch support
+    wrapper.addEventListener('touchstart', (e) => handleTouchStart(e, wrapper, content), { passive: false });
+    wrapper.addEventListener('touchmove', (e) => handleTouchMove(e, wrapper, content), { passive: false });
+    wrapper.addEventListener('touchend', () => stopDragging(wrapper, content));
+
+    // Double-click to zoom
+    wrapper.addEventListener('dblclick', (e) => handleDoubleClick(e, wrapper, content));
+
+    // Pinch zoom support
+    wrapper.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            pinchStartDistance = getPinchDistance(e.touches);
+            initialZoom = currentZoom;
+        }
+    }, { passive: false });
+
+    wrapper.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            handlePinchZoom(e, wrapper, content);
+        }
+    }, { passive: false });
+
+    // Single tap detection for mobile
+    wrapper.addEventListener('touchend', (e) => {
+        const currentTime = Date.now();
+        if (currentTime - lastTapTime < 300) {
+            // Double tap detected
+            e.preventDefault();
+            const touch = e.changedTouches[0];
+            handleDoubleClick({ clientX: touch.clientX, clientY: touch.clientY }, wrapper, content);
+            clearTimeout(doubleTapTimer);
+            doubleTapTimer = null;
+        } else {
+            doubleTapTimer = setTimeout(() => {
+                // Single tap actions if needed
+            }, 300);
+        }
+        lastTapTime = currentTime;
+    });
+}
+
+function handleTouchStart(e, wrapper, content) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    startDragging({ clientX: touch.clientX, clientY: touch.clientY }, wrapper, content);
+}
+
+function handleTouchMove(e, wrapper, content) {
+    e.preventDefault();
+    if (!isDragging) return;
+    const touch = e.touches[0];
+    drag({ clientX: touch.clientX, clientY: touch.clientY }, wrapper, content);
+}
+
+function handleZoom(e, wrapper, content) {
+    e.preventDefault();
+    
+    const rect = wrapper.getBoundingClientRect();
+    const mouseX = lastX - rect.left;
+    const mouseY = lastY - rect.top;
+
+    const contentX = mouseX - translateX;
+    const contentY = mouseY - translateY;
+
+    const delta = e.deltaY < 0 ? 1 : -1;
+    const prevZoom = currentZoom;
+    currentZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + (delta * zoomStep)));
+    
+    if (currentZoom !== prevZoom) {
+        translateX = mouseX - (contentX * currentZoom / prevZoom);
+        translateY = mouseY - (contentY * currentZoom / prevZoom);
+        
+        calculateBoundaries(wrapper, content);
+        constrainToBoundaries();
+        
+        content.style.transform = getTransformStyle();
+        wrapper.classList.toggle('zoomed', currentZoom > 1);
+        updateZoomDisplay();
+    }
+}
+
+function startDragging(e, wrapper, content) {
+    if (e.button !== 0) return;
+    cancelAnimationFrame(animationFrame);
+    
     isDragging = true;
-    const wrapper = e.currentTarget;
-    startX = e.pageX - wrapper.offsetLeft;
-    startY = e.pageY - wrapper.offsetTop;
-    scrollLeft = wrapper.scrollLeft;
-    scrollTop = wrapper.scrollTop;
-    wrapper.style.cursor = 'grabbing';
+    startX = e.clientX - translateX;
+    startY = e.clientY - translateY;
+    lastTime = Date.now();
+    velocityX = 0;
+    velocityY = 0;
+    
+    wrapper.classList.add('dragging');
+    calculateBoundaries(wrapper, content);
 }
 
-function drag(e) {
+function drag(e, wrapper, content) {
     if (!isDragging) return;
     e.preventDefault();
-    const wrapper = e.currentTarget;
-    const x = e.pageX - wrapper.offsetLeft;
-    const y = e.pageY - wrapper.offsetTop;
-    const walkX = (x - startX) * 1.5;
-    const walkY = (y - startY) * 1.5;
-    wrapper.scrollLeft = scrollLeft - walkX;
-    wrapper.scrollTop = scrollTop - walkY;
-}
-
-function stopDragging(e) {
-    isDragging = false;
-    const wrapper = e.currentTarget;
-    wrapper.style.cursor = 'grab';
-}
-
-function updateZoom() {
-    const modalContent = document.querySelector('.modal-content');
-    const wrapper = modalContent.querySelector('.document-wrapper');
-    const content = wrapper.children[0];
     
-    if (content) {
-        content.style.transform = `scale(${currentZoom})`;
+    const currentTime = Date.now();
+    const deltaTime = currentTime - lastTime;
+    const newTranslateX = e.clientX - startX;
+    const newTranslateY = e.clientY - startY;
+    
+    // Calculate velocity
+    if (deltaTime > 0) {
+        velocityX = (newTranslateX - translateX) / deltaTime;
+        velocityY = (newTranslateY - translateY) / deltaTime;
+    }
+    
+    translateX = newTranslateX;
+    translateY = newTranslateY;
+    
+    constrainToBoundaries();
+    content.style.transform = getTransformStyle();
+    
+    lastTime = currentTime;
+}
+
+function stopDragging(wrapper, content) {
+    if (!isDragging) return;
+    isDragging = false;
+    wrapper.classList.remove('dragging');
+    
+    // Apply inertia if there's significant velocity
+    if (Math.abs(velocityX) > 0.1 || Math.abs(velocityY) > 0.1) {
+        wrapper.classList.add('animating');
+        applyInertia(wrapper, content);
+    }
+}
+
+function applyInertia(wrapper, content) {
+    const friction = 0.95;
+    const minVelocity = 0.01;
+
+    function animate() {
+        velocityX *= friction;
+        velocityY *= friction;
+
+        if (Math.abs(velocityX) < minVelocity && Math.abs(velocityY) < minVelocity) {
+            cancelAnimationFrame(animationFrame);
+            wrapper.classList.remove('animating');
+            return;
+        }
+
+        translateX += velocityX * 16; // Assuming 60fps (16ms)
+        translateY += velocityY * 16;
+        
+        constrainToBoundaries();
+        content.style.transform = getTransformStyle();
+        
+        animationFrame = requestAnimationFrame(() => animate());
+    }
+
+    animate();
+}
+
+function constrainToBoundaries() {
+    if (currentZoom === 1) {
+        translateX = 0;
+        translateY = 0;
+        return;
+    }
+
+    translateX = Math.max(boundaries.left, Math.min(boundaries.right, translateX));
+    translateY = Math.max(boundaries.top, Math.min(boundaries.bottom, translateY));
+}
+
+function updateZoomDisplay() {
+    const zoomPercentage = Math.round(currentZoom * 100);
+    const resetZoomBtn = document.querySelector('.zoom-controls button:nth-child(2)');
+    if (resetZoomBtn) {
+        resetZoomBtn.textContent = `${zoomPercentage}%`;
+    }
+}
+
+function zoomIn() {
+    const wrapper = document.querySelector('.document-wrapper');
+    const content = wrapper.children[0];
+    if (currentZoom < maxZoom) {
+        const prevZoom = currentZoom;
+        currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
+        
+        // Zoom towards center
+        const rect = wrapper.getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        translateX = centerX - (centerX - translateX) * currentZoom / prevZoom;
+        translateY = centerY - (centerY - translateY) * currentZoom / prevZoom;
+        
+        content.style.transform = getTransformStyle();
         wrapper.classList.toggle('zoomed', currentZoom > 1);
+        updateZoomDisplay();
+    }
+}
+
+function zoomOut() {
+    const wrapper = document.querySelector('.document-wrapper');
+    const content = wrapper.children[0];
+    if (currentZoom > minZoom) {
+        const prevZoom = currentZoom;
+        currentZoom = Math.max(minZoom, currentZoom - zoomStep);
+        
+        // Zoom towards center
+        const rect = wrapper.getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        translateX = centerX - (centerX - translateX) * currentZoom / prevZoom;
+        translateY = centerY - (centerY - translateY) * currentZoom / prevZoom;
+        
+        content.style.transform = getTransformStyle();
+        wrapper.classList.toggle('zoomed', currentZoom > 1);
+        updateZoomDisplay();
+    }
+}
+
+function resetZoom() {
+    const wrapper = document.querySelector('.document-wrapper');
+    const content = wrapper.children[0];
+    currentZoom = 1;
+    translateX = 0;
+    translateY = 0;
+    content.style.transform = getTransformStyle();
+    wrapper.classList.remove('zoomed');
+    updateZoomDisplay();
+}
+
+function handleKeyPress(e) {
+    const wrapper = document.querySelector('.document-wrapper');
+    if (!wrapper) return;
+
+    const content = wrapper.children[0];
+    const moveStep = 50 / currentZoom;
+
+    switch (e.key) {
+        case 'Escape':
+            closePreview();
+            break;
+        case 'ArrowLeft':
+            e.preventDefault();
+            translateX += moveStep;
+            constrainToBoundaries();
+            content.style.transform = getTransformStyle();
+            break;
+        case 'ArrowRight':
+            e.preventDefault();
+            translateX -= moveStep;
+            constrainToBoundaries();
+            content.style.transform = getTransformStyle();
+            break;
+        case 'ArrowUp':
+            e.preventDefault();
+            translateY += moveStep;
+            constrainToBoundaries();
+            content.style.transform = getTransformStyle();
+            break;
+        case 'ArrowDown':
+            e.preventDefault();
+            translateY -= moveStep;
+            constrainToBoundaries();
+            content.style.transform = getTransformStyle();
+            break;
+        case '0':
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                resetZoom();
+            }
+            break;
+        case '=':
+        case '+':
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                zoomIn();
+            }
+            break;
+        case '-':
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                zoomOut();
+            }
+            break;
+    }
+}
+
+function handleDoubleClick(e, wrapper, content) {
+    const rect = wrapper.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    if (currentZoom === 1) {
+        // Zoom in to 2x at clicked point
+        zoomToPoint(mouseX, mouseY, 2, wrapper, content);
+    } else {
+        // Reset zoom
+        resetZoom();
+    }
+}
+
+function zoomToPoint(x, y, targetZoom, wrapper, content) {
+    const prevZoom = currentZoom;
+    currentZoom = targetZoom;
+
+    const contentX = x - translateX;
+    const contentY = y - translateY;
+
+    translateX = x - (contentX * currentZoom / prevZoom);
+    translateY = y - (contentY * currentZoom / prevZoom);
+
+    calculateBoundaries(wrapper, content);
+    constrainToBoundaries();
+    
+    wrapper.classList.add('animating');
+    content.style.transform = getTransformStyle();
+    wrapper.classList.toggle('zoomed', currentZoom > 1);
+    updateZoomDisplay();
+
+    setTimeout(() => {
+        wrapper.classList.remove('animating');
+    }, 300);
+}
+
+function getPinchDistance(touches) {
+    return Math.hypot(
+        touches[1].clientX - touches[0].clientX,
+        touches[1].clientY - touches[0].clientY
+    );
+}
+
+function handlePinchZoom(e, wrapper, content) {
+    const currentDistance = getPinchDistance(e.touches);
+    const scale = currentDistance / pinchStartDistance;
+    const newZoom = Math.max(minZoom, Math.min(maxZoom, initialZoom * scale));
+
+    if (newZoom !== currentZoom) {
+        // Get the midpoint of the pinch
+        const rect = wrapper.getBoundingClientRect();
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+
+        zoomToPoint(midX, midY, newZoom, wrapper, content);
     }
 }
 
@@ -1110,37 +1744,6 @@ function closePreview() {
     modal.style.display = 'none';
     document.body.style.overflow = 'auto';
     document.removeEventListener('keydown', handleKeyPress);
-}
-
-function zoomIn() {
-    if (currentZoom < maxZoom) {
-        currentZoom += zoomStep;
-        updateZoom();
-    }
-}
-
-function zoomOut() {
-    if (currentZoom > minZoom) {
-        currentZoom -= zoomStep;
-        updateZoom();
-    }
-}
-
-function resetZoom() {
-    currentZoom = 1;
-    updateZoom();
-}
-
-function handleKeyPress(e) {
-    if (e.key === 'Escape') {
-        closePreview();
-    } else if (e.key === '+' || e.key === '=') {
-        zoomIn();
-    } else if (e.key === '-') {
-        zoomOut();
-    } else if (e.key === '0') {
-        resetZoom();
-    }
 }
 
 // Close modal when clicking outside the content
