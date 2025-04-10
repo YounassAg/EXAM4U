@@ -1282,31 +1282,19 @@ function openPreview(url, type) {
 
     modalContent.innerHTML = '';
     const wrapper = document.createElement('div');
-    wrapper.className = 'document-wrapper loading';
-
-    // Add navigation hint
-    const hint = document.createElement('div');
-    hint.className = 'navigation-hint';
-    hint.textContent = 'Use arrow keys to navigate • Double-click to zoom';
-    modalContent.appendChild(hint);
+    wrapper.className = 'document-wrapper';
 
     if (type === 'image') {
         const img = document.createElement('img');
         img.src = url;
         img.style.transform = getTransformStyle();
+        wrapper.appendChild(img);
+        modalContent.appendChild(wrapper);
         
         img.onload = function() {
-            wrapper.classList.remove('loading');
             setupZoomAndDrag(wrapper, img);
             calculateBoundaries(wrapper, img);
-            showNavigationHint();
         };
-
-        img.onerror = function() {
-            handleLoadError(wrapper, url, type);
-        };
-
-        wrapper.appendChild(img);
     } else if (type === 'pdf') {
         const obj = document.createElement('object');
         obj.data = url;
@@ -1314,22 +1302,12 @@ function openPreview(url, type) {
         obj.style.width = '100%';
         obj.style.height = '100%';
         obj.style.transform = getTransformStyle();
-        
-        obj.onload = function() {
-            wrapper.classList.remove('loading');
-            setupZoomAndDrag(wrapper, obj);
-            calculateBoundaries(wrapper, obj);
-            showNavigationHint();
-        };
-
-        obj.onerror = function() {
-            handleLoadError(wrapper, url, type);
-        };
-
         wrapper.appendChild(obj);
+        modalContent.appendChild(wrapper);
+        setupZoomAndDrag(wrapper, obj);
+        calculateBoundaries(wrapper, obj);
     }
 
-    modalContent.appendChild(wrapper);
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
     document.addEventListener('keydown', handleKeyPress);
@@ -1341,214 +1319,87 @@ function resetViewState() {
     translateY = 0;
     velocityX = 0;
     velocityY = 0;
-    errorRetries = 0;
-    cancelAnimationFrame(animationFrame);
 }
 
-function handleLoadError(wrapper, url, type) {
-    if (errorRetries < MAX_RETRIES) {
-        errorRetries++;
-        setTimeout(() => {
-            const content = wrapper.children[0];
-            content.src = url + '?retry=' + Date.now();
-        }, 1000 * errorRetries);
-    } else {
-        wrapper.classList.remove('loading');
-        wrapper.classList.add('error');
-        wrapper.innerHTML = `
-            <div>
-                <p>Failed to load ${type}.</p>
-                <button onclick="retryLoad('${url}', '${type}')" class="zoom-btn mt-4">
-                    Retry
-                </button>
-            </div>
-        `;
-    }
+function calculateBoundaries(wrapper, content) {
+    const rect = wrapper.getBoundingClientRect();
+    const contentRect = content.getBoundingClientRect();
+    
+    boundaries = {
+        left: rect.width - (contentRect.width * currentZoom),
+        right: 0,
+        top: rect.height - (contentRect.height * currentZoom),
+        bottom: 0
+    };
 }
 
-function retryLoad(url, type) {
-    errorRetries = 0;
-    openPreview(url, type);
-}
-
-function showNavigationHint() {
-    const hint = document.querySelector('.navigation-hint');
-    hint.classList.add('visible');
-    setTimeout(() => {
-        hint.classList.remove('visible');
-    }, 3000);
+function getTransformStyle() {
+    return `translate3d(${translateX}px, ${translateY}px, 0) scale(${currentZoom})`;
 }
 
 function setupZoomAndDrag(wrapper, content) {
-    wrapper.addEventListener('wheel', (e) => handleZoom(e, wrapper, content), { passive: false });
-    wrapper.addEventListener('mousedown', (e) => startDragging(e, wrapper, content));
-    wrapper.addEventListener('mousemove', (e) => drag(e, wrapper, content));
-    wrapper.addEventListener('mouseup', () => stopDragging(wrapper, content));
-    wrapper.addEventListener('mouseleave', () => stopDragging(wrapper, content));
-    
+    // Mouse wheel zoom
+    wrapper.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const rect = wrapper.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        
+        const contentX = mouseX - translateX;
+        const contentY = mouseY - translateY;
+        
+        const delta = e.deltaY < 0 ? 1 : -1;
+        const prevZoom = currentZoom;
+        currentZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + (delta * zoomStep)));
+        
+        if (currentZoom !== prevZoom) {
+            translateX = mouseX - (contentX * currentZoom / prevZoom);
+            translateY = mouseY - (contentY * currentZoom / prevZoom);
+            
+            calculateBoundaries(wrapper, content);
+            constrainToBoundaries();
+            
+            content.style.transform = getTransformStyle();
+            wrapper.classList.toggle('zoomed', currentZoom > 1);
+            updateZoomDisplay();
+        }
+    });
+
+    // Drag functionality
+    wrapper.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        isDragging = true;
+        startX = e.clientX - translateX;
+        startY = e.clientY - translateY;
+        wrapper.classList.add('dragging');
+    });
+
+    wrapper.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        
+        translateX = e.clientX - startX;
+        translateY = e.clientY - startY;
+        
+        constrainToBoundaries();
+        content.style.transform = getTransformStyle();
+    });
+
+    wrapper.addEventListener('mouseup', () => {
+        isDragging = false;
+        wrapper.classList.remove('dragging');
+    });
+
+    wrapper.addEventListener('mouseleave', () => {
+        isDragging = false;
+        wrapper.classList.remove('dragging');
+    });
+
+    // Track mouse position for zoom
     wrapper.addEventListener('mousemove', (e) => {
         lastX = e.clientX;
         lastY = e.clientY;
     });
-
-    // Touch support
-    wrapper.addEventListener('touchstart', (e) => handleTouchStart(e, wrapper, content), { passive: false });
-    wrapper.addEventListener('touchmove', (e) => handleTouchMove(e, wrapper, content), { passive: false });
-    wrapper.addEventListener('touchend', () => stopDragging(wrapper, content));
-
-    // Double-click to zoom
-    wrapper.addEventListener('dblclick', (e) => handleDoubleClick(e, wrapper, content));
-
-    // Pinch zoom support
-    wrapper.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 2) {
-            e.preventDefault();
-            pinchStartDistance = getPinchDistance(e.touches);
-            initialZoom = currentZoom;
-        }
-    }, { passive: false });
-
-    wrapper.addEventListener('touchmove', (e) => {
-        if (e.touches.length === 2) {
-            e.preventDefault();
-            handlePinchZoom(e, wrapper, content);
-        }
-    }, { passive: false });
-
-    // Single tap detection for mobile
-    wrapper.addEventListener('touchend', (e) => {
-        const currentTime = Date.now();
-        if (currentTime - lastTapTime < 300) {
-            // Double tap detected
-            e.preventDefault();
-            const touch = e.changedTouches[0];
-            handleDoubleClick({ clientX: touch.clientX, clientY: touch.clientY }, wrapper, content);
-            clearTimeout(doubleTapTimer);
-            doubleTapTimer = null;
-        } else {
-            doubleTapTimer = setTimeout(() => {
-                // Single tap actions if needed
-            }, 300);
-        }
-        lastTapTime = currentTime;
-    });
-}
-
-function handleTouchStart(e, wrapper, content) {
-    e.preventDefault();
-    const touch = e.touches[0];
-    startDragging({ clientX: touch.clientX, clientY: touch.clientY }, wrapper, content);
-}
-
-function handleTouchMove(e, wrapper, content) {
-    e.preventDefault();
-    if (!isDragging) return;
-    const touch = e.touches[0];
-    drag({ clientX: touch.clientX, clientY: touch.clientY }, wrapper, content);
-}
-
-function handleZoom(e, wrapper, content) {
-    e.preventDefault();
-    
-    const rect = wrapper.getBoundingClientRect();
-    const mouseX = lastX - rect.left;
-    const mouseY = lastY - rect.top;
-
-    const contentX = mouseX - translateX;
-    const contentY = mouseY - translateY;
-
-    const delta = e.deltaY < 0 ? 1 : -1;
-    const prevZoom = currentZoom;
-    currentZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + (delta * zoomStep)));
-    
-    if (currentZoom !== prevZoom) {
-        translateX = mouseX - (contentX * currentZoom / prevZoom);
-        translateY = mouseY - (contentY * currentZoom / prevZoom);
-        
-        calculateBoundaries(wrapper, content);
-        constrainToBoundaries();
-        
-        content.style.transform = getTransformStyle();
-        wrapper.classList.toggle('zoomed', currentZoom > 1);
-        updateZoomDisplay();
-    }
-}
-
-function startDragging(e, wrapper, content) {
-    if (e.button !== 0) return;
-    cancelAnimationFrame(animationFrame);
-    
-    isDragging = true;
-    startX = e.clientX - translateX;
-    startY = e.clientY - translateY;
-    lastTime = Date.now();
-    velocityX = 0;
-    velocityY = 0;
-    
-    wrapper.classList.add('dragging');
-    calculateBoundaries(wrapper, content);
-}
-
-function drag(e, wrapper, content) {
-    if (!isDragging) return;
-    e.preventDefault();
-    
-    const currentTime = Date.now();
-    const deltaTime = currentTime - lastTime;
-    const newTranslateX = e.clientX - startX;
-    const newTranslateY = e.clientY - startY;
-    
-    // Calculate velocity
-    if (deltaTime > 0) {
-        velocityX = (newTranslateX - translateX) / deltaTime;
-        velocityY = (newTranslateY - translateY) / deltaTime;
-    }
-    
-    translateX = newTranslateX;
-    translateY = newTranslateY;
-    
-    constrainToBoundaries();
-    content.style.transform = getTransformStyle();
-    
-    lastTime = currentTime;
-}
-
-function stopDragging(wrapper, content) {
-    if (!isDragging) return;
-    isDragging = false;
-    wrapper.classList.remove('dragging');
-    
-    // Apply inertia if there's significant velocity
-    if (Math.abs(velocityX) > 0.1 || Math.abs(velocityY) > 0.1) {
-        wrapper.classList.add('animating');
-        applyInertia(wrapper, content);
-    }
-}
-
-function applyInertia(wrapper, content) {
-    const friction = 0.95;
-    const minVelocity = 0.01;
-
-    function animate() {
-        velocityX *= friction;
-        velocityY *= friction;
-
-        if (Math.abs(velocityX) < minVelocity && Math.abs(velocityY) < minVelocity) {
-            cancelAnimationFrame(animationFrame);
-            wrapper.classList.remove('animating');
-            return;
-        }
-
-        translateX += velocityX * 16; // Assuming 60fps (16ms)
-        translateY += velocityY * 16;
-        
-        constrainToBoundaries();
-        content.style.transform = getTransformStyle();
-        
-        animationFrame = requestAnimationFrame(() => animate());
-    }
-
-    animate();
 }
 
 function constrainToBoundaries() {
@@ -1572,7 +1423,9 @@ function updateZoomDisplay() {
 
 function zoomIn() {
     const wrapper = document.querySelector('.document-wrapper');
+    if (!wrapper) return;
     const content = wrapper.children[0];
+    
     if (currentZoom < maxZoom) {
         const prevZoom = currentZoom;
         currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
@@ -1585,6 +1438,8 @@ function zoomIn() {
         translateX = centerX - (centerX - translateX) * currentZoom / prevZoom;
         translateY = centerY - (centerY - translateY) * currentZoom / prevZoom;
         
+        calculateBoundaries(wrapper, content);
+        constrainToBoundaries();
         content.style.transform = getTransformStyle();
         wrapper.classList.toggle('zoomed', currentZoom > 1);
         updateZoomDisplay();
@@ -1593,7 +1448,9 @@ function zoomIn() {
 
 function zoomOut() {
     const wrapper = document.querySelector('.document-wrapper');
+    if (!wrapper) return;
     const content = wrapper.children[0];
+    
     if (currentZoom > minZoom) {
         const prevZoom = currentZoom;
         currentZoom = Math.max(minZoom, currentZoom - zoomStep);
@@ -1606,6 +1463,8 @@ function zoomOut() {
         translateX = centerX - (centerX - translateX) * currentZoom / prevZoom;
         translateY = centerY - (centerY - translateY) * currentZoom / prevZoom;
         
+        calculateBoundaries(wrapper, content);
+        constrainToBoundaries();
         content.style.transform = getTransformStyle();
         wrapper.classList.toggle('zoomed', currentZoom > 1);
         updateZoomDisplay();
@@ -1614,129 +1473,16 @@ function zoomOut() {
 
 function resetZoom() {
     const wrapper = document.querySelector('.document-wrapper');
+    if (!wrapper) return;
     const content = wrapper.children[0];
+    
     currentZoom = 1;
     translateX = 0;
     translateY = 0;
+    
     content.style.transform = getTransformStyle();
     wrapper.classList.remove('zoomed');
     updateZoomDisplay();
-}
-
-function handleKeyPress(e) {
-    const wrapper = document.querySelector('.document-wrapper');
-    if (!wrapper) return;
-
-    const content = wrapper.children[0];
-    const moveStep = 50 / currentZoom;
-
-    switch (e.key) {
-        case 'Escape':
-            closePreview();
-            break;
-        case 'ArrowLeft':
-            e.preventDefault();
-            translateX += moveStep;
-            constrainToBoundaries();
-            content.style.transform = getTransformStyle();
-            break;
-        case 'ArrowRight':
-            e.preventDefault();
-            translateX -= moveStep;
-            constrainToBoundaries();
-            content.style.transform = getTransformStyle();
-            break;
-        case 'ArrowUp':
-            e.preventDefault();
-            translateY += moveStep;
-            constrainToBoundaries();
-            content.style.transform = getTransformStyle();
-            break;
-        case 'ArrowDown':
-            e.preventDefault();
-            translateY -= moveStep;
-            constrainToBoundaries();
-            content.style.transform = getTransformStyle();
-            break;
-        case '0':
-            if (e.ctrlKey || e.metaKey) {
-                e.preventDefault();
-                resetZoom();
-            }
-            break;
-        case '=':
-        case '+':
-            if (e.ctrlKey || e.metaKey) {
-                e.preventDefault();
-                zoomIn();
-            }
-            break;
-        case '-':
-            if (e.ctrlKey || e.metaKey) {
-                e.preventDefault();
-                zoomOut();
-            }
-            break;
-    }
-}
-
-function handleDoubleClick(e, wrapper, content) {
-    const rect = wrapper.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-
-    if (currentZoom === 1) {
-        // Zoom in to 2x at clicked point
-        zoomToPoint(mouseX, mouseY, 2, wrapper, content);
-    } else {
-        // Reset zoom
-        resetZoom();
-    }
-}
-
-function zoomToPoint(x, y, targetZoom, wrapper, content) {
-    const prevZoom = currentZoom;
-    currentZoom = targetZoom;
-
-    const contentX = x - translateX;
-    const contentY = y - translateY;
-
-    translateX = x - (contentX * currentZoom / prevZoom);
-    translateY = y - (contentY * currentZoom / prevZoom);
-
-    calculateBoundaries(wrapper, content);
-    constrainToBoundaries();
-    
-    wrapper.classList.add('animating');
-    content.style.transform = getTransformStyle();
-    wrapper.classList.toggle('zoomed', currentZoom > 1);
-    updateZoomDisplay();
-
-    setTimeout(() => {
-        wrapper.classList.remove('animating');
-    }, 300);
-}
-
-function getPinchDistance(touches) {
-    return Math.hypot(
-        touches[1].clientX - touches[0].clientX,
-        touches[1].clientY - touches[0].clientY
-    );
-}
-
-function handlePinchZoom(e, wrapper, content) {
-    const currentDistance = getPinchDistance(e.touches);
-    const scale = currentDistance / pinchStartDistance;
-    const newZoom = Math.max(minZoom, Math.min(maxZoom, initialZoom * scale));
-
-    if (newZoom !== currentZoom) {
-        // Get the midpoint of the pinch
-        const rect = wrapper.getBoundingClientRect();
-        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
-        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
-
-        zoomToPoint(midX, midY, newZoom, wrapper, content);
-    }
 }
 
 function closePreview() {
@@ -1752,5 +1498,20 @@ document.getElementById('previewModal').addEventListener('click', function(e) {
         closePreview();
     }
 });
+
+function handleKeyPress(e) {
+    if (e.key === 'Escape') {
+        closePreview();
+    } else if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '=')) {
+        e.preventDefault();
+        zoomIn();
+    } else if ((e.ctrlKey || e.metaKey) && e.key === '-') {
+        e.preventDefault();
+        zoomOut();
+    } else if ((e.ctrlKey || e.metaKey) && e.key === '0') {
+        e.preventDefault();
+        resetZoom();
+    }
+}
 </script>
 {% endblock %}
