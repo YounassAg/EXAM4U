@@ -44,6 +44,16 @@ def role_required(role):
 
 
 def index(request):
+    if request.user.is_authenticated:
+        try:
+            user_profile = request.user.userprofile
+            if user_profile.role == 'teacher':
+                return redirect('teacher_dashboard')
+            else:
+                return redirect('student_dashboard')
+        except:
+            # If there's an error retrieving the profile, just show the index page
+            pass
     return render(request, 'index.html')
 
 
