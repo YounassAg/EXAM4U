@@ -176,7 +176,7 @@
                             <div class="mt-4">
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description (optionnelle)</label>
                                 <textarea name="exam_attachment_description[]" rows="2"
-                                          class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300"></textarea>
+                                          class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"></textarea>
                             </div>
                         </div>
                     </div>
@@ -358,111 +358,316 @@
     document.addEventListener('DOMContentLoaded', function () {
         let questionCount = parseInt(document.getElementById('question_count')?.value || 0);
     
-        // Function to safely remove a question
-        function removeQuestion(questionId) {
-            const questionElement = document.getElementById(`question_${questionId}`);
-            if (questionElement) {
-                questionElement.remove();
-                questionCount--;
-                const questionCountInput = document.getElementById('question_count');
-                if (questionCountInput) {
-                    questionCountInput.value = questionCount;
+        // Make handleQuestionTypeChange globally accessible
+        window.handleQuestionTypeChange = function(questionId) {
+            const questionType = document.getElementById(`question_type_${questionId}`).value;
+            const mcqSection = document.getElementById(`mcq_section_${questionId}`);
+            
+            if (questionType === 'MCQ') {
+                mcqSection.classList.remove('hidden');
+            } else {
+                mcqSection.classList.add('hidden');
+                // Clear MCQ choices when switching to other types
+                const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
+                const choiceCountElem = document.getElementById(`mcq_choice_count_${questionId}`);
+                if (choicesContainer && choiceCountElem) {
+                    choicesContainer.innerHTML = `<input type="hidden" name="mcq_choice_count_${questionId}" id="mcq_choice_count_${questionId}" value="0">`;
                 }
-                reindexQuestions();
             }
+        };
+
+        // Debug function to track what's happening
+        function debug(message) {
+            console.log(`[DEBUG] ${message}`);
         }
-    
-        // Function to remove an MCQ choice
-        function removeMCQChoice(questionId, choiceId) {
-            const choiceElement = document.getElementById(`mcq_choice_${questionId}_${choiceId}`);
-            if (choiceElement) {
-                choiceElement.remove();
-                // Update choice count
-                const choiceCountInput = document.getElementById(`mcq_choice_count_${questionId}`);
-                if (choiceCountInput) {
-                    const currentCount = parseInt(choiceCountInput.value);
-                    choiceCountInput.value = currentCount - 1;
-                }
-                // Reindex remaining choices
-                reindexMCQChoices(questionId);
-            }
+
+        // Get all question divs in order
+        function getAllQuestions() {
+            return Array.from(document.querySelectorAll('#questions-container > div[id^="question_"]'));
         }
-    
-        // Function to reindex MCQ choices
-        function reindexMCQChoices(questionId) {
-            const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
-            if (!choicesContainer) return;
-    
-            const choiceDivs = Array.from(choicesContainer.querySelectorAll('div[id^="mcq_choice_"]'));
-            choiceDivs.forEach((choiceDiv, index) => {
-                const newIndex = index + 1;
+
+        // Get all MCQ choices for a specific question
+        function getMCQChoices(questionId) {
+            const container = document.getElementById(`mcq_choices_${questionId}`);
+            if (!container) return [];
+            // Changed the selector to find direct children that have mcq-choice class - more reliable
+            return Array.from(container.querySelectorAll('.mcq-choice, div[id^="mcq_choice_"]'));
+        }
+
+        // Completely rebuild the form from scratch using sequential indices
+        function rebuildForm() {
+            debug('Rebuilding entire form');
+            
+            // Get all question divs
+            const questions = getAllQuestions();
+            
+            // Update the global question count
+            questionCount = questions.length;
+            document.getElementById('question_count').value = questionCount;
+            
+            debug(`Found ${questionCount} questions`);
+            
+            // Process each question with sequential indices starting from 1
+            questions.forEach((questionDiv, index) => {
+                const newIndex = index + 1; // 1-based index
+                debug(`Reindexing question at position ${index} to question ${newIndex}`);
                 
-                // Update choice div ID
+                // Current ID and data to extract the old index
+                const oldId = questionDiv.id;
+                const oldIndex = oldId.split('_')[1];
+                
+                debug(`Question ${oldId} -> question_${newIndex}`);
+                
+                // Update the question div ID
+                questionDiv.id = `question_${newIndex}`;
+                
+                // Update the question title
+                const questionTitle = questionDiv.querySelector('h2');
+                if (questionTitle) {
+                    questionTitle.textContent = `Question ${newIndex}`;
+                }
+                
+                // Update the question ID input
+                const questionIdInput = questionDiv.querySelector('input[name^="question_id_"]');
+                if (questionIdInput) {
+                    questionIdInput.name = `question_id_${newIndex}`;
+                    debug(`Updated question ID input: ${questionIdInput.name}`);
+                }
+                
+                // Update all elements with name attribute containing the old index
+                const elementsWithName = questionDiv.querySelectorAll(`[name*="${oldIndex}"]`);
+                elementsWithName.forEach(element => {
+                    // Skip elements that don't start with expected prefixes to avoid changing unrelated elements
+                    const validPrefixes = ['question_', 'mcq_choice_'];
+                    if (validPrefixes.some(prefix => element.name.includes(prefix))) {
+                        const newName = element.name.replace(new RegExp(`_${oldIndex}\\b`, 'g'), `_${newIndex}`);
+                        element.name = newName;
+                        debug(`Updated element name: ${element.name}`);
+                        
+                        // Also update ID if it exists and matches pattern
+                        if (element.id && element.id.includes(oldIndex)) {
+                            element.id = element.id.replace(new RegExp(`_${oldIndex}\\b`, 'g'), `_${newIndex}`);
+                            debug(`Updated element ID: ${element.id}`);
+                        }
+                    }
+                });
+                
+                // Update all elements with ID attribute containing the old index
+                const elementsWithId = questionDiv.querySelectorAll(`[id*="${oldIndex}"]`);
+                elementsWithId.forEach(element => {
+                    if (!element.id.startsWith('question_')) { // Skip the main div which we already updated
+                        const validPrefixes = ['question_', 'mcq_', 'mcq_section_', 'mcq_choices_'];
+                        if (validPrefixes.some(prefix => element.id.includes(prefix))) {
+                            const newId = element.id.replace(new RegExp(`_${oldIndex}\\b`, 'g'), `_${newIndex}`);
+                            element.id = newId;
+                            debug(`Updated element ID: ${element.id}`);
+                        }
+                    }
+                });
+                
+                // Update data attributes on buttons
+                const buttons = questionDiv.querySelectorAll('button[data-question-id]');
+                buttons.forEach(button => {
+                    button.setAttribute('data-question-id', newIndex);
+                    debug(`Updated button data-question-id: ${newIndex}`);
+                });
+                
+                // Update onchange attributes containing the old index
+                const elementsWithOnchange = questionDiv.querySelectorAll('[onchange*="handleQuestionTypeChange"]');
+                elementsWithOnchange.forEach(element => {
+                    element.setAttribute('onchange', `handleQuestionTypeChange(${newIndex})`);
+                    debug(`Updated onchange: handleQuestionTypeChange(${newIndex})`);
+                });
+                
+                // Update label for attributes
+                const labelsWithFor = questionDiv.querySelectorAll('label[for*="_"]');
+                labelsWithFor.forEach(label => {
+                    const forAttr = label.getAttribute('for');
+                    if (forAttr && forAttr.includes(oldIndex)) {
+                        label.setAttribute('for', forAttr.replace(new RegExp(`_${oldIndex}\\b`, 'g'), `_${newIndex}`));
+                        debug(`Updated label for: ${label.getAttribute('for')}`);
+                    }
+                });
+                
+                // Now rebuild all MCQ choices for this question
+                rebuildMCQChoices(newIndex);
+            });
+        }
+        
+        // Rebuild MCQ choices for a specific question
+        function rebuildMCQChoices(questionId) {
+            debug(`Rebuilding MCQ choices for question ${questionId}`);
+            
+            const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
+            if (!choicesContainer) {
+                debug(`MCQ choices container not found for question ${questionId}`);
+                return;
+            }
+            
+            // Get all choice divs - using a more reliable selector
+            const choices = getMCQChoices(questionId);
+            debug(`Found ${choices.length} choices for question ${questionId}`);
+            
+            // Update the choice count hidden input
+            const choiceCountInput = choicesContainer.querySelector('input[name^="mcq_choice_count_"]');
+            if (choiceCountInput) {
+                choiceCountInput.value = choices.length;
+                choiceCountInput.name = `mcq_choice_count_${questionId}`;
+                choiceCountInput.id = `mcq_choice_count_${questionId}`;
+                debug(`Updated choice count: ${choices.length}`);
+            } else {
+                debug(`Creating new choice count input for question ${questionId}`);
+                const newInput = document.createElement('input');
+                newInput.type = 'hidden';
+                newInput.name = `mcq_choice_count_${questionId}`;
+                newInput.id = `mcq_choice_count_${questionId}`;
+                newInput.value = choices.length;
+                choicesContainer.appendChild(newInput);
+            }
+            
+            // Process each choice with sequential indices starting from 1
+            choices.forEach((choiceDiv, index) => {
+                const newIndex = index + 1; // 1-based index
+                debug(`Reindexing choice at position ${index} to choice ${newIndex} for question ${questionId}`);
+                
+                // Add class for future selections if not present
+                if (!choiceDiv.classList.contains('mcq-choice')) {
+                    choiceDiv.classList.add('mcq-choice');
+                }
+                
+                // Store the original classes to preserve them
+                const originalClasses = choiceDiv.className;
+                
+                // Current ID and data to extract the old index
+                const oldId = choiceDiv.id || '';
+                const parts = oldId.split('_');
+                const oldChoiceIndex = parts.length >= 4 ? parts[3] : '';
+                
+                debug(`Choice ${oldId} -> mcq_choice_${questionId}_${newIndex}`);
+                
+                // Update the choice div ID
                 choiceDiv.id = `mcq_choice_${questionId}_${newIndex}`;
                 
-                // Update choice title
-                const titleElement = choiceDiv.querySelector('h3');
-                if (titleElement) {
-                    titleElement.textContent = `Choix ${newIndex}`;
+                // Restore original classes
+                choiceDiv.className = originalClasses;
+                
+                // Update the choice title
+                const choiceTitle = choiceDiv.querySelector('h3');
+                if (choiceTitle) {
+                    choiceTitle.textContent = `Choix ${newIndex}`;
                 }
-    
-                // Update all input fields
-                choiceDiv.querySelectorAll('input').forEach(element => {
-                    const oldName = element.getAttribute('name');
-                    const oldId = element.getAttribute('id');
-                    if (oldName) {
-                        element.setAttribute('name', oldName.replace(/_\d+$/, `_${newIndex}`));
-                    }
-                    if (oldId) {
-                        element.setAttribute('id', oldId.replace(/_\d+$/, `_${newIndex}`));
-                    }
-                });
-    
-                // Update labels
-                choiceDiv.querySelectorAll('label').forEach(element => {
-                    const forAttr = element.getAttribute('for');
-                    if (forAttr && forAttr.includes('mcq_choice_')) {
-                        element.setAttribute('for', forAttr.replace(/_\d+$/, `_${newIndex}`));
-                    }
-                });
-    
-                // Update remove button data-choice-id
-                const removeButton = choiceDiv.querySelector('.remove-mcq-choice-btn');
-                if (removeButton) {
-                    removeButton.setAttribute('data-choice-id', newIndex);
+                
+                // Update data-choice-id on the remove button 
+                const removeBtn = choiceDiv.querySelector('.remove-mcq-choice-btn');
+                if (removeBtn) {
+                    removeBtn.setAttribute('data-choice-id', newIndex);
+                    removeBtn.setAttribute('data-question-id', questionId);
+                    debug(`Updated remove button: data-choice-id=${newIndex}, data-question-id=${questionId}`);
+                }
+                
+                // Handle both attributes using specific selectors with question ID
+                if (oldChoiceIndex) {
+                    // Update input names and IDs that contain both the question ID and choice index
+                    choiceDiv.querySelectorAll(`[name*="_${questionId}_${oldChoiceIndex}"]`).forEach(input => {
+                        const newName = input.name.replace(`_${questionId}_${oldChoiceIndex}`, `_${questionId}_${newIndex}`);
+                        input.name = newName;
+                        if (input.id) {
+                            input.id = input.id.replace(`_${questionId}_${oldChoiceIndex}`, `_${questionId}_${newIndex}`);
+                        }
+                        debug(`Updated input: ${input.name}`);
+                    });
+                    
+                    // Update label for attributes that reference the specific question and choice
+                    choiceDiv.querySelectorAll(`label[for*="_${questionId}_${oldChoiceIndex}"]`).forEach(label => {
+                        label.setAttribute('for', label.getAttribute('for').replace(
+                            `_${questionId}_${oldChoiceIndex}`, 
+                            `_${questionId}_${newIndex}`
+                        ));
+                        debug(`Updated label: ${label.getAttribute('for')}`);
+                    });
                 }
             });
         }
-    
-        // Function to handle question type changes
-        function handleQuestionTypeChange(event) {
-            const questionId = event.target.getAttribute('data-question-id');
-            if (!questionId) return;
-    
-            const mcqSection = document.getElementById(`mcq_section_${questionId}`);
-            if (!mcqSection) return;
-    
-            mcqSection.classList.toggle('hidden', event.target.value !== 'MCQ');
-        }
-    
-        // Function to add a new question
-        function addQuestion() {
+
+        // Event delegation for removing questions
+        document.getElementById('questions-container').addEventListener('click', function(e) {
+            const removeBtn = e.target.closest('.remove-question-btn');
+            if (removeBtn) {
+                const questionId = removeBtn.getAttribute('data-question-id');
+                const question = document.getElementById(`question_${questionId}`);
+                if (question) {
+                    debug(`Removing question ${questionId}`);
+                    question.remove();
+                    // Rebuild form immediately after removing a question
+                    rebuildForm();
+                }
+            }
+        });
+
+        // Event delegation for removing MCQ choices
+        document.getElementById('questions-container').addEventListener('click', function(e) {
+            const removeBtn = e.target.closest('.remove-mcq-choice-btn');
+            if (removeBtn) {
+                const questionId = removeBtn.getAttribute('data-question-id');
+                const choiceId = removeBtn.getAttribute('data-choice-id');
+                debug(`Attempting to remove choice ${choiceId} from question ${questionId}`);
+                
+                const choice = document.getElementById(`mcq_choice_${questionId}_${choiceId}`);
+                if (choice) {
+                    debug(`Removing choice ${choiceId} from question ${questionId}`);
+                    // Store a reference to the parent container before removing the element
+                    const parentContainer = choice.parentNode;
+                    choice.remove();
+                    
+                    // Wait for DOM to update before rebuilding
+                    setTimeout(() => {
+                        // Debug the remaining choices
+                        const remainingChoices = parentContainer.querySelectorAll('.mcq-choice, div[id^="mcq_choice_"]');
+                        debug(`After removal: ${remainingChoices.length} choices remaining`);
+                        
+                        // Rebuild MCQ choices immediately after removal
+                        rebuildMCQChoices(questionId);
+                    }, 0);
+                }
+            }
+        });
+
+        // Event delegation for adding MCQ choices
+        document.getElementById('questions-container').addEventListener('click', function(e) {
+            const addBtn = e.target.closest('.add-mcq-choice-btn');
+            if (addBtn) {
+                const questionId = addBtn.getAttribute('data-question-id');
+                addMCQChoice(questionId);
+            }
+        });
+
+        // Event delegation for adding question attachments
+        document.getElementById('questions-container').addEventListener('click', function(e) {
+            const addBtn = e.target.closest('.add-question-attachment');
+            if (addBtn) {
+                const questionId = addBtn.getAttribute('data-question-id');
+                addQuestionAttachment(questionId);
+            }
+        });
+
+        document.getElementById('add-question-btn').addEventListener('click', function () {
             questionCount++;
-            const questionsContainer = document.getElementById('questions-container');
-            if (!questionsContainer) return;
-    
+            document.getElementById('question_count').value = questionCount;
+            debug(`Adding new question ${questionCount}`);
+
+            // Create a new question element
             const questionDiv = document.createElement('div');
             questionDiv.className = 'bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 space-y-6';
             questionDiv.id = `question_${questionCount}`;
-    
+            
+            // Add question HTML content
             questionDiv.innerHTML = `
+                <input type="hidden" name="question_id_${questionCount}" value="new">
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
                     <h2 class="text-lg font-bold text-gray-900 dark:text-white">Question ${questionCount}</h2>
                     <button type="button" class="remove-question-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${questionCount}">
                         <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                            </svg>
+                            {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
                         </div>
                         <span class="font-medium">Supprimer</span>
                     </button>
@@ -473,7 +678,7 @@
                     <select name="question_type_${questionCount}" 
                             id="question_type_${questionCount}" 
                             required 
-                            data-question-id="${questionCount}"
+                            onchange="handleQuestionTypeChange(${questionCount})"
                             class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="MCQ">QCM</option>
                         <option value="short_answer">Réponse Courte</option>
@@ -514,38 +719,123 @@
                         <!-- Attachments will be dynamically added here -->
                     </div>
                 </div>
+                
+                <!-- MCQ Choices Section -->
+                <div class="mcq-choices-section" id="mcq_section_${questionCount}">
+                    <div class="mcq-choices-container space-y-4" id="mcq_choices_${questionCount}">
+                        <input type="hidden" name="mcq_choice_count_${questionCount}" id="mcq_choice_count_${questionCount}" value="0">
+                        <!-- MCQ choices will be added here dynamically -->
+                    </div>
+                    <button type="button" class="add-mcq-choice-btn mt-4 sm:w-40 group inline-flex items-center justify-center px-3 py-1.5 text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 dark:hover:from-blue-500 dark:hover:to-purple-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${questionCount}">
+                        <div class="p-1 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
+                            {% include 'components/icons.html' with icon="plus" class="w-4 h-4" %}
+                        </div>
+                        <span class="font-medium">Ajouter un Choix</span>
+                    </button>
+                </div>
             `;
             
-            // Add event listeners for the new question
-            const newQuestion = document.getElementById(`question_${questionCount}`);
+            // Add the question to the container
+            document.getElementById('questions-container').appendChild(questionDiv);
             
-            newQuestion.querySelector('.remove-question-btn').addEventListener('click', function() {
-                const questionId = this.getAttribute('data-question-id');
-                removeQuestion(questionId);
-            });
+            // Initialize the MCQ section for this question
+            handleQuestionTypeChange(questionCount);
             
-            newQuestion.querySelector('select[name^="question_type_"]').addEventListener('change', handleQuestionTypeChange);
+            // Add the first MCQ choice
+            addMCQChoice(questionCount);
+        });
+
+        function addMCQChoice(questionId) {
+            debug(`Adding new MCQ choice to question ${questionId}`);
             
-            // Add event listener for the "add attachment" button in the new question
-            const addAttachmentBtn = newQuestion.querySelector('.add-question-attachment');
-            if (addAttachmentBtn) {
-                addAttachmentBtn.addEventListener('click', function() {
-                    const questionId = this.getAttribute('data-question-id');
-                    addQuestionAttachment(questionId);
-                });
+            const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
+            if (!choicesContainer) {
+                debug(`MCQ choices container not found for question ${questionId}`);
+                return;
             }
             
-            questionsContainer.appendChild(questionDiv);
-            document.getElementById('question_count').value = questionCount;
+            // Get current choices and calculate next index
+            const choices = getMCQChoices(questionId);
+            const newChoiceIndex = choices.length + 1;
+            debug(`New choice index: ${newChoiceIndex}`);
+            
+            // Create the choice HTML
+            const choiceDiv = document.createElement('div');
+            choiceDiv.className = 'bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-4 mb-4 mcq-choice';
+            choiceDiv.id = `mcq_choice_${questionId}_${newChoiceIndex}`;
+            
+            choiceDiv.innerHTML = `
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                    <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix ${newChoiceIndex}</h3>
+                    <button type="button" class="remove-mcq-choice-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${questionId}" data-choice-id="${newChoiceIndex}">
+                        <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
+                            {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                        </div>
+                        <span class="font-medium">Supprimer</span>
+                    </button>
+                </div>
+                <div>
+                    <label for="mcq_choice_text_${questionId}_${newChoiceIndex}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Texte du Choix</label>
+                    <input type="text" 
+                        name="mcq_choice_text_${questionId}_${newChoiceIndex}" 
+                        id="mcq_choice_text_${questionId}_${newChoiceIndex}" 
+                        required 
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" 
+                        name="mcq_choice_correct_${questionId}_${newChoiceIndex}" 
+                        id="mcq_choice_correct_${questionId}_${newChoiceIndex}"
+                        class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
+                    <label for="mcq_choice_correct_${questionId}_${newChoiceIndex}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Réponse Correcte
+                    </label>
+                </div>
+            `;
+            
+            choicesContainer.appendChild(choiceDiv);
+            
+            // Update the choice count input
+            const choiceCountInput = document.getElementById(`mcq_choice_count_${questionId}`);
+            if (choiceCountInput) {
+                choiceCountInput.value = newChoiceIndex;
+            }
+            
+            // Add event listener to the remove button
+            const removeButton = choiceDiv.querySelector('.remove-mcq-choice-btn');
+            if (removeButton) {
+                removeButton.addEventListener('click', function() {
+                    const questionId = this.getAttribute('data-question-id');
+                    const choiceId = this.getAttribute('data-choice-id');
+                    
+                    const choice = document.getElementById(`mcq_choice_${questionId}_${choiceId}`);
+                    if (choice) {
+                        // Store a reference to the parent container
+                        const parentContainer = choice.parentNode;
+                        choice.remove();
+                        
+                        // Wait for DOM to update before rebuilding
+                        setTimeout(() => {
+                            // Debug the remaining choices
+                            const remainingChoices = parentContainer.querySelectorAll('.mcq-choice, div[id^="mcq_choice_"]');
+                            debug(`After removal: ${remainingChoices.length} choices remaining`);
+                            
+                            // Rebuild MCQ choices
+                            rebuildMCQChoices(questionId);
+                        }, 0);
+                    }
+                });
+            }
         }
 
         function addQuestionAttachment(questionId) {
             const container = document.getElementById(`question_attachments_${questionId}`);
+            if (!container) return;
             
-            const newAttachment = document.createElement('div');
-            newAttachment.className = 'attachment-item bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-300';
+            const attachmentItem = document.createElement('div');
+            attachmentItem.className = 'attachment-item bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-300';
             
-            newAttachment.innerHTML = `
+            attachmentItem.innerHTML = `
                 <div class="flex items-center justify-between mb-4">
                     <h4 class="text-md font-semibold text-gray-900 dark:text-white flex items-center">
                         <svg class="w-5 h-5 mr-2 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -597,174 +887,63 @@
                 </div>
             `;
             
-            container.appendChild(newAttachment);
+            container.appendChild(attachmentItem);
             
             // Add event listener for the new remove button
-            const removeButtons = newAttachment.querySelectorAll('.remove-attachment');
-            removeButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    this.closest('.attachment-item').remove();
-                });
-            });
-        }
-
-        // Add event listeners for attachment handling
-        document.querySelectorAll('.add-question-attachment').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const questionId = this.getAttribute('data-question-id');
-                console.log("Adding attachment to question:", questionId);
-                addQuestionAttachment(questionId);
-            });
-        });
-
-        document.querySelectorAll('.remove-attachment').forEach(btn => {
-            btn.addEventListener('click', function () {
-                this.closest('.attachment-item').remove();
-            });
-        });
-        
-        // Add event listeners for question type changes
-        document.querySelectorAll('select[name^="question_type_"]').forEach(select => {
-            select.addEventListener('change', handleQuestionTypeChange);
-        });
-        
-        // Add event listener for the add question button
-        document.getElementById('add-question-btn')?.addEventListener('click', addQuestion);
-        
-        // Add event listeners for the remove question button
-        document.querySelectorAll('.remove-question-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const questionId = this.getAttribute('data-question-id');
-                removeQuestion(questionId);
-            });
-        });
-        
-        // Add event listener to add MCQ choice buttons
-        document.querySelectorAll('.add-mcq-choice-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const questionId = this.getAttribute('data-question-id');
-                addMCQChoice(questionId);
-            });
-        });
-        
-        // Add event listeners to existing remove MCQ choice buttons
-        document.querySelectorAll('.remove-mcq-choice-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const questionId = this.getAttribute('data-question-id');
-                const choiceId = this.getAttribute('data-choice-id');
-                removeMCQChoice(questionId, choiceId);
-            });
-        });
-        
-        // Function to reindex questions
-        function reindexQuestions() {
-            const questions = document.querySelectorAll('#questions-container > div');
-            questions.forEach((question, index) => {
-                const newIndex = index + 1;
-                const questionId = question.id.replace('question_', '');
-                
-                // Update header
-                const header = question.querySelector('h2');
-                if (header) {
-                    header.textContent = `Question ${newIndex}`;
-                }
-                
-                // Update all form elements
-                question.querySelectorAll('[name*="_' + questionId + '"]').forEach(element => {
-                    const newName = element.name.replace('_' + questionId, '_' + newIndex);
-                    element.name = newName;
-                });
-                
-                question.querySelectorAll('[id*="_' + questionId + '"]').forEach(element => {
-                    const newId = element.id.replace('_' + questionId, '_' + newIndex);
-                    element.id = newId;
-                });
-                
-                // Update data attributes
-                question.querySelectorAll('[data-question-id="' + questionId + '"]').forEach(element => {
-                    element.setAttribute('data-question-id', newIndex);
-                });
-                
-                // Update question id
-                question.id = 'question_' + newIndex;
-            });
-        }
-        
-        // Add MCQ Choice function
-        function addMCQChoice(questionId) {
-            const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
-            if (!choicesContainer) return;
-            
-            // Get current choice count
-            const choiceCountInput = document.getElementById(`mcq_choice_count_${questionId}`);
-            if (!choiceCountInput) return;
-            
-            let choiceCount = parseInt(choiceCountInput.value || 0) + 1;
-            choiceCountInput.value = choiceCount;
-            
-            const choiceDiv = document.createElement('div');
-            choiceDiv.className = 'bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-4 mb-4';
-            choiceDiv.id = `mcq_choice_${questionId}_${choiceCount}`;
-            
-            choiceDiv.innerHTML = `
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
-                    <h3 class="text-md font-bold text-gray-900 dark:text-white">Choix ${choiceCount}</h3>
-                    <button type="button" class="remove-mcq-choice-btn sm:w-32 group inline-flex items-center justify-center px-3 py-1.5 text-red-600 dark:text-red-400 hover:text-white dark:hover:text-white bg-transparent hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 dark:hover:from-red-500 dark:hover:to-pink-500 rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.25)] hover:-translate-y-0.5 space-x-1.5" data-question-id="${questionId}" data-choice-id="${choiceCount}">
-                        <div class="p-1 rounded-lg bg-gradient-to-br from-red-500/10 to-pink-500/10 dark:from-red-400/5 dark:to-pink-400/5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                            </svg>
-                        </div>
-                        <span class="font-medium">Supprimer</span>
-                    </button>
-                </div>
-                <div>
-                    <label for="mcq_choice_text_${questionId}_${choiceCount}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Texte du Choix</label>
-                    <input type="text" 
-                        name="mcq_choice_text_${questionId}_${choiceCount}" 
-                        id="mcq_choice_text_${questionId}_${choiceCount}" 
-                        required 
-                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div class="flex items-center space-x-2">
-                    <input type="checkbox" 
-                        name="mcq_choice_correct_${questionId}_${choiceCount}" 
-                        id="mcq_choice_correct_${questionId}_${choiceCount}"
-                        class="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
-                    <label for="mcq_choice_correct_${questionId}_${choiceCount}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Réponse Correcte
-                    </label>
-                </div>
-            `;
-            
-            choicesContainer.appendChild(choiceDiv);
-            
-            // Add event listener to the remove button
-            const removeButton = choiceDiv.querySelector('.remove-mcq-choice-btn');
+            const removeButton = attachmentItem.querySelector('.remove-attachment');
             if (removeButton) {
                 removeButton.addEventListener('click', function() {
-                    const questionId = this.getAttribute('data-question-id');
-                    const choiceId = this.getAttribute('data-choice-id');
-                    removeMCQChoice(questionId, choiceId);
+                    attachmentItem.remove();
                 });
             }
         }
 
+        // Handle question type changes for existing questions
+        document.querySelectorAll('select[name^="question_type_"]').forEach(select => {
+            select.addEventListener('change', function(e) {
+                const questionId = this.getAttribute('data-question-id');
+                if (questionId) {
+                    handleQuestionTypeChange(questionId);
+                }
+            });
+        });
+
         // Add event listener for exam attachments
-        document.getElementById('add-exam-attachment').addEventListener('click', function() {
+        document.getElementById('add-exam-attachment')?.addEventListener('click', function() {
             const container = document.getElementById('exam-attachments-container');
             
-            const newAttachment = document.createElement('div');
-            newAttachment.className = 'attachment-item bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg transition-all duration-300';
+            const attachmentItem = document.createElement('div');
+            attachmentItem.className = 'attachment-item bg-gray-50 dark:bg-gray-700 rounded-lg p-4';
             
-            newAttachment.innerHTML = `
-                <div class="flex items-center justify-between mb-4">
-                    <h4 class="text-md font-semibold text-gray-900 dark:text-white flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-                        </svg>
-                        Pièce jointe
-                    </h4>
+            attachmentItem.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fichier</label>
+                        <input type="file" name="exam_attachment_file[]" 
+                               class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type</label>
+                        <select name="exam_attachment_type[]" 
+                                class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
+                            <option value="image">Image</option>
+                            <option value="video">Vidéo</option>
+                            <option value="document">Document</option>
+                            <option value="other">Autre</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titre (optionnel)</label>
+                    <input type="text" name="exam_attachment_title[]" 
+                           class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description (optionnelle)</label>
+                    <textarea name="exam_attachment_description[]" rows="2"
+                              class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"></textarea>
+                </div>
+                <div class="mt-4 flex justify-end">
                     <button type="button" class="remove-attachment inline-flex items-center px-4 py-2 text-sm font-medium rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-300">
                         <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -772,52 +951,24 @@
                         Supprimer
                     </button>
                 </div>
-
-                <div class="space-y-5">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fichier</label>
-                        <div class="relative group">
-                            <input type="file" name="exam_attachment_file[]" 
-                                class="w-full px-4 py-2 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-900/30 dark:file:text-blue-400 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/40 group-hover:border-blue-400 dark:group-hover:border-blue-500">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type</label>
-                        <div class="relative">
-                            <select name="exam_attachment_type[]" 
-                                    class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 appearance-none">
-                                <option value="image">Image</option>
-                                <option value="video">Vidéo</option>
-                                <option value="document">Document</option>
-                                <option value="other">Autre</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Titre (optionnel)</label>
-                        <input type="text" name="exam_attachment_title[]" 
-                            class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Description (optionnelle)</label>
-                        <textarea name="exam_attachment_description[]" rows="2"
-                                class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"></textarea>
-                    </div>
-                </div>
             `;
             
-            container.appendChild(newAttachment);
+            container.appendChild(attachmentItem);
             
             // Add event listener to the remove button
-            const removeButton = newAttachment.querySelector('.remove-attachment');
+            const removeButton = attachmentItem.querySelector('.remove-attachment');
             if (removeButton) {
                 removeButton.addEventListener('click', function() {
-                    newAttachment.remove();
+                    attachmentItem.remove();
                 });
             }
+        });
+        
+        // Initialize event listeners for existing elements
+        document.querySelectorAll('.remove-attachment').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.closest('.attachment-item').remove();
+            });
         });
     });
 </script>
