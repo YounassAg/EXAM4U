@@ -40,7 +40,7 @@
               {% include 'components/icons.html' with icon="users" class="w-5 h-5" %}
             </div>
             <div class="stat-content">
-              <span class="stat-value">{{ total_students }}</span>
+              <span class="stat-value" data-stat="total-students">{{ total_students }}</span>
               <span class="stat-label">Total des étudiants</span>
             </div>
           </div>
@@ -50,7 +50,7 @@
               {% include 'components/icons.html' with icon="check-circle" class="w-5 h-5" %}
             </div>
             <div class="stat-content">
-              <span class="stat-value">{{ completed_attempts }}</span>
+              <span class="stat-value" data-stat="completed-attempts">{{ completed_attempts }}</span>
               <span class="stat-label">Tentatives terminées</span>
             </div>
           </div>
@@ -60,7 +60,7 @@
               {% include 'components/icons.html' with icon="clock" class="w-5 h-5" %}
             </div>
             <div class="stat-content">
-              <span class="stat-value">{{ in_progress_attempts }}</span>
+              <span class="stat-value" data-stat="in-progress-attempts">{{ in_progress_attempts }}</span>
               <span class="stat-label">Tentatives en cours</span>
             </div>
           </div>
@@ -340,7 +340,9 @@
                   <td colspan="6" class="px-6 py-8 text-center">
                       <div class="flex flex-col items-center justify-center space-y-4">
                           <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5 flex items-center justify-center">
-                              {% include 'components/icons.html' with icon="information" class="w-8 h-8 text-blue-600 dark:text-blue-400" %}
+                              <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
                           </div>
                           <p class="text-gray-500 dark:text-gray-400">Aucune tentative d'examen trouvée</p>
                       </div>
@@ -355,67 +357,80 @@
           row.className = 'transition-all duration-300 hover:bg-gray-50/80 dark:hover:bg-gray-700/80';
           row.dataset.attemptId = attempt.id;
 
-          const statusClass = `status-badge status-${attempt.status.replace('_', '-')}`;
+          const statusClass = `status-badge status-${attempt.status.toLowerCase().replace('_', '-')}`;
+          const gradeDisplay = attempt.grade !== null ? `${parseFloat(attempt.grade).toFixed(1)}/20` : 'Non noté';
+          const actionTitle = attempt.grade !== null ? 'Modifier' : 'Corriger';
+          
+          // Create the first initial for the avatar
+          const firstInitial = attempt.student_name ? attempt.student_name.charAt(0).toUpperCase() : '';
 
           row.innerHTML = `
               <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
                       <div class="flex-shrink-0 h-10 w-10">
                           <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 dark:from-blue-500 dark:to-purple-500 flex items-center justify-center text-white font-semibold">
-                              ${attempt.student_name.charAt(0).toUpperCase()}
+                              ${firstInitial}
                           </div>
                       </div>
                       <div class="ml-4">
                           <div class="text-sm font-medium text-gray-900 dark:text-white">
-                              ${attempt.student_name.toUpperCase()}
+                              ${attempt.student_name || ''}
                           </div>
                           <div class="text-sm text-gray-500 dark:text-gray-400">
-                              ${attempt.username}
+                              ${attempt.username || ''}
                           </div>
                       </div>
                   </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                   <div class="text-sm text-gray-500 dark:text-gray-400">
-                      ${attempt.start_date}
+                      ${attempt.start_date || ''}
                   </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                   <span class="${statusClass}">
-                      ${attempt.status_display}
+                      ${attempt.status_display || ''}
                   </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                   <div class="text-sm text-gray-500 dark:text-gray-400">
-                      ${attempt.type}
+                      ${attempt.type || ''}
                   </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                   <div class="text-sm text-gray-500 dark:text-gray-400">
-                      ${attempt.grade ? `${attempt.grade|floatformat:1}/20` : 'Non noté'}
+                      ${gradeDisplay}
                   </div>
               </td>
               <td class="px-6 py-4 text-right whitespace-nowrap">
                   <div class="flex justify-end items-center space-x-3">
-                      <button onclick="resetIsTakingExam('${attempt.username}')"
+                      <button onclick="resetIsTakingExam('${attempt.username}')" 
                               class="action-btn retry"
                               title="Réinitialiser">
-                          {% include 'components/icons.html' with icon="refresh" class="w-5 h-5" %}
+                          <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
                       </button>
                       <a href="/exams/teacher/logs/${attempt.id}/"
                          class="action-btn"
                          title="Logs">
-                          {% include 'components/icons.html' with icon="document" class="w-5 h-5 text-gray-600 dark:text-gray-400" %}
+                          <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
                       </a>
                       <a href="/exams/teacher/download-result/${attempt.id}/"
                          class="action-btn"
                          title="Télécharger">
-                          {% include 'components/icons.html' with icon="download" class="w-5 h-5 text-blue-600 dark:text-blue-400" %}
+                          <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
                       </a>
                       <a href="/exams/teacher/attempt/${attempt.id}/grade/"
                          class="action-btn correct"
-                         title="${attempt.grade === 'Non noté' ? 'Corriger' : 'Modifier'}">
-                          {% include 'components/icons.html' with icon="clipboard-check" class="w-5 h-5" %}
+                         title="${actionTitle}">
+                          <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                          </svg>
                       </a>
                   </div>
               </td>
@@ -428,13 +443,36 @@
       fetch(`{% url 'get_exam_attempts_json' exam.id %}`)
           .then(response => response.json())
           .then(data => {
+              // Update the stats at the top of the page
+              if (data.stats) {
+                  document.querySelector('[data-stat="total-students"]').textContent = data.stats.total_students || 0;
+                  document.querySelector('[data-stat="completed-attempts"]').textContent = data.stats.completed_attempts || 0;
+                  document.querySelector('[data-stat="in-progress-attempts"]').textContent = data.stats.in_progress_attempts || 0;
+              }
+              
+              // Update the table
               updateAttemptsTable(data.attempts);
           })
           .catch(error => console.error('Error fetching attempts:', error));
   }
 
-  setInterval(fetchAttempts, 4000);
+  // Initial fetch
   fetchAttempts();
+  
+  // Set up polling every 4 seconds
+  const pollingInterval = setInterval(fetchAttempts, 4000);
+  
+  // Clean up the interval when the page is hidden or closed
+  document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'hidden') {
+          clearInterval(pollingInterval);
+      } else {
+          // Resume polling when the page becomes visible again
+          clearInterval(pollingInterval);
+          fetchAttempts();
+          setInterval(fetchAttempts, 4000);
+      }
+  });
 </script>
 <script>
   // Function to show the custom confirmation modal

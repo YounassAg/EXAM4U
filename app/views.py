@@ -1207,13 +1207,24 @@ def get_exam_attempts_json(request, exam_id):
             'status': attempt.status,  # Raw status value for conditional logic
             'status_display': attempt.get_status_display(),  # Translated status text
             'type': attempt.get_type_display(),
-            'grade': attempt.grade if attempt.grade else "Non noté",
+            'grade': attempt.grade if attempt.grade else None,
             'time_taken': (attempt.end_date - attempt.start_date).total_seconds() / 60 if attempt.end_date and attempt.start_date else None,
         }
         print(f"- Data being sent: {attempt_data}")
         attempts_data.append(attempt_data)
+    
+    # Calculate statistics for the response
+    total_students = exam.group.userprofile_set.filter(role='student').count()
+    completed_attempts = attempts.filter(status='completed').count()
+    in_progress_attempts = attempts.filter(status='in_progress').count()
+    
+    stats_data = {
+        'total_students': total_students,
+        'completed_attempts': completed_attempts,
+        'in_progress_attempts': in_progress_attempts,
+    }
 
-    return JsonResponse({'attempts': attempts_data})
+    return JsonResponse({'attempts': attempts_data, 'stats': stats_data})
 
 @login_required
 @role_required('teacher')
