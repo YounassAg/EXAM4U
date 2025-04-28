@@ -26,6 +26,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, Preformatted
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 # Local application imports
 from .forms import UserRegistrationForm, LoginForm, ExamForm
@@ -793,8 +794,29 @@ def teacher_exam_list(request):
             'display': status_display
         })
 
+    # Pagination
+    per_page = request.GET.get('per_page', 12)  # Default to 12 items per page
+    try:
+        per_page = int(per_page)
+        if per_page not in [6, 12, 24, 48]:  # Validate per_page value
+            per_page = 12  # Default to 12 if invalid value
+    except ValueError:
+        per_page = 12
+        
+    paginator = Paginator(exams, per_page)
+    page_number = request.GET.get('page', 1)
+    
+    try:
+        paginated_exams = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page
+        paginated_exams = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range, deliver last page
+        paginated_exams = paginator.page(paginator.num_pages)
+
     context = {
-        'exams': exams,
+        'exams': paginated_exams,
         'groups': groups,
         'courses': courses,
         'exam_types': ExamAttempt.EXAM_TYPE_CHOICES,

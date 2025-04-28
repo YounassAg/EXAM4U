@@ -3,7 +3,7 @@
 {% block title %}Liste des Examens - Exam4U{% endblock %}
 
 {% block content %}
-<div class="flex min-h-screen bg-white dark:bg-gray-900">
+<div class="flex min-h-screen bg-white dark:bg-gray-900" data-has-filters="{% if active_filters|length > 0 or search_query %}true{% else %}false{% endif %}">
     {% include 'components/teacher_sidebar.html' %}
 
     <div class="flex-1 p-4 md:p-8 space-y-6 md:space-y-8">
@@ -199,12 +199,15 @@
                         <div class="action-group">
                             <a href="{% url 'exam_attempts' exam.id %}" class="action-btn correct" title="Corriger">
                                 {% include 'components/icons.html' with icon="clipboard-check" class="w-4 h-4" %}
+                                <span>Corriger</span>
                             </a>
                             {% comment %} <a href="{% url 'rattrapage_exam' exam.id %}" class="action-btn retry" title="Rattrapage">
                                 {% include 'components/icons.html' with icon="refresh" class="w-4 h-4" %}
+                                <span>Rattrapage</span>
                             </a> {% endcomment %}
                             <a href="{% url 'edit_exam' exam.id %}" class="action-btn edit" title="Modifier">
-                                {% include 'components/icons.html' with icon="pencil" class="w-4 h-4 text-gray-600 dark:text-gray-400" %}
+                                {% include 'components/icons.html' with icon="pencil" class="w-4 h-4" %}
+                                <span>Modifier</span>
                             </a>
                         </div>
                         {% comment %} Delete Exam button {% endcomment %}
@@ -213,6 +216,7 @@
                             <button type="submit" class="action-btn delete" title="Supprimer"
                                     onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet examen ?')">
                                 {% include 'components/icons.html' with icon="trash" class="w-4 h-4" %}
+                                <span>Supprimer</span>
                             </button>
                         </form> {% endcomment %}
                     </div>
@@ -229,13 +233,84 @@
                 </div>
             {% endfor %}
         </div>
+
+        <!-- Pagination Controls -->
+        {% if exams.has_other_pages %}
+        <div class="pagination-container">
+            <div class="pagination-info">
+                <span>Affichage de {{ exams.start_index }} à {{ exams.end_index }} sur {{ exams.paginator.count }} examens</span>
+            </div>
+            <div class="pagination-controls">
+                {% if exams.has_previous %}
+                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1" class="pagination-btn first" title="Première page">
+                        {% include 'components/icons.html' with icon="chevron-double-left" class="w-4 h-4" %}
+                    </a>
+                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ exams.previous_page_number }}" class="pagination-btn prev" title="Page précédente">
+                        {% include 'components/icons.html' with icon="chevron-left" class="w-4 h-4" %}
+                    </a>
+                {% else %}
+                    <span class="pagination-btn disabled first" title="Première page">
+                        {% include 'components/icons.html' with icon="chevron-double-left" class="w-4 h-4" %}
+                    </span>
+                    <span class="pagination-btn disabled prev" title="Page précédente">
+                        {% include 'components/icons.html' with icon="chevron-left" class="w-4 h-4" %}
+                    </span>
+                {% endif %}
+
+                <div class="pagination-pages">
+                    {% for num in exams.paginator.page_range %}
+                        {% if exams.number == num %}
+                            <span class="pagination-page active">{{ num }}</span>
+                        {% elif num > exams.number|add:'-3' and num < exams.number|add:'3' %}
+                            <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}" class="pagination-page">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if exams.has_next %}
+                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ exams.next_page_number }}" class="pagination-btn next" title="Page suivante">
+                        {% include 'components/icons.html' with icon="chevron-right" class="w-4 h-4" %}
+                    </a>
+                    <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ exams.paginator.num_pages }}" class="pagination-btn last" title="Dernière page">
+                        {% include 'components/icons.html' with icon="chevron-double-right" class="w-4 h-4" %}
+                    </a>
+                {% else %}
+                    <span class="pagination-btn disabled next" title="Page suivante">
+                        {% include 'components/icons.html' with icon="chevron-right" class="w-4 h-4" %}
+                    </span>
+                    <span class="pagination-btn disabled last" title="Dernière page">
+                        {% include 'components/icons.html' with icon="chevron-double-right" class="w-4 h-4" %}
+                    </span>
+                {% endif %}
+            </div>
+            
+            <div class="pagination-perpage">
+                <span>Examens par page:</span>
+                <div class="select-wrapper-sm">
+                    <select name="per_page" id="perPageSelect" onchange="changePerPage(this.value)">
+                        <option value="6" {% if request.GET.per_page == '6' %}selected{% endif %}>6</option>
+                        <option value="12" {% if request.GET.per_page == '12' or not request.GET.per_page %}selected{% endif %}>12</option>
+                        <option value="24" {% if request.GET.per_page == '24' %}selected{% endif %}>24</option>
+                        <option value="48" {% if request.GET.per_page == '48' %}selected{% endif %}>48</option>
+                    </select>
+                    {% include 'components/icons.html' with icon="chevron-down" class="select-icon-sm" %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
 
 <style>
 @keyframes pulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
+    0%, 100% { 
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
 }
 
 .animate-pulse {
@@ -352,35 +427,71 @@
 
 .action-group {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
 .action-btn {
-    padding: 0.5rem;
-    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.875rem;
+    border-radius: 0.5rem;
     transition: all 0.2s ease;
+    font-size: 0.875rem;
+    font-weight: 500;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    white-space: nowrap;
 }
 
 .action-btn:hover {
-    transform: translateY(-1px);
-    background: rgba(243, 244, 246, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-.dark .action-btn:hover {
-    background: rgba(31, 41, 55, 0.9);
+.action-btn.correct { 
+    color: #059669; 
+    background-color: rgba(5, 150, 105, 0.1);
+    border: 1px solid rgba(5, 150, 105, 0.2);
+}
+.dark .action-btn.correct { 
+    color: #34d399;
+    background-color: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.2);
 }
 
-.action-btn.correct { color: #059669; }
-.dark .action-btn.correct { color: #34d399; }
+.action-btn.retry { 
+    color: #3b82f6; 
+    background-color: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+.dark .action-btn.retry { 
+    color: #60a5fa; 
+    background-color: rgba(96, 165, 250, 0.1);
+    border: 1px solid rgba(96, 165, 250, 0.2);
+}
 
-.action-btn.retry { color: #3b82f6; }
-.dark .action-btn.retry { color: #60a5fa; }
+.action-btn.edit { 
+    color: #6b7280;
+    background-color: rgba(107, 114, 128, 0.1);
+    border: 1px solid rgba(107, 114, 128, 0.2);
+}
+.dark .action-btn.edit { 
+    color: #9ca3af;
+    background-color: rgba(156, 163, 175, 0.1);
+    border: 1px solid rgba(156, 163, 175, 0.2);
+}
 
-.action-btn.edit { color: #6b7280; }
-.dark .action-btn.edit { color: #9ca3af; }
-
-.action-btn.delete { color: #dc2626; }
-.dark .action-btn.delete { color: #f87171; }
+.action-btn.delete { 
+    color: #dc2626;
+    background-color: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+}
+.dark .action-btn.delete { 
+    color: #f87171;
+    background-color: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+}
 
 /* Filter Container */
 .filter-container {
@@ -804,6 +915,162 @@
 .rotate-180 {
     transform: rotate(180deg);
 }
+
+/* Pagination Styles */
+.pagination-container {
+    margin-top: 2rem;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pagination-info {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+}
+
+.pagination-btn:hover:not(.disabled) {
+    color: var(--primary-color);
+    border-color: var(--primary-color-border);
+    background: var(--primary-color-light);
+    box-shadow: 0 0 0 4px var(--primary-color-alpha);
+    transform: translateY(-2px);
+}
+
+.pagination-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-pages {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.pagination-page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    font-weight: 500;
+}
+
+.pagination-page:hover:not(.active) {
+    color: var(--primary-color);
+    border-color: var(--primary-color-border);
+    background: var(--primary-color-light);
+    box-shadow: 0 0 0 4px var(--primary-color-alpha);
+    transform: translateY(-2px);
+}
+
+.pagination-page.active {
+    color: white;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-color-gradient));
+    border-color: transparent;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4);
+}
+
+.pagination-perpage {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.select-wrapper-sm {
+    position: relative;
+    width: 5rem;
+}
+
+.select-wrapper-sm select {
+    width: 100%;
+    padding: 0.5rem 1.5rem 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-primary);
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+}
+
+.select-wrapper-sm select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px var(--primary-color-alpha);
+    outline: none;
+}
+
+.select-icon-sm {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0.875rem;
+    height: 0.875rem;
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+
+/* Responsive Pagination */
+@media (max-width: 768px) {
+    .pagination-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .pagination-info, .pagination-perpage {
+        text-align: center;
+    }
+    
+    .pagination-perpage {
+        justify-content: center;
+    }
+    
+    .pagination-controls {
+        order: 2;
+    }
+}
 </style>
 
 <!-- Add this script section at the end of your template -->
@@ -813,8 +1080,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const filterContent = document.getElementById('filterContent');
     const filterChevron = document.getElementById('filterChevron');
     
-    // Check if there are any active filters
-    const hasActiveFilters = {% if active_filters|length > 0 or search_query %}true{% else %}false{% endif %};
+    // Check if there are any active filters - use a data attribute from HTML
+    const hasActiveFilters = document.body.getAttribute('data-has-filters') === 'true';
     
     // If there are active filters, show the filter content by default
     if (hasActiveFilters) {
@@ -832,5 +1099,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Function to change items per page
+function changePerPage(value) {
+    // Get current URL
+    const url = new URL(window.location);
+    
+    // Set the per_page parameter
+    url.searchParams.set('per_page', value);
+    
+    // Reset to page 1 when changing items per page
+    url.searchParams.set('page', '1');
+    
+    // Navigate to the new URL
+    window.location.href = url.toString();
+}
 </script>
 {% endblock %}
