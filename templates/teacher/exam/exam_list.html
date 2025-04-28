@@ -814,7 +814,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const filterChevron = document.getElementById('filterChevron');
     
     // Check if there are any active filters
-    const hasActiveFilters = {{ active_filters|length }} > 0 || "{{ search_query }}" !== "";
+    const hasActiveFilters = {% if active_filters|length > 0 or search_query %}true{% else %}false{% endif %};
     
     // If there are active filters, show the filter content by default
     if (hasActiveFilters) {
