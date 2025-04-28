@@ -124,7 +124,6 @@
                                     <div class="relative group">
                                         <input type="file" name="exam_attachment_file[]" 
                                             class="w-full px-4 py-2 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-900/30 dark:file:text-blue-400 hover:file:bg-blue-100 dark:hover:file:bg-blue-900/40 group-hover:border-blue-400 dark:group-hover:border-blue-500">
-                                    <!-- Removing the blue icon -->
                                     </div>
                                 </div>
 
@@ -138,7 +137,6 @@
                                             <option value="document">Document</option>
                                             <option value="other">Autre</option>
                                         </select>
-                                        <!-- Removing the blue icon -->
                                     </div>
                                 </div>
 
@@ -220,9 +218,264 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
+    // Create a debug function to track what's happening
+    function debug(message) {
+        console.log(`[DEBUG] ${message}`);
+    }
+
+    // Simple utility function to get all question divs in order
+    function getAllQuestions() {
+        return Array.from(document.querySelectorAll('#questions-container > div[id^="question_"]'));
+    }
+
+    // Get all MCQ choices for a specific question
+    function getMCQChoices(questionId) {
+        const container = document.getElementById(`mcq_choices_${questionId}`);
+        if (!container) return [];
+        return Array.from(container.querySelectorAll('div.mcq-choice'));
+    }
+
+    // Completely rebuild the form from scratch using sequential indices
+    function rebuildForm() {
+        debug('Rebuilding entire form');
+        
+        // Get all question divs
+        const questions = getAllQuestions();
+        
+        // Update the global question count
+        questionCount = questions.length;
+        document.getElementById('question_count').value = questionCount;
+        
+        debug(`Found ${questionCount} questions`);
+        
+        // Process each question with sequential indices starting from 1
+        questions.forEach((questionDiv, index) => {
+            const newIndex = index + 1; // 1-based index
+            debug(`Reindexing question at position ${index} to question ${newIndex}`);
+            
+            // Current ID and data to extract the old index
+            const oldId = questionDiv.id;
+            const oldIndex = oldId.split('_')[1];
+            
+            debug(`Question ${oldId} -> question_${newIndex}`);
+            
+            // Update the question div ID
+            questionDiv.id = `question_${newIndex}`;
+            
+            // Update the question title
+            const questionTitle = questionDiv.querySelector('h3');
+            if (questionTitle) {
+                questionTitle.textContent = `Question ${newIndex}`;
+            }
+            
+            // Update the question ID input
+            const questionIdInput = questionDiv.querySelector('input[name^="question_id_"]');
+            if (questionIdInput) {
+                questionIdInput.name = `question_id_${newIndex}`;
+                debug(`Updated question ID input: ${questionIdInput.name}`);
+            }
+            
+            // Update all elements with name attribute containing the old index
+            const elementsWithName = questionDiv.querySelectorAll(`[name*="${oldIndex}"]`);
+            elementsWithName.forEach(element => {
+                // Skip elements that don't start with expected prefixes to avoid changing unrelated elements
+                const validPrefixes = ['question_', 'mcq_choice_'];
+                if (validPrefixes.some(prefix => element.name.includes(prefix))) {
+                    const newName = element.name.replace(new RegExp(`_${oldIndex}\\b`, 'g'), `_${newIndex}`);
+                    element.name = newName;
+                    debug(`Updated element name: ${element.name}`);
+                    
+                    // Also update ID if it exists and matches pattern
+                    if (element.id && element.id.includes(oldIndex)) {
+                        element.id = element.id.replace(new RegExp(`_${oldIndex}\\b`, 'g'), `_${newIndex}`);
+                        debug(`Updated element ID: ${element.id}`);
+                    }
+                }
+            });
+            
+            // Update all elements with ID attribute containing the old index
+            const elementsWithId = questionDiv.querySelectorAll(`[id*="${oldIndex}"]`);
+            elementsWithId.forEach(element => {
+                if (!element.id.startsWith('question_')) { // Skip the main div which we already updated
+                    const validPrefixes = ['question_', 'mcq_', 'mcq_section_', 'mcq_choices_'];
+                    if (validPrefixes.some(prefix => element.id.includes(prefix))) {
+                        const newId = element.id.replace(new RegExp(`_${oldIndex}\\b`, 'g'), `_${newIndex}`);
+                        element.id = newId;
+                        debug(`Updated element ID: ${element.id}`);
+                    }
+                }
+            });
+            
+            // Update data attributes on buttons
+            const buttons = questionDiv.querySelectorAll('button[data-question-id]');
+            buttons.forEach(button => {
+                button.setAttribute('data-question-id', newIndex);
+                debug(`Updated button data-question-id: ${newIndex}`);
+            });
+            
+            // Update onchange attributes containing the old index
+            const elementsWithOnchange = questionDiv.querySelectorAll('[onchange*="handleQuestionTypeChange"]');
+            elementsWithOnchange.forEach(element => {
+                element.setAttribute('onchange', `handleQuestionTypeChange(${newIndex})`);
+                debug(`Updated onchange: handleQuestionTypeChange(${newIndex})`);
+            });
+            
+            // Update label for attributes
+            const labelsWithFor = questionDiv.querySelectorAll('label[for*="_"]');
+            labelsWithFor.forEach(label => {
+                const forAttr = label.getAttribute('for');
+                if (forAttr && forAttr.includes(oldIndex)) {
+                    label.setAttribute('for', forAttr.replace(new RegExp(`_${oldIndex}\\b`, 'g'), `_${newIndex}`));
+                    debug(`Updated label for: ${label.getAttribute('for')}`);
+                }
+            });
+            
+            // Now rebuild all MCQ choices for this question
+            rebuildMCQChoices(newIndex);
+        });
+    }
+    
+    // Rebuild MCQ choices for a specific question
+    function rebuildMCQChoices(questionId) {
+        debug(`Rebuilding MCQ choices for question ${questionId}`);
+        
+        const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
+        if (!choicesContainer) {
+            debug(`MCQ choices container not found for question ${questionId}`);
+            return;
+        }
+        
+        // Get all choice divs
+        const choices = Array.from(choicesContainer.querySelectorAll('div.mcq-choice'));
+        debug(`Found ${choices.length} choices for question ${questionId}`);
+        
+        // Update the choice count hidden input
+        const choiceCountInput = choicesContainer.querySelector('input[name^="mcq_choice_count_"]');
+        if (choiceCountInput) {
+            choiceCountInput.value = choices.length;
+            choiceCountInput.name = `mcq_choice_count_${questionId}`;
+            choiceCountInput.id = `mcq_choice_count_${questionId}`;
+            debug(`Updated choice count: ${choices.length}`);
+        } else {
+            debug(`Creating new choice count input for question ${questionId}`);
+            const newInput = document.createElement('input');
+            newInput.type = 'hidden';
+            newInput.name = `mcq_choice_count_${questionId}`;
+            newInput.id = `mcq_choice_count_${questionId}`;
+            newInput.value = choices.length;
+            choicesContainer.appendChild(newInput);
+        }
+        
+        // Process each choice with sequential indices starting from 1
+        choices.forEach((choiceDiv, index) => {
+            const newIndex = index + 1; // 1-based index
+            debug(`Reindexing choice at position ${index} to choice ${newIndex} for question ${questionId}`);
+            
+            // Current ID and data to extract the old index
+            const oldId = choiceDiv.id || '';
+            const parts = oldId.split('_');
+            const oldChoiceIndex = parts.length >= 4 ? parts[3] : '';
+            
+            debug(`Choice ${oldId} -> mcq_choice_${questionId}_${newIndex}`);
+            
+            // Update the choice div ID
+            choiceDiv.id = `mcq_choice_${questionId}_${newIndex}`;
+            
+            // Update the choice title
+            const choiceTitle = choiceDiv.querySelector('h4');
+            if (choiceTitle) {
+                choiceTitle.textContent = `Choix ${newIndex}`;
+            }
+            
+            // Update data-choice-id on the remove button 
+            const removeBtn = choiceDiv.querySelector('.remove-mcq-choice');
+            if (removeBtn) {
+                removeBtn.setAttribute('data-choice-id', newIndex);
+                removeBtn.setAttribute('data-question-id', questionId);
+                debug(`Updated remove button: data-choice-id=${newIndex}, data-question-id=${questionId}`);
+            }
+            
+            // Update all inputs and labels with the old choice index
+            if (oldChoiceIndex) {
+                // Update input names and IDs
+                const inputs = choiceDiv.querySelectorAll(`[name*="_${questionId}_${oldChoiceIndex}"]`);
+                inputs.forEach(input => {
+                    const newName = input.name.replace(`_${questionId}_${oldChoiceIndex}`, `_${questionId}_${newIndex}`);
+                    input.name = newName;
+                    if (input.id) {
+                        input.id = input.id.replace(`_${questionId}_${oldChoiceIndex}`, `_${questionId}_${newIndex}`);
+                    }
+                    debug(`Updated input: ${input.name}`);
+                });
+                
+                // Update label for attributes
+                const labels = choiceDiv.querySelectorAll(`label[for*="_${questionId}_${oldChoiceIndex}"]`);
+                labels.forEach(label => {
+                    label.setAttribute('for', label.getAttribute('for').replace(
+                        `_${questionId}_${oldChoiceIndex}`, 
+                        `_${questionId}_${newIndex}`
+                    ));
+                    debug(`Updated label: ${label.getAttribute('for')}`);
+                });
+            }
+        });
+    }
+
+    // Event delegation for removing questions
+    document.getElementById('questions-container').addEventListener('click', function(e) {
+        const removeBtn = e.target.closest('.remove-question-btn');
+        if (removeBtn) {
+            const questionId = removeBtn.getAttribute('data-question-id');
+            const question = document.getElementById(`question_${questionId}`);
+            if (question) {
+                debug(`Removing question ${questionId}`);
+                question.remove();
+                // Rebuild form immediately after removing a question
+                rebuildForm();
+            }
+        }
+    });
+
+    // Event delegation for removing MCQ choices
+    document.getElementById('questions-container').addEventListener('click', function(e) {
+        const removeBtn = e.target.closest('.remove-mcq-choice');
+        if (removeBtn) {
+            const questionId = removeBtn.getAttribute('data-question-id');
+            const choiceId = removeBtn.getAttribute('data-choice-id');
+            debug(`Attempting to remove choice ${choiceId} from question ${questionId}`);
+            
+            const choice = document.getElementById(`mcq_choice_${questionId}_${choiceId}`);
+            if (choice) {
+                debug(`Removing choice ${choiceId} from question ${questionId}`);
+                choice.remove();
+                // Rebuild MCQ choices immediately after removal
+                rebuildMCQChoices(questionId);
+            }
+        }
+    });
+
+    // Event delegation for adding MCQ choices
+    document.getElementById('questions-container').addEventListener('click', function(e) {
+        const addBtn = e.target.closest('.add-mcq-choice-btn');
+        if (addBtn) {
+            const questionId = addBtn.getAttribute('data-question-id');
+            addMCQChoice(questionId);
+        }
+    });
+
+    // Event delegation for adding question attachments
+    document.getElementById('questions-container').addEventListener('click', function(e) {
+        const addBtn = e.target.closest('.add-question-attachment');
+        if (addBtn) {
+            const questionId = addBtn.getAttribute('data-question-id');
+            addQuestionAttachment(questionId);
+        }
+    });
+
     document.getElementById('add-question-btn').addEventListener('click', function () {
         questionCount++;
         document.getElementById('question_count').value = questionCount;
+        debug(`Adding new question ${questionCount}`);
 
         // Add question structure
         let questionHtml = `
@@ -292,32 +545,61 @@ document.addEventListener('DOMContentLoaded', function () {
 
         document.getElementById('questions-container').insertAdjacentHTML('beforeend', questionHtml);
         
-        // Add event listeners for the new question
-        const newQuestion = document.getElementById(`question_${questionCount}`);
-        
-        newQuestion.querySelector('.remove-question-btn').addEventListener('click', function() {
-            const questionId = this.getAttribute('data-question-id');
-            document.getElementById(`question_${questionId}`).remove();
-            questionCount--;
-            document.getElementById('question_count').value = questionCount;
-        });
-        
-        newQuestion.querySelector('.add-mcq-choice-btn').addEventListener('click', function() {
-            const questionId = this.getAttribute('data-question-id');
-            addMCQChoice(questionId);
-        });
-        
-        newQuestion.querySelector('.add-question-attachment').addEventListener('click', function() {
-            const questionId = this.getAttribute('data-question-id');
-            addQuestionAttachment(questionId);
-        });
-
         // Trigger a change event to initialize the question type UI
         handleQuestionTypeChange(questionCount);
         
         // Add the first MCQ choice
         addMCQChoice(questionCount);
     });
+
+    function addMCQChoice(questionId) {
+        debug(`Adding new MCQ choice to question ${questionId}`);
+        
+        const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
+        if (!choicesContainer) {
+            debug(`MCQ choices container not found for question ${questionId}`);
+            return;
+        }
+        
+        // Get current choices and calculate next index
+        const choices = getMCQChoices(questionId);
+        const newChoiceIndex = choices.length + 1;
+        debug(`New choice index: ${newChoiceIndex}`);
+        
+        // Create the choice HTML
+        const choiceHtml = `
+            <div id="mcq_choice_${questionId}_${newChoiceIndex}" class="mcq-choice bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="text-sm font-medium text-gray-900 dark:text-white">Choix ${newChoiceIndex}</h4>
+                    <button type="button" class="remove-mcq-choice inline-flex items-center px-3 py-1 text-xs font-medium rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-300" data-question-id="${questionId}" data-choice-id="${newChoiceIndex}">
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Supprimer
+                    </button>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <input type="text" name="mcq_choice_text_${questionId}_${newChoiceIndex}" id="mcq_choice_text_${questionId}_${newChoiceIndex}" placeholder="Texte du choix" required 
+                               class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" name="mcq_choice_correct_${questionId}_${newChoiceIndex}" id="mcq_choice_correct_${questionId}_${newChoiceIndex}" 
+                               class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                        <label for="mcq_choice_correct_${questionId}_${newChoiceIndex}" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Réponse correcte
+                        </label>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Insert the choice HTML
+        choicesContainer.insertAdjacentHTML('beforeend', choiceHtml);
+        
+        // Update the choice count
+        rebuildMCQChoices(questionId);
+    }
 
     // Handle exam attachments
     document.getElementById('add-exam-attachment').addEventListener('click', function() {
@@ -465,52 +747,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const removeButton = attachmentItem.querySelector('.remove-attachment');
         removeButton.addEventListener('click', function() {
             attachmentItem.remove();
-        });
-    }
-
-    function addMCQChoice(questionId) {
-        const choicesContainer = document.getElementById(`mcq_choices_${questionId}`);
-        const choiceCountElem = document.getElementById(`mcq_choice_count_${questionId}`);
-        let choiceCount = parseInt(choiceCountElem.value) + 1;
-        choiceCountElem.value = choiceCount;
-        
-        // Create the choice HTML
-        const choiceHtml = `
-            <div id="mcq_choice_${questionId}_${choiceCount}" class="mcq-choice bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center justify-between mb-3">
-                    <h4 class="text-sm font-medium text-gray-900 dark:text-white">Choix ${choiceCount}</h4>
-                    <button type="button" class="remove-mcq-choice inline-flex items-center px-3 py-1 text-xs font-medium rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-300" data-question-id="${questionId}" data-choice-id="${choiceCount}">
-                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
-                        Supprimer
-                    </button>
-                </div>
-                <div class="space-y-3">
-                    <div>
-                        <input type="text" name="mcq_choice_text_${questionId}_${choiceCount}" placeholder="Texte du choix" required 
-                               class="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-300">
-                    </div>
-                    <div class="flex items-center">
-                        <input type="checkbox" name="mcq_choice_correct_${questionId}_${choiceCount}" id="mcq_choice_correct_${questionId}_${choiceCount}" 
-                               class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                        <label for="mcq_choice_correct_${questionId}_${choiceCount}" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Réponse correcte
-                        </label>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        // Insert the choice HTML
-        choicesContainer.insertAdjacentHTML('beforeend', choiceHtml);
-        
-        // Add event listener for the remove button
-        const removeButton = document.getElementById(`mcq_choice_${questionId}_${choiceCount}`).querySelector('.remove-mcq-choice');
-        removeButton.addEventListener('click', function() {
-            const qId = this.getAttribute('data-question-id');
-            const cId = this.getAttribute('data-choice-id');
-            document.getElementById(`mcq_choice_${qId}_${cId}`).remove();
         });
     }
 });

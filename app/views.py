@@ -303,13 +303,26 @@ def create_exam(request):
             question_wording = request.POST.get(f'question_wording_{i}')
             question_points = request.POST.get(f'question_points_{i}')
             
-            # Create question
-            question = Question.objects.create(
-                exam=exam,
-                question_type=question_type,
-                wording=question_wording,
-                points=float(question_points)
-            )
+            # Skip if essential data is missing
+            if not question_type or not question_wording or not question_points:
+                continue
+                
+            try:
+                # Create question with safe conversion to float
+                question = Question.objects.create(
+                    exam=exam,
+                    question_type=question_type,
+                    wording=question_wording,
+                    points=float(question_points)
+                )
+            except (ValueError, TypeError):
+                # If conversion fails, use default value of 1.0
+                question = Question.objects.create(
+                    exam=exam,
+                    question_type=question_type,
+                    wording=question_wording,
+                    points=1.0
+                )
 
             # Handle question attachments
             question_attachment_files = request.FILES.getlist(f'question_{i}_attachment_file[]')
@@ -333,13 +346,21 @@ def create_exam(request):
             
             # If MCQ question, create choices
             if question_type == 'MCQ':
-                mcq_choice_count = int(request.POST.get(f'mcq_choice_count_{i}', 0))
+                try:
+                    mcq_choice_count = int(request.POST.get(f'mcq_choice_count_{i}', 0))
+                except (ValueError, TypeError):
+                    mcq_choice_count = 0
+                    
                 has_correct_choice = False
                 
                 for j in range(1, mcq_choice_count + 1):
                     choice_text = request.POST.get(f'mcq_choice_text_{i}_{j}')
                     is_correct = request.POST.get(f'mcq_choice_correct_{i}_{j}') == 'on'
                     
+                    # Skip if choice text is missing
+                    if not choice_text:
+                        continue
+                        
                     if is_correct:
                         has_correct_choice = True
                     
@@ -432,155 +453,218 @@ def edit_exam(request, exam_id):
                         description=attachment_description
                     )
         
-        # Process existing questions to update
-        for question in exam.question_set.all():
-            question_id = f'question_{question.id}'
-            question_index = None
+        # Get all existing questions
+        existing_questions = list(exam.question_set.all())
+        existing_question_ids = [str(q.id) for q in existing_questions]
+        
+        # Track which questions have been processed
+        processed_question_ids = []
+        
+        # Process existing questions
+        for question_index in range(1, 100):  # Use a reasonable upper limit
+            question_id = request.POST.get(f'question_id_{question_index}')
             
-            # Find the index of this question in the form
-            for i in range(1, 100):  # Assuming there won't be more than 100 questions
-                if request.POST.get(f'question_id_{i}') == str(question.id):
-                    question_index = i
-                    break
-            
-            if question_index is None:
+            # Skip if no question ID for this index (means there's no question at this position)
+            if not question_id:
                 continue
                 
-            if request.POST.get(f'delete_{question_id}') == 'yes':
-                # Delete the question if marked for deletion
-                question.delete()
+            if question_id == 'new':
+                # This is a new question, process it later
                 continue
                 
-            # Update question data
+            # Mark this question as processed
+            processed_question_ids.append(question_id)
+            
+            # Get the existing question
+            try:
+                question = Question.objects.get(id=question_id)
+            except Question.DoesNotExist:
+                continue
+                
+            # Only update if it belongs to this exam
+            if question.exam != exam:
+                continue
+            
+            # Get updated question data
             q_type = request.POST.get(f'question_type_{question_index}')
             q_wording = request.POST.get(f'question_wording_{question_index}')
-            q_points = request.POST.get(f'question_points_{question_index}', 0)
+            q_points = request.POST.get(f'question_points_{question_index}')
             
             # Only update if we have valid data
-            if q_type and q_wording:
+            if not q_type or not q_wording:
+                continue
+                
+            try:
+                # Update question with safe conversion to float
                 question.question_type = q_type
                 question.wording = q_wording
                 question.points = float(q_points)
                 question.save()
+            except (ValueError, TypeError):
+                # If conversion fails, use default value of 1.0
+                question.question_type = q_type
+                question.wording = q_wording
+                question.points = 1.0
+                question.save()
             
-                # Handle question attachments
-                if request.FILES:
-                    # Add new attachments
-                    question_attachment_files = request.FILES.getlist(f'question_{question_index}_attachment_file[]')
-                    question_attachment_types = request.POST.getlist(f'question_{question_index}_attachment_type[]')
-                    question_attachment_titles = request.POST.getlist(f'question_{question_index}_attachment_title[]')
-                    question_attachment_descriptions = request.POST.getlist(f'question_{question_index}_attachment_description[]')
+            # Handle question attachments
+            if request.FILES:
+                # Add new attachments
+                question_attachment_files = request.FILES.getlist(f'question_{question_index}_attachment_file[]')
+                question_attachment_types = request.POST.getlist(f'question_{question_index}_attachment_type[]')
+                question_attachment_titles = request.POST.getlist(f'question_{question_index}_attachment_title[]')
+                question_attachment_descriptions = request.POST.getlist(f'question_{question_index}_attachment_description[]')
 
-                    for j, file in enumerate(question_attachment_files):
-                        if file:  # Only process if a file was actually uploaded
-                            attachment_type = question_attachment_types[j] if j < len(question_attachment_types) else 'other'
-                            attachment_title = question_attachment_titles[j] if j < len(question_attachment_titles) else ''
-                            attachment_description = question_attachment_descriptions[j] if j < len(question_attachment_descriptions) else ''
-                            
-                            ExamAttachment.objects.create(
-                                question=question,
-                                file=file,
-                                file_type=attachment_type,
-                                title=attachment_title,
-                                description=attachment_description
-                            )
-            
-                # If MCQ question, update choices
-                if question.question_type == 'MCQ':
-                    # Delete existing choices
-                    question.mcqchoice_set.all().delete()
-                    
-                    # Add new choices
-                    mcq_choice_count = int(request.POST.get(f'mcq_choice_count_{question_index}', 0))
-                    has_correct_choice = False
-                    
-                    for j in range(1, mcq_choice_count + 1):
-                        choice_text = request.POST.get(f'mcq_choice_text_{question_index}_{j}')
-                        is_correct = request.POST.get(f'mcq_choice_correct_{question_index}_{j}') == 'on'
+                for j, file in enumerate(question_attachment_files):
+                    if file:  # Only process if a file was actually uploaded
+                        attachment_type = question_attachment_types[j] if j < len(question_attachment_types) else 'other'
+                        attachment_title = question_attachment_titles[j] if j < len(question_attachment_titles) else ''
+                        attachment_description = question_attachment_descriptions[j] if j < len(question_attachment_descriptions) else ''
                         
-                        if choice_text:
-                            if is_correct:
-                                has_correct_choice = True
-                            
-                            MCQChoice.objects.create(
-                                question=question,
-                                choice_label=choice_text,
-                                is_correct=is_correct
-                            )
+                        ExamAttachment.objects.create(
+                            question=question,
+                            file=file,
+                            file_type=attachment_type,
+                            title=attachment_title,
+                            description=attachment_description
+                        )
+            
+            # If MCQ question, update choices
+            if question.question_type == 'MCQ':
+                # Delete existing choices
+                question.mcqchoice_set.all().delete()
+                
+                # Add new choices
+                try:
+                    mcq_choice_count = int(request.POST.get(f'mcq_choice_count_{question_index}', 0))
+                except (ValueError, TypeError):
+                    mcq_choice_count = 0
                     
-                    # If multiple choices are correct, set question to allow multiple answers
-                    if mcq_choice_count > 0:
-                        correct_choices = MCQChoice.objects.filter(question=question, is_correct=True).count()
-                        if correct_choices > 1:
-                            question.allow_multiple_answers = True
-                            question.save()
+                has_correct_choice = False
+                
+                for j in range(1, mcq_choice_count + 1):
+                    choice_text = request.POST.get(f'mcq_choice_text_{question_index}_{j}')
+                    is_correct = request.POST.get(f'mcq_choice_correct_{question_index}_{j}') == 'on'
+                    
+                    # Skip if choice text is missing
+                    if not choice_text:
+                        continue
+                        
+                    if is_correct:
+                        has_correct_choice = True
+                    
+                    MCQChoice.objects.create(
+                        question=question,
+                        choice_label=choice_text,
+                        is_correct=is_correct
+                    )
+                
+                # If multiple choices are correct, set question to allow multiple answers
+                if mcq_choice_count > 0:
+                    correct_choices = MCQChoice.objects.filter(question=question, is_correct=True).count()
+                    if correct_choices > 1:
+                        question.allow_multiple_answers = True
+                        question.save()
+        
+        # Delete questions that were not processed (removed from form)
+        for q in existing_questions:
+            if str(q.id) not in processed_question_ids:
+                q.delete()
         
         # Process new questions
-        new_question_count = int(request.POST.get('question_count', 0))
-        existing_question_count = exam.question_set.count()
+        try:
+            new_question_count = int(request.POST.get('question_count', 0))
+        except (ValueError, TypeError):
+            new_question_count = 0
+            
+        existing_question_count = len(processed_question_ids)
         
         # Only process indices greater than the existing question count
-        for i in range(existing_question_count + 1, new_question_count + 1):
+        for i in range(1, new_question_count + 1):
+            # Check if this is a new question (not an existing one)
+            question_id = request.POST.get(f'question_id_{i}')
+            if question_id != 'new':
+                continue
+                
             question_type = request.POST.get(f'question_type_{i}')
             question_wording = request.POST.get(f'question_wording_{i}')
             question_points = request.POST.get(f'question_points_{i}')
             
-            # Create new question if we have valid data
-            if question_type and question_wording:
+            # Skip if essential data is missing
+            if not question_type or not question_wording:
+                continue
+                
+            try:
+                # Create new question with safe conversion to float
                 question = Question.objects.create(
                     exam=exam,
                     question_type=question_type,
                     wording=question_wording,
                     points=float(question_points or 0)
                 )
+            except (ValueError, TypeError):
+                # If conversion fails, use default value of 1.0
+                question = Question.objects.create(
+                    exam=exam,
+                    question_type=question_type,
+                    wording=question_wording,
+                    points=1.0
+                )
                 
-                # Handle question attachments
-                if request.FILES:
-                    # Add new attachments
-                    question_attachment_files = request.FILES.getlist(f'question_{i}_attachment_file[]')
-                    question_attachment_types = request.POST.getlist(f'question_{i}_attachment_type[]')
-                    question_attachment_titles = request.POST.getlist(f'question_{i}_attachment_title[]')
-                    question_attachment_descriptions = request.POST.getlist(f'question_{i}_attachment_description[]')
+            # Handle question attachments
+            if request.FILES:
+                # Add new attachments
+                question_attachment_files = request.FILES.getlist(f'question_{i}_attachment_file[]')
+                question_attachment_types = request.POST.getlist(f'question_{i}_attachment_type[]')
+                question_attachment_titles = request.POST.getlist(f'question_{i}_attachment_title[]')
+                question_attachment_descriptions = request.POST.getlist(f'question_{i}_attachment_description[]')
 
-                    for j, file in enumerate(question_attachment_files):
-                        if file:  # Only process if a file was actually uploaded
-                            attachment_type = question_attachment_types[j] if j < len(question_attachment_types) else 'other'
-                            attachment_title = question_attachment_titles[j] if j < len(question_attachment_titles) else ''
-                            attachment_description = question_attachment_descriptions[j] if j < len(question_attachment_descriptions) else ''
-                            
-                            ExamAttachment.objects.create(
-                                question=question,
-                                file=file,
-                                file_type=attachment_type,
-                                title=attachment_title,
-                                description=attachment_description
-                            )
-                
-                # If MCQ question, create choices
-                if question_type == 'MCQ':
-                    mcq_choice_count = int(request.POST.get(f'mcq_choice_count_{i}', 0))
-                    has_correct_choice = False
-                    
-                    for j in range(1, mcq_choice_count + 1):
-                        choice_text = request.POST.get(f'mcq_choice_text_{i}_{j}')
-                        is_correct = request.POST.get(f'mcq_choice_correct_{i}_{j}') == 'on'
+                for j, file in enumerate(question_attachment_files):
+                    if file:  # Only process if a file was actually uploaded
+                        attachment_type = question_attachment_types[j] if j < len(question_attachment_types) else 'other'
+                        attachment_title = question_attachment_titles[j] if j < len(question_attachment_titles) else ''
+                        attachment_description = question_attachment_descriptions[j] if j < len(question_attachment_descriptions) else ''
                         
-                        if choice_text:
-                            if is_correct:
-                                has_correct_choice = True
-                            
-                            MCQChoice.objects.create(
-                                question=question,
-                                choice_label=choice_text,
-                                is_correct=is_correct
-                            )
+                        ExamAttachment.objects.create(
+                            question=question,
+                            file=file,
+                            file_type=attachment_type,
+                            title=attachment_title,
+                            description=attachment_description
+                        )
+                
+            # If MCQ question, create choices
+            if question_type == 'MCQ':
+                try:
+                    mcq_choice_count = int(request.POST.get(f'mcq_choice_count_{i}', 0))
+                except (ValueError, TypeError):
+                    mcq_choice_count = 0
                     
-                    # If multiple choices are correct, set question to allow multiple answers
-                    if mcq_choice_count > 0:
-                        correct_choices = MCQChoice.objects.filter(question=question, is_correct=True).count()
-                        if correct_choices > 1:
-                            question.allow_multiple_answers = True
-                            question.save()
+                has_correct_choice = False
+                
+                for j in range(1, mcq_choice_count + 1):
+                    choice_text = request.POST.get(f'mcq_choice_text_{i}_{j}')
+                    is_correct = request.POST.get(f'mcq_choice_correct_{i}_{j}') == 'on'
+                    
+                    # Skip if choice text is missing
+                    if not choice_text:
+                        continue
+                        
+                    if is_correct:
+                        has_correct_choice = True
+                    
+                    MCQChoice.objects.create(
+                        question=question,
+                        choice_label=choice_text,
+                        is_correct=is_correct
+                    )
+                
+                # If multiple choices are correct, set question to allow multiple answers
+                if mcq_choice_count > 0:
+                    correct_choices = MCQChoice.objects.filter(question=question, is_correct=True).count()
+                    if correct_choices > 1:
+                        question.allow_multiple_answers = True
+                        question.save()
         
         return redirect('teacher_exam_list')
     
