@@ -43,4 +43,12 @@ urlpatterns = [
     path('exams/teacher/download-result/<int:attempt_id>/', views.download_student_result, name='download_student_result'),
     path('exams/student/log-action/', views.log_student_action, name='log_action'),
     path('exams/teacher/logs/<int:attempt_id>/', views.view_exam_logs, name='exam_logs'),
+    
+    # Teacher Settings URLs
+    path('settings/teacher/', views.teacher_settings, name='teacher_settings'),
+    path('settings/teacher/backup/', views.teacher_backup_database, name='teacher_backup_database'),
+    path('settings/teacher/restore/', views.teacher_restore_database, name='teacher_restore_database'),
+    path('settings/teacher/theme/', views.teacher_theme_settings, name='teacher_theme_settings'),
+    path('settings/teacher/notifications/', views.teacher_notification_settings, name='teacher_notification_settings'),
+    path('settings/teacher/system-info/', views.teacher_system_info, name='teacher_system_info'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

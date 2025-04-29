@@ -1769,3 +1769,170 @@ def custom_403(request, exception):
 
 def custom_404(request, exception):
     return render(request, 'errors/404.html', status=404)
+
+@login_required
+@role_required('teacher')
+def teacher_settings(request):
+    """Main settings page for teachers"""
+    return render(request, 'teacher/settings/index.html')
+
+
+@login_required
+@role_required('teacher')
+def teacher_backup_database(request):
+    """Database backup functionality for teachers"""
+    import os
+    import datetime
+    from django.http import HttpResponse
+    from django.conf import settings
+    from django.contrib import messages
+    
+    if request.method == 'POST':
+        try:
+            # Create a timestamp for the backup file
+            timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+            backup_file = f'exam4u_backup_{timestamp}.json'
+            
+            # Use Django's dumpdata management command to create a backup
+            from django.core.management import call_command
+            from io import StringIO
+            
+            output = StringIO()
+            call_command('dumpdata', 
+                        exclude=['contenttypes', 'auth.permission', 'admin.logentry', 'sessions.session'],
+                        natural_foreign=True, 
+                        indent=2, 
+                        stdout=output)
+            
+            # Create the response with the backup data
+            response = HttpResponse(output.getvalue(), content_type='application/json')
+            response['Content-Disposition'] = f'attachment; filename="{backup_file}"'
+            
+            # Log the backup action
+            messages.success(request, 'Sauvegarde de la base de données effectuée avec succès.')
+            return response
+            
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la sauvegarde de la base de données: {str(e)}')
+            return redirect('teacher_settings')
+    
+    return render(request, 'teacher/settings/backup.html')
+
+
+@login_required
+@role_required('teacher')
+def teacher_restore_database(request):
+    """Database restore functionality for teachers"""
+    from django.contrib import messages
+    
+    if request.method == 'POST' and request.FILES.get('backup_file'):
+        try:
+            backup_file = request.FILES['backup_file']
+            # Validate the file is a JSON file
+            if not backup_file.name.endswith('.json'):
+                messages.error(request, 'Le fichier doit être au format JSON.')
+                return redirect('teacher_restore_database')
+                
+            # Use Django's loaddata management command to restore the backup
+            from django.core.management import call_command
+            from tempfile import NamedTemporaryFile
+            
+            with NamedTemporaryFile(suffix='.json', delete=False) as temp_file:
+                for chunk in backup_file.chunks():
+                    temp_file.write(chunk)
+                temp_file_path = temp_file.name
+                
+            # Execute the loaddata command
+            call_command('loaddata', temp_file_path)
+            
+            # Clean up the temporary file
+            import os
+            os.unlink(temp_file_path)
+            
+            messages.success(request, 'Restauration de la base de données effectuée avec succès.')
+            
+        except Exception as e:
+            messages.error(request, f'Erreur lors de la restauration de la base de données: {str(e)}')
+            
+    return render(request, 'teacher/settings/restore.html')
+
+
+@login_required
+@role_required('teacher')
+def teacher_theme_settings(request):
+    """Theme settings for teachers"""
+    from django.contrib import messages
+    
+    if request.method == 'POST':
+        theme = request.POST.get('theme', 'light')
+        # Store theme preference in the session
+        request.session['theme'] = theme
+        messages.success(request, 'Préférences de thème mises à jour avec succès.')
+        
+    current_theme = request.session.get('theme', 'light')
+    return render(request, 'teacher/settings/theme.html', {'current_theme': current_theme})
+
+
+@login_required
+@role_required('teacher')
+def teacher_notification_settings(request):
+    """Notification settings for teachers"""
+    from django.contrib import messages
+    
+    if request.method == 'POST':
+        # Process notification settings
+        email_notifications = request.POST.get('email_notifications') == 'on'
+        browser_notifications = request.POST.get('browser_notifications') == 'on'
+        
+        # Store notification preferences in the session
+        request.session['email_notifications'] = email_notifications
+        request.session['browser_notifications'] = browser_notifications
+        
+        messages.success(request, 'Préférences de notification mises à jour avec succès.')
+        
+    # Get current settings
+    email_notifications = request.session.get('email_notifications', True)
+    browser_notifications = request.session.get('browser_notifications', True)
+    
+    return render(request, 'teacher/settings/notifications.html', {
+        'email_notifications': email_notifications,
+        'browser_notifications': browser_notifications
+    })
+
+
+@login_required
+@role_required('teacher')
+def teacher_system_info(request):
+    """System information for teachers"""
+    import platform
+    import django
+    import sys
+    import os
+    import psutil
+    from django.db import connection
+    
+    # Collect system information
+    system_info = {
+        'python_version': platform.python_version(),
+        'django_version': django.get_version(),
+        'os_name': platform.system(),
+        'os_version': platform.version(),
+        'cpu_usage': psutil.cpu_percent(interval=1),
+        'memory_usage': psutil.virtual_memory().percent,
+        'disk_usage': psutil.disk_usage('/').percent,
+    }
+    
+    # Database stats
+    cursor = connection.cursor()
+    
+    # Count number of records in key tables
+    stats = {}
+    for table in ['app_exam', 'app_question', 'app_examattempt', 'app_course', 'app_userprofile']:
+        cursor.execute(f"SELECT COUNT(*) FROM {table}")
+        row = cursor.fetchone()
+        stats[table] = row[0] if row else 0
+    
+    return render(request, 'teacher/settings/system_info.html', {
+        'system_info': system_info,
+        'stats': stats
+    })
