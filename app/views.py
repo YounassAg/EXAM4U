@@ -1786,35 +1786,116 @@ def teacher_backup_database(request):
     from django.http import HttpResponse
     from django.conf import settings
     from django.contrib import messages
+    import subprocess
+    from django.shortcuts import redirect
+    import shutil
     
     if request.method == 'POST':
         try:
             # Create a timestamp for the backup file
             timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-            backup_file = f'exam4u_backup_{timestamp}.json'
+            backup_format = request.POST.get('backup_format', 'json')
             
-            # Use Django's dumpdata management command to create a backup
-            from django.core.management import call_command
-            from io import StringIO
-            
-            output = StringIO()
-            call_command('dumpdata', 
-                        exclude=['contenttypes', 'auth.permission', 'admin.logentry', 'sessions.session'],
-                        natural_foreign=True, 
-                        indent=2, 
-                        stdout=output)
-            
-            # Create the response with the backup data
-            response = HttpResponse(output.getvalue(), content_type='application/json')
-            response['Content-Disposition'] = f'attachment; filename="{backup_file}"'
-            
-            # Log the backup action
-            messages.success(request, 'Sauvegarde de la base de données effectuée avec succès.')
-            return response
+            if backup_format == 'sql':
+                # Check if mysqldump is installed
+                if shutil.which('mysqldump') is None:
+                    messages.error(request, "L'outil mysqldump n'est pas installé sur le serveur. Veuillez utiliser le format JSON ou contacter l'administrateur système.")
+                    return redirect('teacher_backup_database')
+                
+                # SQL backup format (using mysqldump for MySQL)
+                backup_file = f'exam4u_backup_{timestamp}.sql'
+                
+                # Get database connection details from settings
+                db_settings = settings.DATABASES['default']
+                db_name = db_settings['NAME']
+                db_user = db_settings['USER']
+                db_password = db_settings.get('PASSWORD', '')
+                db_host = db_settings.get('HOST', 'localhost')
+                db_port = db_settings.get('PORT', '3306')
+                
+                # Create a temporary file to store the backup
+                import tempfile
+                temp_file = tempfile.NamedTemporaryFile(delete=False)
+                temp_file_path = temp_file.name
+                temp_file.close()
+                
+                # Execute mysqldump command to generate SQL backup
+                cmd = [
+                    'mysqldump',
+                    f'--user={db_user}',
+                    f'--host={db_host}',
+                    f'--port={db_port}',
+                    '--add-drop-database',
+                    '--databases',
+                    db_name,
+                    f'--result-file={temp_file_path}'
+                ]
+                
+                # Add password if provided
+                if db_password:
+                    cmd.append(f'--password={db_password}')
+                
+                try:
+                    result = subprocess.run(cmd, check=False, capture_output=True, text=True)
+                    
+                    # Check if the command was successful
+                    if result.returncode != 0:
+                        error_msg = result.stderr.strip()
+                        raise Exception(f"Erreur mysqldump: {error_msg}")
+                    
+                    # Read the temporary file and create response
+                    with open(temp_file_path, 'rb') as f:
+                        sql_content = f.read()
+                    
+                    # Check if the file has content
+                    if not sql_content:
+                        raise Exception("Le fichier de sauvegarde SQL est vide. Vérifiez la configuration de la base de données.")
+                    
+                    # Create the response with the backup data
+                    response = HttpResponse(sql_content, content_type='application/sql')
+                    response['Content-Disposition'] = f'attachment; filename="{backup_file}"'
+                    
+                    # Delete the temporary file
+                    os.unlink(temp_file_path)
+                    
+                    # Log the backup action
+                    messages.success(request, 'Sauvegarde SQL de la base de données effectuée avec succès.')
+                    return response
+                    
+                except Exception as e:
+                    # Clean up temp file if error occurs
+                    if os.path.exists(temp_file_path):
+                        os.unlink(temp_file_path)
+                    
+                    messages.error(request, f"Erreur lors de l'exécution de mysqldump: {str(e)}")
+                    return redirect('teacher_backup_database')
+                
+            else:
+                # JSON backup format (using Django's dumpdata)
+                backup_file = f'exam4u_backup_{timestamp}.json'
+                
+                # Use Django's dumpdata management command to create a backup
+                from django.core.management import call_command
+                from io import StringIO
+                
+                output = StringIO()
+                call_command('dumpdata', 
+                            exclude=['contenttypes', 'auth.permission', 'admin.logentry', 'sessions.session'],
+                            natural_foreign=True, 
+                            indent=2, 
+                            stdout=output)
+                
+                # Create the response with the backup data
+                response = HttpResponse(output.getvalue(), content_type='application/json')
+                response['Content-Disposition'] = f'attachment; filename="{backup_file}"'
+                
+                # Log the backup action
+                messages.success(request, 'Sauvegarde JSON de la base de données effectuée avec succès.')
+                return response
             
         except Exception as e:
             messages.error(request, f'Erreur lors de la sauvegarde de la base de données: {str(e)}')
-            return redirect('teacher_settings')
+            return redirect('teacher_backup_database')
     
     return render(request, 'teacher/settings/backup.html')
 
@@ -1824,36 +1905,115 @@ def teacher_backup_database(request):
 def teacher_restore_database(request):
     """Database restore functionality for teachers"""
     from django.contrib import messages
+    import os
+    import subprocess
+    from django.shortcuts import redirect
+    import shutil
+    import tempfile
     
     if request.method == 'POST' and request.FILES.get('backup_file'):
         try:
             backup_file = request.FILES['backup_file']
-            # Validate the file is a JSON file
-            if not backup_file.name.endswith('.json'):
-                messages.error(request, 'Le fichier doit être au format JSON.')
-                return redirect('teacher_restore_database')
-                
-            # Use Django's loaddata management command to restore the backup
-            from django.core.management import call_command
-            from tempfile import NamedTemporaryFile
+            file_name = backup_file.name.lower()
             
-            with NamedTemporaryFile(suffix='.json', delete=False) as temp_file:
+            # Check if the file is SQL or JSON
+            if file_name.endswith('.sql'):
+                # Check if mysql is installed
+                if shutil.which('mysql') is None:
+                    messages.error(request, "L'outil mysql n'est pas installé sur le serveur. Veuillez utiliser le format JSON ou contacter l'administrateur système.")
+                    return redirect('teacher_restore_database')
+                
+                # SQL file restore process
+                # Create a temporary file to store the uploaded SQL
+                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.sql')
                 for chunk in backup_file.chunks():
                     temp_file.write(chunk)
                 temp_file_path = temp_file.name
+                temp_file.close()
                 
-            # Execute the loaddata command
-            call_command('loaddata', temp_file_path)
-            
-            # Clean up the temporary file
-            import os
-            os.unlink(temp_file_path)
-            
-            messages.success(request, 'Restauration de la base de données effectuée avec succès.')
+                # Get database connection details from settings
+                from django.conf import settings
+                db_settings = settings.DATABASES['default']
+                db_name = db_settings['NAME']
+                db_user = db_settings['USER']
+                db_password = db_settings.get('PASSWORD', '')
+                db_host = db_settings.get('HOST', 'localhost')
+                db_port = db_settings.get('PORT', '3306')
+                
+                # Execute mysql command to restore the database
+                cmd = [
+                    'mysql',
+                    f'--user={db_user}',
+                    f'--host={db_host}',
+                    f'--port={db_port}',
+                ]
+                
+                # Add password if provided
+                if db_password:
+                    cmd.append(f'--password={db_password}')
+                
+                # Add input file
+                cmd.extend([
+                    '--database', db_name,
+                    f'--execute=source {temp_file_path}'
+                ])
+                
+                try:
+                    result = subprocess.run(cmd, check=False, capture_output=True, text=True)
+                    
+                    # Check if the command was successful
+                    if result.returncode != 0:
+                        error_msg = result.stderr.strip()
+                        raise Exception(f"Erreur mysql: {error_msg}")
+                    
+                    # Delete the temporary file
+                    os.unlink(temp_file_path)
+                    messages.success(request, 'Restauration SQL de la base de données effectuée avec succès.')
+                    
+                except Exception as e:
+                    # Clean up temp file if error occurs
+                    if os.path.exists(temp_file_path):
+                        os.unlink(temp_file_path)
+                    messages.error(request, f"Erreur lors de l'exécution de mysql: {str(e)}")
+                    return redirect('teacher_restore_database')
+                
+            elif file_name.endswith('.json'):
+                # JSON file restore process
+                # Use Django's loaddata management command to restore the backup
+                from django.core.management import call_command
+                
+                temp_file = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
+                temp_file_path = temp_file.name
+                
+                try:
+                    for chunk in backup_file.chunks():
+                        temp_file.write(chunk)
+                    temp_file.close()
+                    
+                    # Execute the loaddata command
+                    call_command('loaddata', temp_file_path)
+                    
+                    # Clean up the temporary file
+                    if os.path.exists(temp_file_path):
+                        os.unlink(temp_file_path)
+                    
+                    messages.success(request, 'Restauration JSON de la base de données effectuée avec succès.')
+                    
+                except Exception as e:
+                    # Clean up temp file if error occurs
+                    if os.path.exists(temp_file_path):
+                        os.unlink(temp_file_path)
+                    messages.error(request, f"Erreur lors de la restauration JSON: {str(e)}")
+                    return redirect('teacher_restore_database')
+                
+            else:
+                messages.error(request, 'Le fichier doit être au format JSON ou SQL.')
+                return redirect('teacher_restore_database')
             
         except Exception as e:
             messages.error(request, f'Erreur lors de la restauration de la base de données: {str(e)}')
-            
+            return redirect('teacher_restore_database')
+    
     return render(request, 'teacher/settings/restore.html')
 
 
