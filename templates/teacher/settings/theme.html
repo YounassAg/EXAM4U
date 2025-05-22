@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Paramètres de thème - EXAM4U{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <a href="{% url 'teacher_settings' %}" class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Retour aux paramètres
+        </a>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mt-2">Paramètres de thème</h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-2">Personnalisez l'apparence de l'interface</p>
+    </div>
+
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden p-6 mb-8">
+            <form method="post">
+                {% csrf_token %}
+                <div class="space-y-8">
+                    <!-- Theme Mode Section -->
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Mode d'affichage</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">Choisissez le mode d'affichage qui vous convient le mieux</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Light Mode Option -->
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="theme" value="light" class="sr-only" {% if current_theme == 'light' %}checked{% endif %}>
+                                <div class="rounded-xl overflow-hidden border-2 {% if current_theme == 'light' %}border-blue-500 ring-2 ring-blue-500/50{% else %}border-gray-200 dark:border-gray-700{% endif %} hover:border-blue-400 dark:hover:border-blue-400 transition-all">
+                                    <div class="bg-white p-4 h-full">
+                                        <div class="flex items-center mb-4">
+                                            <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                                </svg>
+                                            </div>
+                                            <span class="ml-3 text-gray-900 font-medium">Mode clair</span>
+                                        </div>
+                                        <div class="w-full bg-gray-100 rounded-md p-3 text-sm text-gray-800">
+                                            Fond clair avec texte foncé, idéal pour une utilisation en journée.
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if current_theme == 'light' %}
+                                <div class="absolute top-2 right-2">
+                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Actif</span>
+                                </div>
+                                {% endif %}
+                            </label>
+                            
+                            <!-- Dark Mode Option -->
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="theme" value="dark" class="sr-only" {% if current_theme == 'dark' %}checked{% endif %}>
+                                <div class="rounded-xl overflow-hidden border-2 {% if current_theme == 'dark' %}border-blue-500 ring-2 ring-blue-500/50{% else %}border-gray-200 dark:border-gray-700{% endif %} hover:border-blue-400 dark:hover:border-blue-400 transition-all">
+                                    <div class="bg-gray-900 p-4 h-full">
+                                        <div class="flex items-center mb-4">
+                                            <div class="w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                                </svg>
+                                            </div>
+                                            <span class="ml-3 text-white font-medium">Mode sombre</span>
+                                        </div>
+                                        <div class="w-full bg-gray-800 rounded-md p-3 text-sm text-gray-300">
+                                            Fond sombre avec texte clair, réduit la fatigue visuelle lors d'une utilisation nocturne.
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if current_theme == 'dark' %}
+                                <div class="absolute top-2 right-2">
+                                    <span class="bg-blue-900 text-blue-200 text-xs font-medium px-2.5 py-0.5 rounded-full">Actif</span>
+                                </div>
+                                {% endif %}
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="flex justify-end">
+                        <button type="submit" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all">
+                            Enregistrer les préférences
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden p-6">
+            <div class="text-center">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Personnalisation supplémentaire</h2>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">D'autres options de personnalisation seront disponibles prochainement.</p>
+                <div class="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg inline-block">
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Fonctionnalité à venir</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Auto-submit form when a radio button is selected
+    document.querySelectorAll('input[name="theme"]').forEach(input => {
+        input.addEventListener('change', function() {
+            this.closest('form').submit();
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %} 

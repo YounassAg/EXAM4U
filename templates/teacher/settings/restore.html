@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Restauration de la base de données - EXAM4U{% endblock %}
+
+{% block content %}
+<div class="flex">
+    {% include 'components/teacher_sidebar.html' %}
+    
+    <div class="flex-1 ml-64">
+        <div class="container px-4 py-8">
+            <div class="mb-8">
+                <a href="{% url 'teacher_settings' %}" class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Retour aux paramètres
+                </a>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mt-2">Restauration de la base de données</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-2">Restaurez vos données à partir d'une sauvegarde précédente</p>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden p-6 mb-8">
+                <div class="prose dark:prose-invert max-w-none">
+                    <h2>À propos de la restauration</h2>
+                    <p>La restauration de la base de données permet de rétablir toutes les données de l'application EXAM4U à partir d'une sauvegarde précédente.</p>
+                    
+                    <div class="bg-red-50 dark:bg-red-900/30 p-4 rounded-lg border-l-4 border-red-500 mt-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-red-800 dark:text-red-300">Attention</h3>
+                                <div class="text-sm text-red-700 dark:text-red-200">
+                                    <p>La restauration remplacera <strong>toutes</strong> les données actuelles par celles de la sauvegarde. Cette action est irréversible.</p>
+                                    <p class="mt-2">Il est recommandé de faire une sauvegarde des données actuelles avant de procéder à une restauration.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="mt-6">Formats de fichier acceptés</h3>
+                    <p>Les fichiers aux formats SQL et JSON générés par la fonction de sauvegarde d'EXAM4U sont acceptés pour la restauration.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div class="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
+                            <h4 class="font-medium text-blue-800 dark:text-blue-300">Format SQL</h4>
+                            <p class="text-sm text-blue-700 dark:text-blue-200 mt-2">Format recommandé pour des restaurations complètes et fiables. Contient toutes les structures de données et les relations.</p>
+                        </div>
+                        <div class="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-lg">
+                            <h4 class="font-medium text-purple-800 dark:text-purple-300">Format JSON</h4>
+                            <p class="text-sm text-purple-700 dark:text-purple-200 mt-2">Format alternatif permettant des restaurations plus flexibles et un traitement simplifié des données.</p>
+                        </div>
+                    </div>
+                    
+                    <h3>Que se passe-t-il pendant la restauration ?</h3>
+                    <ol>
+                        <li>Les données actuelles seront complètement remplacées</li>
+                        <li>Tous les examens, cours, utilisateurs et autres données seront restaurés tels qu'ils étaient au moment de la sauvegarde</li>
+                        <li>Le système peut être temporairement indisponible pendant la restauration</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="bg-green-50 dark:bg-green-900/20 rounded-xl shadow-md overflow-hidden p-6">
+                <div class="text-center">
+                    <svg class="h-12 w-12 text-green-600 dark:text-green-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    <h2 class="mt-4 text-xl font-semibold text-gray-900 dark:text-white">Restaurer une sauvegarde</h2>
+                    <p class="mt-2 text-gray-600 dark:text-gray-400">Sélectionnez un fichier de sauvegarde pour restaurer vos données</p>
+                    
+                    <form method="post" enctype="multipart/form-data" class="mt-6">
+                        {% csrf_token %}
+                        <div class="max-w-md mx-auto">
+                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md">
+                                <div class="space-y-1 text-center">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <div class="flex text-sm text-gray-600 dark:text-gray-400">
+                                        <label for="backup_file" class="relative cursor-pointer bg-white dark:bg-gray-700 rounded-md font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 focus-within:outline-none">
+                                            <span>Sélectionner un fichier</span>
+                                            <input id="backup_file" name="backup_file" type="file" class="sr-only" accept=".json,.sql">
+                                        </label>
+                                        <p class="pl-1">ou glissez-déposez ici</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">SQL ou JSON uniquement</p>
+                                </div>
+                            </div>
+                            <div id="file-selected" class="mt-2 text-sm text-gray-600 dark:text-gray-400 hidden">
+                                Fichier sélectionné: <span id="filename" class="font-medium"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <button type="submit" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all">
+                                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                                Restaurer les données
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden p-6">
+                <div class="text-center">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Options supplémentaires</h2>
+                    <p class="mt-2 text-gray-600 dark:text-gray-400">D'autres options de restauration seront disponibles prochainement.</p>
+                    <div class="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg inline-block">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Fonctionnalité à venir</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.getElementById('backup_file').addEventListener('change', function(e) {
+        const filename = e.target.files[0].name;
+        document.getElementById('filename').textContent = filename;
+        document.getElementById('file-selected').classList.remove('hidden');
+    });
+</script>
+{% endblock %}
+{% endblock %} 

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Paramètres - EXAM4U{% endblock %}
+
+{% block content %}
+<div class="flex">
+    {% include 'components/teacher_sidebar.html' %}
+    
+    <div class="flex-1 ml-64">
+        <div class="container px-4 py-8">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Paramètres</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-2">Gérez vos préférences et effectuez des opérations système</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Database Backup Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                            </div>
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white ml-3">Sauvegarde de données</h2>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">Effectuez une sauvegarde complète de la base de données et téléchargez-la.</p>
+                        <a href="{% url 'teacher_backup_database' %}" class="inline-flex items-center justify-center px-4 py-2 border border-blue-700 text-sm font-medium rounded-lg shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Sauvegarder
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Database Restore Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                            </div>
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white ml-3">Restauration de données</h2>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">Restaurez une sauvegarde précédente de la base de données.</p>
+                        <a href="{% url 'teacher_restore_database' %}" class="inline-flex items-center justify-center px-4 py-2 border border-green-700 text-sm font-medium rounded-lg shadow-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                            Restaurer
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Theme Settings Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow relative">
+                    <!-- Locked overlay -->
+                    <div class="absolute inset-0 bg-gray-900/30 dark:bg-gray-900/50 z-10 flex items-center justify-center backdrop-filter backdrop-blur-sm">
+                        <!-- Lock icon -->
+                        <div style="width: 70px; height: 70px; background-color: rgba(0,0,0,0.8); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.4); z-index: 2;">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19 11H5C3.89543 11 3 11.8954 3 13V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V13C21 11.8954 20.1046 11 19 11Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        
+                        <!-- Maintenance text -->
+                        <div style="position: absolute; bottom: 15px; background-color: #D70040; color: white; padding: 5px 15px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; letter-spacing: 0.5px; transform: rotate(-3deg); box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 2;">
+                            ACCÈS VERROUILLÉ
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 opacity-40">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                                </svg>
+                            </div>
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white ml-3">Thème</h2>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">Personnalisez l'apparence de l'interface.</p>
+                        <a href="#" style="display: inline-flex; align-items: center; justify-center; padding: 0.5rem 1rem; margin: 0.25rem 0; font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); color: white; background-color: #8B5CF6; border: none; text-decoration: none; opacity: 0.6; pointer-events: none;">
+                            Personnaliser
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Notifications Settings Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow relative">
+                    <!-- Locked overlay -->
+                    <div class="absolute inset-0 bg-gray-900/30 dark:bg-gray-900/50 z-10 flex items-center justify-center backdrop-filter backdrop-blur-sm">
+                        <!-- Lock icon -->
+                        <div style="width: 70px; height: 70px; background-color: rgba(0,0,0,0.8); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.4); z-index: 2;">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19 11H5C3.89543 11 3 11.8954 3 13V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V13C21 11.8954 20.1046 11 19 11Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        
+                        <!-- Maintenance text -->
+                        <div style="position: absolute; bottom: 15px; background-color: #D70040; color: white; padding: 5px 15px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; letter-spacing: 0.5px; transform: rotate(-3deg); box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 2;">
+                            MAINTENANCE
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 opacity-40">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                            </div>
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white ml-3">Notifications</h2>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">Configurez vos préférences de notification.</p>
+                        <a href="#" style="display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 1rem; margin: 0.25rem 0; font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); color: white; background-color: #F59E0B; border: none; text-decoration: none; opacity: 0.6; pointer-events: none;">
+                            Configurer
+                        </a>
+                    </div>
+                </div>
+
+                <!-- System Info Card -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                                </svg>
+                            </div>
+                            <h2 class="text-xl font-semibold text-gray-900 dark:text-white ml-3">Informations système</h2>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">Consultez les informations techniques du système.</p>
+                        <a href="{% url 'teacher_system_info' %}" class="inline-flex items-center justify-center px-4 py-2 border border-red-700 text-sm font-medium rounded-lg shadow-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                            Consulter
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

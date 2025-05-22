@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sauvegarde de la base de données - EXAM4U{% endblock %}
+
+{% block content %}
+<div class="flex">
+    {% include 'components/teacher_sidebar.html' %}
+    
+    <div class="flex-1 ml-64">
+        <div class="container px-4 py-8">
+            <div class="mb-8">
+                <a href="{% url 'teacher_settings' %}" class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Retour aux paramètres
+                </a>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mt-2">Sauvegarde de la base de données</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-2">Créez une sauvegarde complète de toutes les données</p>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden p-6 mb-8">
+                <div class="prose dark:prose-invert max-w-none">
+                    <h2>À propos des sauvegardes</h2>
+                    <p>La sauvegarde de la base de données permet de créer une copie complète de toutes les données de l'application EXAM4U, notamment :</p>
+                    <ul>
+                        <li>Les informations sur les utilisateurs (enseignants et étudiants)</li>
+                        <li>Les cours et les spécialités</li>
+                        <li>Les examens et leurs questions</li>
+                        <li>Les tentatives d'examen et les réponses des étudiants</li>
+                        <li>Toutes les autres données liées au système</li>
+                    </ul>
+                    
+                    <h3>Quand effectuer une sauvegarde ?</h3>
+                    <p>Il est recommandé d'effectuer une sauvegarde de la base de données régulièrement, mais particulièrement :</p>
+                    <ul>
+                        <li>Avant de faire des modifications importantes au système</li>
+                        <li>À la fin de chaque semestre</li>
+                        <li>Avant et après les périodes d'examens</li>
+                        <li>Avant toute mise à jour logicielle</li>
+                    </ul>
+                    
+                    <h3>Format de sauvegarde</h3>
+                    <p>La sauvegarde sera téléchargée sous forme de fichier JSON (JavaScript Object Notation), un format de données standard qui peut être utilisé pour restaurer le système ultérieurement.</p>
+                    
+                    <div class="bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-lg border-l-4 border-yellow-500 mt-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-300">Important</h3>
+                                <div class="text-sm text-yellow-700 dark:text-yellow-200">
+                                    <p>Conservez vos fichiers de sauvegarde en lieu sûr. Ils contiennent toutes les données de l'application et doivent être protégés.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl shadow-md overflow-hidden p-6">
+                <div class="text-center">
+                    <svg class="h-12 w-12 text-blue-600 dark:text-blue-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    <h2 class="mt-4 text-xl font-semibold text-gray-900 dark:text-white">Prêt à créer une sauvegarde ?</h2>
+                    <p class="mt-2 text-gray-600 dark:text-gray-400">La sauvegarde sera automatiquement téléchargée sur votre appareil.</p>
+                    
+                    <form method="post" class="mt-6">
+                        {% csrf_token %}
+                        
+                        <div class="max-w-md mx-auto mb-6">
+                            <fieldset class="space-y-4">
+                                <legend class="sr-only">Format de sauvegarde</legend>
+                                <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 text-left">Format de sauvegarde :</div>
+                                
+                                <div class="relative flex items-start">
+                                    <div class="flex items-center h-5">
+                                        <input id="format-sql" name="backup_format" type="radio" value="sql" checked class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    </div>
+                                    <div class="ml-3 text-left">
+                                        <label for="format-sql" class="font-medium text-gray-700 dark:text-gray-300">SQL (Recommandé)</label>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Format standard pour les bases de données. Compatible avec la plupart des outils de gestion de base de données.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="relative flex items-start">
+                                    <div class="flex items-center h-5">
+                                        <input id="format-json" name="backup_format" type="radio" value="json" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    </div>
+                                    <div class="ml-3 text-left">
+                                        <label for="format-json" class="font-medium text-gray-700 dark:text-gray-300">JSON</label>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">Format de données léger et lisible. Utile pour l'intégration avec d'autres applications.</p>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        
+                        <button type="submit" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            Télécharger la sauvegarde
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden p-6">
+                <div class="text-center">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Options supplémentaires</h2>
+                    <p class="mt-2 text-gray-600 dark:text-gray-400">D'autres options de sauvegarde seront disponibles prochainement.</p>
+                    <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg inline-block">
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Fonctionnalité à venir</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

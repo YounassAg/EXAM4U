@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Paramètres de notifications - EXAM4U{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <a href="{% url 'teacher_settings' %}" class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Retour aux paramètres
+        </a>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mt-2">Paramètres de notifications</h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-2">Gérez vos préférences de notification</p>
+    </div>
+
+    <div class="max-w-3xl mx-auto">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden p-6 mb-8">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="space-y-8">
+                    <!-- Email Notifications -->
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Notifications par email</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">Recevez des notifications par email pour rester informé des événements importants</p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-start">
+                                    <div class="flex items-center h-5">
+                                        <input id="email_notifications" name="email_notifications" type="checkbox" {% if email_notifications %}checked{% endif %} class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    </div>
+                                    <div class="ml-3">
+                                        <label for="email_notifications" class="font-medium text-gray-900 dark:text-white">Activer les notifications par email</label>
+                                        <p class="text-gray-500 dark:text-gray-400">Recevez des emails pour les événements importants du système</p>
+                                    </div>
+                                </div>
+                                <div class="ml-4 text-sm">
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full {% if email_notifications %}bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400{% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300{% endif %}">
+                                        {% if email_notifications %}Activé{% else %}Désactivé{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <fieldset class="ml-7 space-y-4 {% if not email_notifications %}opacity-50{% endif %}">
+                                <legend class="sr-only">Types de notifications par email</legend>
+                                
+                                <div class="flex items-start">
+                                    <div class="flex items-center h-5">
+                                        <input id="email_exam_completion" name="email_exam_completion" type="checkbox" checked class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" {% if not email_notifications %}disabled{% endif %}>
+                                    </div>
+                                    <div class="ml-3">
+                                        <label for="email_exam_completion" class="font-medium text-gray-900 dark:text-white">Complétion d'examen</label>
+                                        <p class="text-gray-500 dark:text-gray-400">Notification lorsqu'un étudiant termine un examen</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <div class="flex items-center h-5">
+                                        <input id="email_exam_start" name="email_exam_start" type="checkbox" checked class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" {% if not email_notifications %}disabled{% endif %}>
+                                    </div>
+                                    <div class="ml-3">
+                                        <label for="email_exam_start" class="font-medium text-gray-900 dark:text-white">Début d'examen</label>
+                                        <p class="text-gray-500 dark:text-gray-400">Notification lorsqu'un examen planifié commence</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start">
+                                    <div class="flex items-center h-5">
+                                        <input id="email_system" name="email_system" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" {% if not email_notifications %}disabled{% endif %}>
+                                    </div>
+                                    <div class="ml-3">
+                                        <label for="email_system" class="font-medium text-gray-900 dark:text-white">Notifications système</label>
+                                        <p class="text-gray-500 dark:text-gray-400">Mises à jour système et maintenance</p>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    
+                    <!-- Browser Notifications -->
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Notifications du navigateur</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">Recevez des notifications directement dans votre navigateur</p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-start">
+                                    <div class="flex items-center h-5">
+                                        <input id="browser_notifications" name="browser_notifications" type="checkbox" {% if browser_notifications %}checked{% endif %} class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    </div>
+                                    <div class="ml-3">
+                                        <label for="browser_notifications" class="font-medium text-gray-900 dark:text-white">Activer les notifications du navigateur</label>
+                                        <p class="text-gray-500 dark:text-gray-400">Recevez des alertes en temps réel dans votre navigateur</p>
+                                    </div>
+                                </div>
+                                <div class="ml-4 text-sm">
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full {% if browser_notifications %}bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400{% else %}bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300{% endif %}">
+                                        {% if browser_notifications %}Activé{% else %}Désactivé{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="ml-7 {% if not browser_notifications %}opacity-50{% endif %}">
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    {% if browser_notifications %}
+                                    Le navigateur vous demandera l'autorisation pour afficher des notifications.
+                                    {% else %}
+                                    Activez cette option pour recevoir des notifications en temps réel.
+                                    {% endif %}
+                                </p>
+                                
+                                <div class="mt-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                    <div class="flex items-center">
+                                        <svg class="h-5 w-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span class="ml-2 text-sm text-gray-600 dark:text-gray-300">Les notifications du navigateur sont prises en charge par la plupart des navigateurs modernes.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="flex justify-end">
+                        <button type="submit" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all">
+                            Enregistrer les préférences
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden p-6">
+            <div class="text-center">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Personnalisation supplémentaire</h2>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">D'autres options de personnalisation seront disponibles prochainement.</p>
+                <div class="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg inline-block">
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Fonctionnalité à venir</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Toggle email notification options based on main toggle
+    document.getElementById('email_notifications').addEventListener('change', function() {
+        const emailOptions = document.querySelectorAll('input[id^="email_"]:not(#email_notifications)');
+        emailOptions.forEach(option => {
+            option.disabled = !this.checked;
+        });
+        
+        const optionsContainer = this.closest('div').parentNode.nextElementSibling;
+        if (this.checked) {
+            optionsContainer.classList.remove('opacity-50');
+        } else {
+            optionsContainer.classList.add('opacity-50');
+        }
+    });
+    
+    // Toggle browser notification options based on main toggle
+    document.getElementById('browser_notifications').addEventListener('change', function() {
+        const optionsContainer = this.closest('div').parentNode.nextElementSibling;
+        if (this.checked) {
+            optionsContainer.classList.remove('opacity-50');
+            // Request browser notification permission
+            if ('Notification' in window) {
+                Notification.requestPermission();
+            }
+        } else {
+            optionsContainer.classList.add('opacity-50');
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %} 
