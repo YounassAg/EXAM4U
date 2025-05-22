@@ -453,11 +453,24 @@
     .dark .navigation-hint {
         background: rgba(255, 255, 255, 0.2);
     }
+
+    /* Fullscreen iframe - hidden but used to trigger fullscreen */
+    #fullscreen-trigger {
+        width: 1px;
+        height: 1px;
+        position: absolute;
+        top: -100px;
+        left: -100px;
+        border: none;
+    }
 </style>
 {% endblock %}
 {% block title %}{{ exam.title }} - Exam4U{% endblock %}
 
 {% block content %}
+<!-- Hidden iframe for fullscreen triggering -->
+<iframe id="fullscreen-trigger"></iframe>
+
 <div class="flex min-h-screen bg-gray-50 dark:bg-gray-900">
     {% include 'components/student_sidebar.html' %}
 
@@ -765,6 +778,92 @@
 <!-- SweetAlert2 JS -->
 <script src="{% static 'js/vendor/sweetalert2.min.js' %}"></script>
 <script>
+    // Fullscreen control
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if fullscreen parameter is in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('fullscreen') === 'true') {
+            // Create a dialog that requires user interaction
+            Swal.fire({
+                title: 'Mode plein écran',
+                text: 'Cliquez sur "Activer" pour passer en mode plein écran et commencer l\'examen.',
+                icon: 'info',
+                showCancelButton: false,
+                confirmButtonText: 'Activer',
+                allowOutsideClick: false,
+                customClass: {
+                    confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    requestFullscreen();
+                }
+            });
+        }
+        
+        // Handle fullscreen changes
+        document.addEventListener('fullscreenchange', function() {
+            if (!document.fullscreenElement) {
+                // Log when user exits fullscreen
+                logFraudAction("Fullscreen exit", "L'étudiant est sorti du mode plein écran");
+                
+                // Show warning and option to re-enter fullscreen
+                Swal.fire({
+                    title: 'Attention!',
+                    text: 'Vous avez quitté le mode plein écran. Il est recommandé de rester en plein écran pendant l\'examen.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Réactiver le plein écran',
+                    cancelButtonText: 'Continuer sans plein écran',
+                    customClass: {
+                        confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        requestFullscreen();
+                    }
+                });
+            }
+        });
+    });
+    
+    // Function to request fullscreen
+    function requestFullscreen() {
+        const docElement = document.documentElement;
+        
+        if (docElement.requestFullscreen) {
+            docElement.requestFullscreen().catch(err => {
+                console.error('Error entering fullscreen:', err);
+                attemptAlternativeFullscreen();
+            });
+        } else if (docElement.mozRequestFullScreen) {
+            docElement.mozRequestFullScreen();
+        } else if (docElement.webkitRequestFullscreen) {
+            docElement.webkitRequestFullscreen();
+        } else if (docElement.msRequestFullscreen) {
+            docElement.msRequestFullscreen();
+        } else {
+            attemptAlternativeFullscreen();
+        }
+    }
+    
+    // Alternative fullscreen method using iframe
+    function attemptAlternativeFullscreen() {
+        const iframe = document.getElementById('fullscreen-trigger');
+        
+        if (iframe) {
+            if (iframe.requestFullscreen) {
+                iframe.requestFullscreen().catch(err => console.error('Alternative fullscreen failed:', err));
+            } else if (iframe.mozRequestFullScreen) {
+                iframe.mozRequestFullScreen();
+            } else if (iframe.webkitRequestFullscreen) {
+                iframe.webkitRequestFullscreen();
+            } else if (iframe.msRequestFullscreen) {
+                iframe.msRequestFullscreen();
+            }
+        }
+    }
+
     // Disable back button
     window.history.pushState(null, null, window.location.href);
     window.onpopstate = function () {
@@ -953,26 +1052,6 @@
             });
         },
 
-        // Detect browser developer tools
-        //detectDevTools() {
-        //    const devToolsCheck = () => {
-        //        const widthThreshold = window.outerWidth - window.innerWidth > 160;
-        //        const heightThreshold = window.outerHeight - window.innerHeight > 160;
-        //
-        //        if (widthThreshold || heightThreshold) {
-        //            logFraudAction("Dev tools", "Outils développeur potentiellement ouverts");
-        //            return true;
-        //        }
-        //        return false;
-        //    };
-        //    setInterval(devToolsCheck, 1000);
-        //    window.addEventListener('devtoolschange', function (e) {
-        //        if (e.detail.open) {
-        //            logFraudAction("Dev tools", "Outils développeur ouverts");
-        //        }
-        //    });
-        //},
-
         // Prevent right-click context menu
         disableContextMenu() {
             document.addEventListener('contextmenu', (e) => {
@@ -1035,7 +1114,6 @@
         // Initialize all security measures
         init() {
             this.setupMouseTracking();
-            // this.detectDevTools();
             this.disableContextMenu();
             this.trackWindowFocus();
             this.setupTextProtection();

@@ -100,7 +100,7 @@
                         </div>
                         <span class="font-medium">Annuler</span>
                     </a>
-                    <a href="{% url 'take_exam' exam.id %}" 
+                    <a href="{% url 'take_exam' exam.id %}?fullscreen=true" 
                        class="w-full sm:w-auto group inline-flex items-center justify-center px-6 py-3 text-blue-600 dark:text-blue-400 bg-transparent rounded-lg transition-all duration-300 hover:shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:-translate-y-0.5 space-x-2">
                         <div class="p-2 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-400/5 dark:to-purple-400/5">
                             {% include 'components/icons.html' with icon="check" class="w-5 h-5" %}
